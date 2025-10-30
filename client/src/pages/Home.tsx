@@ -46,56 +46,56 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-28 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
+      <section className="relative py-12 md:py-20 lg:py-28 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
         {/* Background Logo */}
         <div 
           className="absolute inset-0 opacity-5 bg-no-repeat bg-center"
           style={{
             backgroundImage: `url(${logoBgUrl})`,
-            backgroundSize: '60%',
+            backgroundSize: '80%',
           }}
         />
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Text Content */}
-            <div className="order-1 space-y-6">
-              <Badge className="mb-2 text-sm px-4 py-2" data-testid="badge-hero">
+            <div className="order-2 lg:order-1 space-y-4 md:space-y-6 text-center lg:text-right">
+              <Badge className="mb-2 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2" data-testid="badge-hero">
                 الشريك الموثوق في الرعاية الصحية
               </Badge>
               
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
                 أفضل حلول السونار الطبي في مصر
               </h1>
               
-              <p className="text-xl md:text-2xl leading-relaxed text-muted-foreground font-['Tajawal']">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-muted-foreground font-['Tajawal']">
                 كيان ميديكال تقدم لك أحدث أجهزة السونار مثل <span className="font-semibold text-foreground font-['Inter']">Mindray</span> و <span className="font-semibold text-foreground font-['Inter']">GE Logiq</span> مع ضمان الجودة والصيانة
               </p>
               
-              <p className="text-lg text-muted-foreground">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
                 نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص
               </p>
 
-              <div className="flex flex-wrap gap-4 pt-4">
-                <Link href="/products">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-4 justify-center lg:justify-start">
+                <Link href="/products" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
-                    className="gap-2 text-lg px-8" 
+                    className="gap-2 text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto min-h-12" 
                     data-testid="button-hero-products"
                   >
-                    <ShoppingCart className="w-5 h-5" />
+                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
                     اطلب جهازك الآن
                   </Button>
                 </Link>
-                <Link href="/contact">
+                <Link href="/contact" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="gap-2 text-lg px-8" 
+                    className="gap-2 text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto min-h-12" 
                     data-testid="button-hero-consultation"
                   >
-                    <PhoneCall className="w-5 h-5" />
+                    <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" />
                     احجز استشارة مجانية
                   </Button>
                 </Link>
@@ -103,8 +103,8 @@ export default function Home() {
             </div>
 
             {/* Image */}
-            <div className="order-2 flex items-center justify-center">
-              <div className="relative w-full max-w-lg">
+            <div className="order-1 lg:order-2 flex items-center justify-center">
+              <div className="relative w-full max-w-xs sm:max-w-md lg:max-w-lg">
                 <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
                 <img 
                   src={ultrasoundMachineUrl} 
@@ -122,23 +122,23 @@ export default function Home() {
       <StatsSection />
 
       {/* Special Offer Section */}
-      <section className="py-16 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="bg-card border border-card-border rounded-lg p-8 md:p-12">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex-1 space-y-3">
-                <Badge variant="destructive" className="mb-2">عرض خاص</Badge>
-                <h2 className="text-3xl md:text-4xl font-bold">
+      <section className="py-12 md:py-16 bg-gradient-to-br from-primary/5 to-accent/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
+          <div className="bg-card border border-card-border rounded-lg p-6 sm:p-8 md:p-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-right">
+              <div className="flex-1 space-y-2 sm:space-y-3">
+                <Badge variant="destructive" className="mb-2 text-xs sm:text-sm">عرض خاص</Badge>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
                   خصم 10% على جميع أجهزة السونار
                 </h2>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-base sm:text-lg text-muted-foreground">
                   للأطباء الجدد - عرض محدود لفترة قصيرة
                 </p>
               </div>
-              <Link href="/offers">
-                <Button size="lg" className="gap-2 text-lg" data-testid="button-view-offers">
+              <Link href="/offers" className="w-full md:w-auto">
+                <Button size="lg" className="gap-2 text-base sm:text-lg w-full md:w-auto min-h-12" data-testid="button-view-offers">
                   استفيد من العروض الآن
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </Link>
             </div>
@@ -147,28 +147,28 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      <section className="py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">
               لماذا تختار كيان ميديكال؟
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
               نحن نقدم أكثر من مجرد أجهزة - نقدم حلول متكاملة لنجاح عيادتك
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="flex items-center gap-4 p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all"
+                className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all"
                 data-testid={`feature-${index}`}
               >
-                <div className="flex-shrink-0 w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-primary" />
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <p className="text-lg font-medium">{feature.text}</p>
+                <p className="text-base sm:text-lg font-medium">{feature.text}</p>
               </div>
             ))}
           </div>
@@ -176,18 +176,18 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      <section className="py-12 md:py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">
               آراء الأطباء عن خدماتنا
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
               ثقة المئات من الأطباء والعيادات في مختلف أنحاء مصر
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {testimonials.map((testimonial) => (
               <TestimonialCard key={testimonial.id} testimonial={testimonial} />
             ))}
@@ -196,34 +196,34 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-primary to-accent">
-        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white dark:text-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-primary to-accent">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-12 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white dark:text-white">
             جاهز لتطوير عيادتك؟
           </h2>
-          <p className="text-xl mb-8 text-white/90 dark:text-white/90">
+          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-white/90 dark:text-white/90 px-4">
             تواصل معنا اليوم واحصل على استشارة مجانية حول أفضل جهاز سونار لاحتياجاتك
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/contact">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center px-4">
+            <Link href="/contact" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="gap-2 text-lg bg-white text-primary hover:bg-white/90 border-white" 
+                className="gap-2 text-base sm:text-lg bg-white text-primary hover:bg-white/90 border-white w-full sm:w-auto min-h-12" 
                 data-testid="button-cta-contact"
               >
-                <PhoneCall className="w-5 h-5" />
+                <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" />
                 تواصل معنا الآن
               </Button>
             </Link>
-            <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="gap-2 text-lg bg-accent hover:bg-accent/90 border-accent-border" 
+                className="gap-2 text-base sm:text-lg bg-accent hover:bg-accent/90 border-accent-border w-full sm:w-auto min-h-12" 
                 data-testid="button-cta-whatsapp"
               >
                 واتساب مباشر
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </a>
           </div>

@@ -76,26 +76,26 @@ export default function Contact() {
   ];
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+    <div className="min-h-screen py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
         {/* Page Header */}
-        <div className="text-center mb-12">
-          <Badge className="mb-4">تواصل معنا</Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <Badge className="mb-3 md:mb-4 text-xs sm:text-sm">تواصل معنا</Badge>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4">
             نحن هنا لمساعدتك
           </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto px-4">
             تواصل معنا للحصول على استشارة مجانية أو لأي استفسار عن منتجاتنا وخدماتنا
           </p>
         </div>
 
         {/* Contact Form and Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-12 mb-8 md:mb-16">
           {/* Contact Form */}
           <div className="lg:col-span-3">
             <Card>
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-bold mb-6">أرسل لنا رسالة</h2>
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">أرسل لنا رسالة</h2>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <FormField
@@ -181,7 +181,7 @@ export default function Contact() {
                     <Button
                       type="submit"
                       size="lg"
-                      className="w-full text-lg"
+                      className="w-full text-base sm:text-lg min-h-12"
                       disabled={mutation.isPending}
                       data-testid="button-submit-contact"
                     >
@@ -194,15 +194,15 @@ export default function Contact() {
           </div>
 
           {/* Contact Info */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
             <Card>
-              <CardContent className="p-6 space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-primary" />
+              <CardContent className="p-4 sm:p-6 space-y-4 md:space-y-6">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">اتصل بنا</h3>
+                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">اتصل بنا</h3>
                     <a 
                       href="https://wa.link/hn35ok" 
                       target="_blank"
@@ -216,12 +216,12 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-accent" />
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">البريد الإلكتروني</h3>
+                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">البريد الإلكتروني</h3>
                     <a 
                       href="mailto:info@kayanmedical.com" 
                       className="text-muted-foreground hover:text-foreground font-['Inter']" 
@@ -233,12 +233,12 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-6 h-6 text-primary" />
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">ساعات العمل</h3>
+                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">ساعات العمل</h3>
                     <p className="text-muted-foreground text-sm">
                       السبت - الخميس: 9 ص - 6 م<br />
                       الجمعة: عطلة
@@ -249,8 +249,8 @@ export default function Contact() {
             </Card>
 
             <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-4">تابعنا</h3>
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">تابعنا</h3>
                 <div className="flex gap-3">
                   <a
                     href="https://facebook.com"
@@ -280,8 +280,8 @@ export default function Contact() {
 
         {/* Locations */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-8 text-center">مواقعنا</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center">مواقعنا</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             {locations.map((location, index) => (
               <Card key={index} className="overflow-hidden" data-testid={`location-card-${index}`}>
                 <div className="aspect-video bg-muted">
@@ -296,11 +296,11 @@ export default function Contact() {
                     title={location.title}
                   />
                 </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4" data-testid={`location-title-${index}`}>
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4" data-testid={`location-title-${index}`}>
                     {location.title}
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <div className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
