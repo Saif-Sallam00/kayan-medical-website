@@ -49,21 +49,8 @@ export default function Home() {
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left Side - Image */}
-            <div className="order-2 lg:order-1 flex items-center justify-center">
-              <div className="relative w-full max-w-lg">
-                <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
-                <img 
-                  src={ultrasoundMachineUrl} 
-                  alt="جهاز سونار طبي"
-                  className="relative w-full h-auto drop-shadow-2xl"
-                  data-testid="image-hero-ultrasound"
-                />
-              </div>
-            </div>
-
-            {/* Right Side - Text Content */}
-            <div className="order-1 lg:order-2 space-y-6">
+            {/* Text Content */}
+            <div className="order-1 space-y-6">
               <Badge className="mb-2 text-sm px-4 py-2" data-testid="badge-hero">
                 الشريك الموثوق في الرعاية الصحية
               </Badge>
@@ -102,6 +89,19 @@ export default function Home() {
                     احجز استشارة مجانية
                   </Button>
                 </Link>
+              </div>
+            </div>
+
+            {/* Image */}
+            <div className="order-2 flex items-center justify-center">
+              <div className="relative w-full max-w-lg">
+                <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
+                <img 
+                  src={ultrasoundMachineUrl} 
+                  alt="جهاز سونار طبي"
+                  className="relative w-full h-auto drop-shadow-2xl"
+                  data-testid="image-hero-ultrasound"
+                />
               </div>
             </div>
           </div>
