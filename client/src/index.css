@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE */
+/* LIGHT MODE - Green Medical Brand */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -11,56 +11,56 @@
   --opaque-button-border-intensity: -8; /* In terms of percentages */
 
   /* Backgrounds applied on top of other backgrounds when hovered/active */
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
+  --elevate-1: rgba(22, 135, 87, .03);
+  --elevate-2: rgba(22, 135, 87, .08);
 
-  --background: 210 10% 98%;
+  --background: 0 0% 100%;
 
-  --foreground: 215 25% 15%;
+  --foreground: 0 0% 29%;
 
-  --border: 210 15% 88%;
+  --border: 155 15% 88%;
 
   --card: 0 0% 100%;
 
-  --card-foreground: 215 25% 15%;
+  --card-foreground: 0 0% 29%;
 
-  --card-border: 210 15% 92%;
+  --card-border: 155 12% 92%;
 
-  --sidebar: 210 20% 96%;
+  --sidebar: 155 20% 96%;
 
-  --sidebar-foreground: 215 25% 15%;
+  --sidebar-foreground: 0 0% 29%;
 
-  --sidebar-border: 210 15% 88%;
+  --sidebar-border: 155 15% 88%;
 
-  --sidebar-primary: 210 90% 48%;
+  --sidebar-primary: 155 72% 31%;
 
   --sidebar-primary-foreground: 0 0% 100%;
 
-  --sidebar-accent: 210 25% 90%;
+  --sidebar-accent: 155 25% 90%;
 
-  --sidebar-accent-foreground: 215 25% 20%;
+  --sidebar-accent-foreground: 0 0% 25%;
 
-  --sidebar-ring: 210 90% 48%;
+  --sidebar-ring: 155 72% 31%;
 
   --popover: 0 0% 100%;
 
-  --popover-foreground: 215 25% 15%;
+  --popover-foreground: 0 0% 29%;
 
-  --popover-border: 210 15% 88%;
+  --popover-border: 155 15% 88%;
 
-  --primary: 210 90% 48%;
+  --primary: 155 72% 31%;
 
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 210 20% 92%;
+  --secondary: 155 15% 92%;
 
-  --secondary-foreground: 215 25% 20%;
+  --secondary-foreground: 0 0% 25%;
 
-  --muted: 210 20% 94%;
+  --muted: 155 15% 95%;
 
-  --muted-foreground: 215 15% 45%;
+  --muted-foreground: 0 0% 45%;
 
-  --accent: 165 70% 45%;
+  --accent: 88 52% 53%;
 
   --accent-foreground: 0 0% 100%;
 
@@ -68,13 +68,13 @@
 
   --destructive-foreground: 0 0% 100%;
 
-  --input: 210 15% 88%;
-  --ring: 210 90% 48%;
-  --chart-1: 210 90% 48%;
-  --chart-2: 195 75% 50%;
-  --chart-3: 165 70% 45%;
-  --chart-4: 180 70% 42%;
-  --chart-5: 150 60% 48%;
+  --input: 155 15% 88%;
+  --ring: 155 72% 31%;
+  --chart-1: 155 72% 31%;
+  --chart-2: 88 52% 53%;
+  --chart-3: 155 60% 45%;
+  --chart-4: 155 70% 38%;
+  --chart-5: 88 45% 48%;
 
   --font-sans: 'Cairo', 'Tajawal', -apple-system, sans-serif;
   --font-serif: Georgia, serif;
@@ -129,56 +129,56 @@
   --opaque-button-border-intensity: 9;  /* In terms of percentages */
 
   /* Backgrounds applied on top of other backgrounds when hovered/active */
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
+  --elevate-1: rgba(139, 195, 74, .04);
+  --elevate-2: rgba(139, 195, 74, .09);
 
-  --background: 215 25% 10%;
+  --background: 0 0% 12%;
 
-  --foreground: 210 10% 95%;
+  --foreground: 0 0% 95%;
 
-  --border: 215 20% 22%;
+  --border: 155 15% 22%;
 
-  --card: 215 25% 13%;
+  --card: 0 0% 15%;
 
-  --card-foreground: 210 10% 95%;
+  --card-foreground: 0 0% 95%;
 
-  --card-border: 215 20% 18%;
+  --card-border: 155 12% 18%;
 
-  --sidebar: 215 25% 12%;
+  --sidebar: 0 0% 13%;
 
-  --sidebar-foreground: 210 10% 95%;
+  --sidebar-foreground: 0 0% 95%;
 
-  --sidebar-border: 215 20% 20%;
+  --sidebar-border: 155 15% 20%;
 
-  --sidebar-primary: 210 85% 55%;
+  --sidebar-primary: 155 72% 40%;
 
   --sidebar-primary-foreground: 0 0% 100%;
 
-  --sidebar-accent: 215 20% 20%;
+  --sidebar-accent: 155 20% 20%;
 
-  --sidebar-accent-foreground: 210 10% 90%;
+  --sidebar-accent-foreground: 0 0% 90%;
 
-  --sidebar-ring: 210 85% 55%;
+  --sidebar-ring: 155 72% 40%;
 
-  --popover: 215 25% 14%;
+  --popover: 0 0% 16%;
 
-  --popover-foreground: 210 10% 95%;
+  --popover-foreground: 0 0% 95%;
 
-  --popover-border: 215 20% 24%;
+  --popover-border: 155 15% 24%;
 
-  --primary: 210 85% 55%;
+  --primary: 155 72% 40%;
 
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 215 20% 22%;
+  --secondary: 155 15% 22%;
 
-  --secondary-foreground: 210 10% 92%;
+  --secondary-foreground: 0 0% 92%;
 
-  --muted: 215 20% 18%;
+  --muted: 155 12% 18%;
 
-  --muted-foreground: 210 10% 70%;
+  --muted-foreground: 0 0% 70%;
 
-  --accent: 165 70% 50%;
+  --accent: 88 52% 58%;
 
   --accent-foreground: 0 0% 100%;
 
@@ -186,13 +186,13 @@
 
   --destructive-foreground: 0 0% 100%;
 
-  --input: 215 20% 30%;
-  --ring: 210 85% 55%;
-  --chart-1: 210 85% 60%;
-  --chart-2: 195 75% 62%;
-  --chart-3: 165 70% 55%;
-  --chart-4: 180 70% 52%;
-  --chart-5: 150 60% 58%;
+  --input: 155 15% 30%;
+  --ring: 155 72% 40%;
+  --chart-1: 155 72% 45%;
+  --chart-2: 88 52% 60%;
+  --chart-3: 155 60% 50%;
+  --chart-4: 155 70% 42%;
+  --chart-5: 88 48% 55%;
 
   --shadow-2xs: 0px 1px 2px 0px hsl(210 15% 0% / 0.20);
   --shadow-xs: 0px 1px 3px 0px hsl(210 15% 0% / 0.25);
