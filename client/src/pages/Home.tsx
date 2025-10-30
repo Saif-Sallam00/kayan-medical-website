@@ -6,6 +6,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import type { Testimonial } from "@shared/schema";
 import ultrasoundMachineUrl from "@/assets/ultrasound-machine.png";
+import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
   const testimonials: Testimonial[] = [
@@ -46,6 +47,15 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        {/* Background Logo */}
+        <div 
+          className="absolute inset-0 opacity-5 bg-no-repeat bg-center"
+          style={{
+            backgroundImage: `url(${logoBgUrl})`,
+            backgroundSize: '60%',
+          }}
+        />
+        
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
