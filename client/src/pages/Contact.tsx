@@ -61,7 +61,7 @@ export default function Contact() {
       title: "المقر الرئيسي",
       city: "شيبين الكوم، المنوفية",
       address: "شارع الجلاء، وسط البلد",
-      phone: "+20 123 456 7890",
+      phone: "+20 10 25253012",
       email: "shebin@kayanmedical.com",
       mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDMwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890"
     },
@@ -69,7 +69,7 @@ export default function Contact() {
       title: "المقر الثاني",
       city: "الشيخ زايد، القاهرة",
       address: "طريق الواحات، البوابة الثانية",
-      phone: "+20 123 456 7891",
+      phone: "+20 10 25253012",
       email: "zayed@kayanmedical.com",
       mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890"
     }
@@ -204,12 +204,14 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold mb-2">اتصل بنا</h3>
                     <a 
-                      href="tel:+201234567890" 
+                      href="https://wa.link/hn35ok" 
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground font-['Inter']" 
                       dir="ltr"
                       data-testid="link-contact-phone"
                     >
-                      +20 123 456 7890
+                      +20 10 25253012
                     </a>
                   </div>
                 </div>
@@ -309,7 +311,9 @@ export default function Contact() {
                     <div className="flex items-center gap-3">
                       <Phone className="w-5 h-5 text-primary flex-shrink-0" />
                       <a 
-                        href={`tel:${location.phone}`} 
+                        href="https://wa.link/hn35ok" 
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-sm text-muted-foreground hover:text-foreground font-['Inter']" 
                         dir="ltr"
                       >
