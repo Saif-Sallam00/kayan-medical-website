@@ -9,6 +9,7 @@ export function Navigation() {
   const [location] = useLocation();
 
   const navItems = [
+    { path: "/", label: "الرئيسية" },
     { path: "/products", label: "بيع" },
     { path: "/products", label: "شراء" },
     { path: "/products", label: "استبدال" },
