@@ -5,7 +5,7 @@ import { TestimonialCard } from "@/components/TestimonialCard";
 import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import type { Testimonial } from "@shared/schema";
-import ultrasoundMachineUrl from "@/assets/ultrasound-machine.png";
+import heroImageUrl from "@assets/Copy of بنشتري جهاز السونار منك بأحسن سعر_1761845142767.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
@@ -107,8 +107,8 @@ export default function Home() {
               <div className="relative w-full max-w-xs sm:max-w-md lg:max-w-lg">
                 <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
                 <img 
-                  src={ultrasoundMachineUrl} 
-                  alt="جهاز سونار طبي"
+                  src={heroImageUrl} 
+                  alt="طبيب كيان ميديكال مع أجهزة السونار الطبية"
                   className="relative w-full h-auto drop-shadow-2xl"
                   data-testid="image-hero-ultrasound"
                 />
