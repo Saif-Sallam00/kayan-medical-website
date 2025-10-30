@@ -9,12 +9,12 @@ export function Navigation() {
   const [location] = useLocation();
 
   const navItems = [
-    { path: "/", label: "الرئيسية" },
-    { path: "/products", label: "المنتجات" },
-    { path: "/maintenance", label: "الصيانة" },
+    { path: "/products", label: "بيع" },
+    { path: "/products", label: "شراء" },
+    { path: "/products", label: "استبدال" },
+    { path: "/maintenance", label: "صيانة" },
     { path: "/about", label: "من نحن" },
     { path: "/contact", label: "التواصل" },
-    { path: "/offers", label: "العروض" },
   ];
 
   return (
