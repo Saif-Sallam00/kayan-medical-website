@@ -54,6 +54,17 @@ Preferred communication style: Simple, everyday language.
 - Consistent card-based layouts with hover effects
 - Professional medical aesthetic balancing trust and modernity
 
+**UI Features & Interactions**:
+- Animated Stats Counter (StatsSection component):
+  - Smooth counting animation from 0 to target values
+  - Triggers via Intersection Observer when section becomes 20% visible
+  - One-time animation per page load using useRef flag
+  - 2-second duration with 60 animation steps for smooth visual effect
+  - Proper cleanup of intervals and observers to prevent memory leaks
+  - Displays: 500+ doctors/clinics, 15+ years experience, 800+ devices sold, 98% satisfaction rate
+  - Professional medical icons with gradient backgrounds (Stethoscope, Award, PackageCheck, ThumbsUp)
+  - Hover effects: icon scaling and number color transitions
+
 ### Backend Architecture
 
 **Server Framework**: Express.js with TypeScript running in ESM mode
