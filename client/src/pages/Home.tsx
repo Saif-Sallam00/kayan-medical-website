@@ -199,7 +199,7 @@ export default function Home() {
                 تواصل معنا الآن
               </Button>
             </Link>
-            <a href="https://wa.me/201234567890" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer">
               <Button 
                 size="lg" 
                 className="gap-2 text-lg bg-accent hover:bg-accent/90 border-accent-border" 

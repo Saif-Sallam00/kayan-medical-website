@@ -273,12 +273,12 @@ export default function Maintenance() {
             فريق الدعم الفني متاح على مدار الساعة للمساعدة
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <a href="tel:+201234567890">
+            <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="default" className="gap-2" data-testid="button-call-support">
                 اتصل بالدعم الفني
               </Button>
             </a>
-            <a href="https://wa.me/201234567890" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="outline" className="gap-2" data-testid="button-whatsapp-support">
                 واتساب مباشر
               </Button>

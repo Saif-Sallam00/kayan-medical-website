@@ -45,15 +45,17 @@ export function Navigation() {
           {/* Contact Info - Left side for RTL */}
           <div className="hidden md:flex items-center gap-2">
             <a 
-              href="tel:+201234567890" 
+              href="https://wa.link/hn35ok" 
+              target="_blank"
+              rel="noopener noreferrer"
               data-testid="link-phone"
               className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               <Phone className="w-4 h-4" />
-              <span className="font-['Inter']">01234567890</span>
+              <span className="font-['Inter']" dir="ltr">+20 10 25253012</span>
             </a>
             <a
-              href="https://wa.me/201234567890"
+              href="https://wa.link/hn35ok"
               target="_blank"
               rel="noopener noreferrer"
               data-testid="button-whatsapp-header"
@@ -93,13 +95,13 @@ export function Navigation() {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
-                <a href="tel:+201234567890">
+                <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="w-full justify-start gap-2" data-testid="button-mobile-phone">
                     <Phone className="w-4 h-4" />
-                    <span className="font-['Inter']">01234567890</span>
+                    <span className="font-['Inter']" dir="ltr">+20 10 25253012</span>
                   </Button>
                 </a>
-                <a href="https://wa.me/201234567890" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer">
                   <Button variant="default" className="w-full gap-2" data-testid="button-mobile-whatsapp">
                     <MessageCircle className="w-4 h-4" />
                     <span>تواصل عبر واتساب</span>
