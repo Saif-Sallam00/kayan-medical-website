@@ -2,8 +2,9 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Stethoscope, Zap, Award } from "lucide-react";
+import { Zap, Award } from "lucide-react";
 import type { Product } from "@shared/schema";
+import ultrasoundMachineUrl from "@/assets/ultrasound-machine.png";
 
 interface ProductCardProps {
   product: Product;
@@ -22,16 +23,12 @@ export function ProductCard({ product }: ProductCardProps) {
           </Badge>
         </div>
         
-        <div className="aspect-[4/3] bg-muted rounded-md mb-4 flex items-center justify-center overflow-hidden">
-          {product.imageUrl ? (
-            <img 
-              src={product.imageUrl} 
-              alt={product.nameAr} 
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <Stethoscope className="w-16 h-16 text-muted-foreground" />
-          )}
+        <div className="aspect-[4/3] bg-gradient-to-br from-primary/5 to-accent/5 rounded-md mb-4 flex items-center justify-center overflow-hidden p-4">
+          <img 
+            src={ultrasoundMachineUrl} 
+            alt={product.nameAr} 
+            className="w-full h-full object-contain"
+          />
         </div>
 
         <h3 className="text-xl font-semibold mb-1" data-testid={`text-product-name-${product.id}`}>

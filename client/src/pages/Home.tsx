@@ -5,6 +5,7 @@ import { TestimonialCard } from "@/components/TestimonialCard";
 import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import type { Testimonial } from "@shared/schema";
+import ultrasoundMachineUrl from "@/assets/ultrasound-machine.png";
 
 export default function Home() {
   const testimonials: Testimonial[] = [
@@ -44,58 +45,64 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[85vh] md:h-[90vh] flex items-center overflow-hidden">
-        {/* Background with gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/60 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background z-10" />
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&q=80)',
-          }}
-        />
-        
+      <section className="relative py-20 md:py-28 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
         {/* Content */}
-        <div className="relative z-20 max-w-7xl mx-auto px-6 md:px-12 w-full">
-          <div className="max-w-3xl">
-            <Badge className="mb-6 text-sm px-4 py-2 bg-primary/90 backdrop-blur-sm" data-testid="badge-hero">
-              الشريك الموثوق في الرعاية الصحية
-            </Badge>
-            
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white dark:text-white" data-testid="text-hero-title">
-              أفضل حلول السونار الطبي في مصر
-            </h1>
-            
-            <p className="text-xl md:text-2xl mb-4 leading-relaxed text-white/90 dark:text-white/90 font-['Tajawal']">
-              كيان ميديكال تقدم لك أحدث أجهزة السونار مثل <span className="font-semibold font-['Inter']">Mindray</span> و <span className="font-semibold font-['Inter']">GE Logiq</span> مع ضمان الجودة والصيانة
-            </p>
-            
-            <p className="text-lg mb-8 text-white/80 dark:text-white/80">
-              نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص
-            </p>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Side - Image */}
+            <div className="order-2 lg:order-1 flex items-center justify-center">
+              <div className="relative w-full max-w-lg">
+                <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
+                <img 
+                  src={ultrasoundMachineUrl} 
+                  alt="جهاز سونار طبي"
+                  className="relative w-full h-auto drop-shadow-2xl"
+                  data-testid="image-hero-ultrasound"
+                />
+              </div>
+            </div>
 
-            <div className="flex flex-wrap gap-4">
-              <Link href="/products">
-                <Button 
-                  size="lg" 
-                  className="gap-2 text-lg px-8 bg-primary/95 backdrop-blur-sm border border-primary-border hover:bg-primary" 
-                  data-testid="button-hero-products"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  اطلب جهازك الآن
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="gap-2 text-lg px-8 bg-white/10 backdrop-blur-md border-white/30 text-white hover:bg-white/20 hover:text-white" 
-                  data-testid="button-hero-consultation"
-                >
-                  <PhoneCall className="w-5 h-5" />
-                  احجز استشارة مجانية
-                </Button>
-              </Link>
+            {/* Right Side - Text Content */}
+            <div className="order-1 lg:order-2 space-y-6">
+              <Badge className="mb-2 text-sm px-4 py-2" data-testid="badge-hero">
+                الشريك الموثوق في الرعاية الصحية
+              </Badge>
+              
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
+                أفضل حلول السونار الطبي في مصر
+              </h1>
+              
+              <p className="text-xl md:text-2xl leading-relaxed text-muted-foreground font-['Tajawal']">
+                كيان ميديكال تقدم لك أحدث أجهزة السونار مثل <span className="font-semibold text-foreground font-['Inter']">Mindray</span> و <span className="font-semibold text-foreground font-['Inter']">GE Logiq</span> مع ضمان الجودة والصيانة
+              </p>
+              
+              <p className="text-lg text-muted-foreground">
+                نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص
+              </p>
+
+              <div className="flex flex-wrap gap-4 pt-4">
+                <Link href="/products">
+                  <Button 
+                    size="lg" 
+                    className="gap-2 text-lg px-8" 
+                    data-testid="button-hero-products"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    اطلب جهازك الآن
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="gap-2 text-lg px-8" 
+                    data-testid="button-hero-consultation"
+                  >
+                    <PhoneCall className="w-5 h-5" />
+                    احجز استشارة مجانية
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
