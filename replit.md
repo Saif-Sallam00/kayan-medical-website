@@ -1,0 +1,150 @@
+# Kayan Medical - Medical Ultrasound Equipment Website
+
+## Overview
+
+Kayan Medical is an Arabic-first e-commerce and service platform for medical ultrasound equipment in Egypt. The application serves doctors and medical facilities by providing product catalogs, maintenance services, consultation booking, and special offers for ultrasound devices from premium brands like GE, Philips, and Samsung.
+
+**Target Audience**: Medical professionals (doctors) specializing in obstetrics, radiology, and general practice who need ultrasound equipment for clinics and hospitals.
+
+**Primary Language**: Arabic (Egyptian dialect) with English technical terms for device specifications and model numbers.
+
+**Geographic Focus**: Egypt, with specific presence in Shibin El Kom and Sheikh Zayed.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+
+**Framework**: React 18 with TypeScript using Vite as the build tool
+
+**Routing**: Wouter for lightweight client-side routing with the following pages:
+- Home (landing page with hero, features, testimonials)
+- Products (catalog with category filtering)
+- Maintenance (service request forms)
+- About (company information and team)
+- Contact (contact form and location details)
+- Offers (special deals and news)
+
+**UI Component System**: Shadcn UI components (New York style) with Radix UI primitives for:
+- Forms with React Hook Form and Zod validation
+- Dialog modals and sheets
+- Navigation menus and tabs
+- Cards and badges
+- Toast notifications
+
+**Styling Approach**: 
+- Tailwind CSS with custom configuration for RTL (right-to-left) support
+- Arabic typography using Cairo and Tajawal Google Fonts
+- English/technical typography using Inter font
+- Custom color system with HSL values for theme consistency
+- Responsive design with mobile-first breakpoints
+
+**State Management**: 
+- TanStack Query (React Query) for server state and API caching
+- React Hook Form for form state management
+- Local component state with React hooks
+
+**Design System**:
+- RTL layout with proper Arabic text flow
+- Spacing based on Tailwind's 4px unit system
+- Maximum container width of 1280px (max-w-7xl)
+- Consistent card-based layouts with hover effects
+- Professional medical aesthetic balancing trust and modernity
+
+### Backend Architecture
+
+**Server Framework**: Express.js with TypeScript running in ESM mode
+
+**API Structure**: RESTful endpoints organized by resource type:
+- `/api/contact` - Contact form submissions
+- `/api/maintenance` - Maintenance request handling
+- `/api/consultation` - Consultation booking (schema defined)
+
+**Request Handling**:
+- JSON body parsing with raw body capture for webhook verification
+- Request/response logging middleware for API routes
+- Error handling with structured JSON responses in Arabic
+
+**Development Setup**:
+- Vite middleware integration for HMR in development
+- Static file serving for production builds
+- Custom logger with timestamps
+
+### Data Layer
+
+**ORM**: Drizzle ORM for type-safe database operations
+
+**Database Schema** (PostgreSQL with Neon serverless):
+
+**Products Table**:
+- Stores ultrasound device information
+- Fields: nameAr, nameEn, category (clinic/hospital/portable), brand, model, description, specifications (array), imageUrl, priceInfo
+- UUID primary keys generated server-side
+
+**Contact Forms Table**:
+- Captures customer inquiries
+- Fields: name, email, phone, message, createdAt timestamp
+- Validation enforces minimum lengths and proper email format
+
+**Maintenance Requests Table**:
+- Tracks service requests for equipment
+- Fields: clientName, deviceType, issueDescription, clinicLocation, phone
+
+**Consultation Requests Table**:
+- Manages booking requests for product consultations
+- Similar structure to other form submissions
+
+**Validation**: Zod schemas created from Drizzle schemas for runtime type checking and Arabic error messages
+
+**Storage Implementation**: 
+- In-memory storage implementation (MemStorage) for development/testing
+- Interface-based design (IStorage) allows swapping to database implementation
+- All storage methods return Promises for async compatibility
+
+### External Dependencies
+
+**UI Component Libraries**:
+- Radix UI primitives (v1.x) for accessible component foundations
+- Embla Carousel for product/testimonial carousels
+- Lucide React for consistent iconography
+- CMDK for command palette functionality
+
+**Form Handling**:
+- React Hook Form for performant form state
+- Hookform Resolvers for Zod schema integration
+- Zod for runtime validation with Arabic error messages
+
+**Styling Tools**:
+- Tailwind CSS v3 with PostCSS and Autoprefixer
+- Class Variance Authority for component variant patterns
+- clsx and tailwind-merge for conditional class handling
+
+**Database & ORM**:
+- Drizzle ORM v0.39+ for type-safe queries
+- Drizzle Kit for migrations
+- Neon Serverless for PostgreSQL database
+- Drizzle-Zod for schema-to-validation conversion
+
+**State & Data Fetching**:
+- TanStack Query v5 for server state management
+- Date-fns for date formatting and manipulation
+
+**Session Management**:
+- Connect-pg-simple for PostgreSQL session storage
+- Express-session integration (schema includes user tables)
+
+**Development Tools**:
+- Replit-specific Vite plugins (cartographer, dev-banner, runtime-error-modal)
+- ESBuild for server bundling in production
+
+**Asset Management**:
+- Logo and images stored in attached_assets directory
+- Vite alias configuration for @assets imports
+- Design guidelines reference premium platforms like Shopify and Medtronic
+
+**Typography Resources**:
+- Google Fonts API for Cairo, Tajawal, and Inter font families
+- Preconnect optimization for font loading performance
