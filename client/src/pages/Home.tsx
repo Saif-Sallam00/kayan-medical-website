@@ -5,7 +5,7 @@ import { TestimonialCard } from "@/components/TestimonialCard";
 import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import type { Testimonial } from "@shared/schema";
-import heroImageUrl from "@assets/Copy of بنشتري جهاز السونار منك بأحسن سعر_1761845142767.png";
+import heroImageUrl from "@assets/Copy_of_بنشتري_جهاز_السونار_منك_بأحسن_سعر-removebg-preview_1761845516919.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
