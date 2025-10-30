@@ -10,8 +10,6 @@ export function Navigation() {
 
   const navItems = [
     { path: "/", label: "الرئيسية" },
-    { path: "/products", label: "بيع" },
-    { path: "/products", label: "شراء" },
     { path: "/products", label: "استبدال" },
     { path: "/maintenance", label: "صيانة" },
     { path: "/about", label: "من نحن" },
@@ -31,8 +29,8 @@ export function Navigation() {
 
           {/* Desktop Navigation - Center */}
           <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
-              <Link key={item.path} href={item.path} data-testid={`link-nav-${item.label}`}>
+            {navItems.map((item, index) => (
+              <Link key={`${item.path}-${index}`} href={item.path} data-testid={`link-nav-${item.label}`}>
                 <Button
                   variant={location === item.path ? "secondary" : "ghost"}
                   className="text-base font-medium"
@@ -83,8 +81,8 @@ export function Navigation() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-card-border" data-testid="mobile-menu">
             <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <Link key={item.path} href={item.path}>
+              {navItems.map((item, index) => (
+                <Link key={`${item.path}-${index}`} href={item.path}>
                   <Button
                     variant={location === item.path ? "secondary" : "ghost"}
                     className="w-full justify-start text-base"
