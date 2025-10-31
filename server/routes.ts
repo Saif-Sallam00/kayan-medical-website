@@ -248,9 +248,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/products", async (req, res) => {
     try {
       const products = await storage.getAllProducts();
-      res.json({ success: true, data: products });
+      const activeProducts = products.filter(p => p.isActive);
+      res.json({ success: true, data: activeProducts });
     } catch (error: any) {
       console.error("Error fetching products:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "فشل في جلب المنتجات" 
+      });
+    }
+  });
+
+  // Admin endpoint to get all products (including inactive)
+  app.get("/api/products/all", requireAdmin, async (req, res) => {
+    try {
+      const products = await storage.getAllProducts();
+      res.json({ success: true, data: products });
+    } catch (error: any) {
+      console.error("Error fetching all products:", error);
       res.status(500).json({ 
         success: false, 
         message: "فشل في جلب المنتجات" 

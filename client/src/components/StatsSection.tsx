@@ -32,8 +32,9 @@ export function StatsSection() {
     const currentSection = sectionRef.current;
     if (!currentSection || stats.length === 0) return;
 
-    // Reset counts when stats change
-    setCounts(stats.map(() => 0));
+    // Initialize counts to target values (to show immediately if animation doesn't fire)
+    const initialCounts = stats.map(stat => parseInt(stat.value.replace(/[^0-9]/g, '')) || 0);
+    setCounts(initialCounts);
     hasAnimatedRef.current = false;
 
     const observer = new IntersectionObserver(
@@ -42,9 +43,12 @@ export function StatsSection() {
           if (entry.isIntersecting && !hasAnimatedRef.current) {
             hasAnimatedRef.current = true;
             
+            // Reset to 0 for animation
+            setCounts(stats.map(() => 0));
+            
             stats.forEach((stat, index) => {
               // Extract number from value (e.g., "500+" -> 500, "98%" -> 98)
-              const targetValue = parseInt(stat.value.replace(/[^0-9]/g, ''));
+              const targetValue = parseInt(stat.value.replace(/[^0-9]/g, '')) || 0;
               const duration = 2000;
               const steps = 60;
               const stepValue = targetValue / steps;
