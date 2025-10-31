@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ObjectUploader } from "@/components/ObjectUploader";
 
 // Form schema for products with specifications as comma-separated string
 const productFormSchema = z.object({
@@ -1139,34 +1140,74 @@ export default function AdminDashboard() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={productForm.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>رابط الصورة</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value || ""} placeholder="https://..." data-testid="input-product-image" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={productForm.control}
-                  name="priceInfo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>معلومات السعر</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value || ""} placeholder="مثال: اتصل للسعر" data-testid="input-product-price" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={productForm.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>صورة المنتج (اختياري)</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        {field.value && (
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={field.value} 
+                              alt="Preview" 
+                              className="w-24 h-24 object-cover rounded-md"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => field.onChange("")}
+                            >
+                              إزالة الصورة
+                            </Button>
+                          </div>
+                        )}
+                        <ObjectUploader
+                          onGetUploadParameters={async () => {
+                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const data = await response.json();
+                            return {
+                              method: "PUT" as const,
+                              url: data.uploadURL,
+                            };
+                          }}
+                          onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
+                            if (result.successful[0]) {
+                              const uploadURL = result.successful[0].uploadURL;
+                              const aclResponse = await apiRequest("POST", "/api/objects/set-acl", {
+                                imageUrl: uploadURL,
+                              });
+                              const aclData = await aclResponse.json();
+                              field.onChange(aclData.objectPath);
+                              toast({
+                                title: "تم رفع الصورة بنجاح",
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={productForm.control}
+                name="priceInfo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>معلومات السعر</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value || ""} placeholder="مثال: اتصل للسعر" data-testid="input-product-price" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={productForm.control}
@@ -1337,9 +1378,50 @@ export default function AdminDashboard() {
                 name="photoUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>رابط الصورة (اختياري)</FormLabel>
+                    <FormLabel>صورة الدكتور (اختياري)</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="https://..." data-testid="input-testimonial-photo" />
+                      <div className="space-y-2">
+                        {field.value && (
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={field.value} 
+                              alt="Preview" 
+                              className="w-24 h-24 object-cover rounded-md"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => field.onChange("")}
+                            >
+                              إزالة الصورة
+                            </Button>
+                          </div>
+                        )}
+                        <ObjectUploader
+                          onGetUploadParameters={async () => {
+                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const data = await response.json();
+                            return {
+                              method: "PUT" as const,
+                              url: data.uploadURL,
+                            };
+                          }}
+                          onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
+                            if (result.successful[0]) {
+                              const uploadURL = result.successful[0].uploadURL;
+                              const aclResponse = await apiRequest("POST", "/api/objects/set-acl", {
+                                imageUrl: uploadURL,
+                              });
+                              const aclData = await aclResponse.json();
+                              field.onChange(aclData.objectPath);
+                              toast({
+                                title: "تم رفع الصورة بنجاح",
+                              });
+                            }
+                          }}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1491,9 +1573,50 @@ export default function AdminDashboard() {
                 name="imageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>رابط الصورة (اختياري)</FormLabel>
+                    <FormLabel>صورة العرض (اختياري)</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="https://..." data-testid="input-offer-image" />
+                      <div className="space-y-2">
+                        {field.value && (
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={field.value} 
+                              alt="Preview" 
+                              className="w-24 h-24 object-cover rounded-md"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => field.onChange("")}
+                            >
+                              إزالة الصورة
+                            </Button>
+                          </div>
+                        )}
+                        <ObjectUploader
+                          onGetUploadParameters={async () => {
+                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const data = await response.json();
+                            return {
+                              method: "PUT" as const,
+                              url: data.uploadURL,
+                            };
+                          }}
+                          onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
+                            if (result.successful[0]) {
+                              const uploadURL = result.successful[0].uploadURL;
+                              const aclResponse = await apiRequest("POST", "/api/objects/set-acl", {
+                                imageUrl: uploadURL,
+                              });
+                              const aclData = await aclResponse.json();
+                              field.onChange(aclData.objectPath);
+                              toast({
+                                title: "تم رفع الصورة بنجاح",
+                              });
+                            }
+                          }}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
