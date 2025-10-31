@@ -1,47 +1,53 @@
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TestimonialCard } from "@/components/TestimonialCard";
 import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
-import type { Testimonial } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import type { Testimonial, Feature, HeroSection, Offer } from "@shared/schema";
 import heroImageUrl from "@assets/Copy_of_بنشتري_جهاز_السونار_منك_بأحسن_سعر-removebg-preview_1761845516919.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
-  const testimonials: Testimonial[] = [
-    {
-      id: "1",
-      doctorName: "د. أحمد محمود",
-      specialization: "استشاري النساء والتوليد",
-      quote: "أجهزة كيان ميديكال غيرت مستوى خدماتي للمرضى. جودة الصورة رائعة والدعم الفني ممتاز",
-      rating: 5,
-      clinicName: "عيادة النور - القاهرة"
-    },
-    {
-      id: "2",
-      doctorName: "د. سارة عبد الله",
-      specialization: "أخصائية الأشعة التشخيصية",
-      quote: "التعامل مع كيان ميديكال كان احترافياً من البداية. الصيانة الدورية ممتازة",
-      rating: 5,
-      clinicName: "مركز الشفاء الطبي - الشيخ زايد"
-    },
-    {
-      id: "3",
-      doctorName: "د. محمد حسن",
-      specialization: "طبيب عام",
-      quote: "حصلت على جهاز سونار محمول بسعر تنافسي وجودة عالية. أنصح بالتعامل معهم",
-      rating: 5,
-      clinicName: "عيادة الأمل - المنوفية"
-    }
-  ];
+  const { toast } = useToast();
 
-  const features = [
-    { text: "أجهزة سونار من أفضل العلامات العالمية" },
-    { text: "ضمان شامل على جميع الأجهزة" },
-    { text: "صيانة دورية ودعم فني على مدار الساعة" },
-    { text: "خيارات دفع مرنة ومريحة" }
-  ];
+  const { data: testimonialsData, isLoading: testimonialsLoading, isError: testimonialsError } = useQuery<{ success: boolean; data: Testimonial[] }>({
+    queryKey: ["/api/testimonials"],
+    retry: 2,
+  });
+
+  const { data: featuresData, isLoading: featuresLoading, isError: featuresError } = useQuery<{ success: boolean; data: Feature[] }>({
+    queryKey: ["/api/features"],
+    retry: 2,
+  });
+
+  const { data: heroData, isLoading: heroLoading, isError: heroError } = useQuery<{ success: boolean; data: HeroSection[] }>({
+    queryKey: ["/api/hero-sections"],
+    retry: 2,
+  });
+
+  const { data: offersData, isLoading: offersLoading, isError: offersError } = useQuery<{ success: boolean; data: Offer[] }>({
+    queryKey: ["/api/offers"],
+    retry: 2,
+  });
+
+  useEffect(() => {
+    if (testimonialsError || featuresError || heroError || offersError) {
+      toast({
+        variant: "destructive",
+        title: "خطأ في تحميل المحتوى",
+        description: "حدث خطأ أثناء تحميل بعض محتويات الصفحة.",
+      });
+    }
+  }, [testimonialsError, featuresError, heroError, offersError, toast]);
+
+  const testimonials = testimonialsData?.data || [];
+  const features = featuresData?.data || [];
+  const hero = heroData?.data?.[0];
+  const activeOffer = offersData?.data?.[0];
 
   return (
     <div className="min-h-screen">
@@ -58,63 +64,77 @@ export default function Home() {
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
-            {/* Text Content */}
-            <div className="order-2 lg:order-1 space-y-4 md:space-y-6 text-center lg:text-right">
-              <Badge className="mb-2 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2" data-testid="badge-hero">
-                الشريك الموثوق في الرعاية الصحية
-              </Badge>
-              
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
-                أفضل حلول السونار الطبي في مصر
-              </h1>
-              
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-muted-foreground font-['Tajawal']">
-                كيان ميديكال تقدم لك أحدث أجهزة السونار مثل <span className="font-semibold text-foreground font-['Inter']">Mindray</span> و <span className="font-semibold text-foreground font-['Inter']">GE Logiq</span> مع ضمان الجودة والصيانة
-              </p>
-              
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
-                نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص
-              </p>
-
-              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-4 justify-center lg:justify-start">
-                <Link href="/products" className="w-full sm:w-auto">
-                  <Button 
-                    size="lg" 
-                    className="gap-2 text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto min-h-12" 
-                    data-testid="button-hero-products"
-                  >
-                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
-                    اطلب جهازك الآن
-                  </Button>
-                </Link>
-                <Link href="/contact" className="w-full sm:w-auto">
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="gap-2 text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto min-h-12" 
-                    data-testid="button-hero-consultation"
-                  >
-                    <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" />
-                    احجز استشارة مجانية
-                  </Button>
-                </Link>
+          {heroLoading ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center animate-pulse">
+              <div className="order-2 lg:order-1 space-y-4 text-center lg:text-right">
+                <div className="h-8 bg-muted rounded w-48 mx-auto lg:mr-0" />
+                <div className="h-16 bg-muted rounded" />
+                <div className="h-12 bg-muted rounded" />
+                <div className="h-8 bg-muted rounded" />
+              </div>
+              <div className="order-1 lg:order-2">
+                <div className="aspect-square bg-muted rounded-full max-w-md mx-auto" />
               </div>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+              {/* Text Content */}
+              <div className="order-2 lg:order-1 space-y-4 md:space-y-6 text-center lg:text-right">
+                <Badge className="mb-2 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2" data-testid="badge-hero">
+                  الشريك الموثوق في الرعاية الصحية
+                </Badge>
+                
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
+                  {hero?.titleAr || "أفضل حلول السونار الطبي في مصر"}
+                </h1>
+                
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-muted-foreground font-['Tajawal']">
+                  {hero?.subtitleAr || "كيان ميديكال تقدم لك أحدث أجهزة السونار مثل Mindray و GE Logiq مع ضمان الجودة والصيانة"}
+                </p>
+                
+                <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
+                  نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص
+                </p>
 
-            {/* Image */}
-            <div className="order-1 lg:order-2 flex items-center justify-center">
-              <div className="relative w-full max-w-xs sm:max-w-md lg:max-w-lg">
-                <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
-                <img 
-                  src={heroImageUrl} 
-                  alt="طبيب كيان ميديكال مع أجهزة السونار الطبية"
-                  className="relative w-full h-auto drop-shadow-2xl"
-                  data-testid="image-hero-ultrasound"
-                />
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-4 justify-center lg:justify-start">
+                  <Link href="/products" className="w-full sm:w-auto">
+                    <Button 
+                      size="lg" 
+                      className="gap-2 text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto min-h-12" 
+                      data-testid="button-hero-products"
+                    >
+                      <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+                      {hero?.ctaText || "اطلب جهازك الآن"}
+                    </Button>
+                  </Link>
+                  <Link href="/contact" className="w-full sm:w-auto">
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="gap-2 text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto min-h-12" 
+                      data-testid="button-hero-consultation"
+                    >
+                      <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" />
+                      احجز استشارة مجانية
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Image */}
+              <div className="order-1 lg:order-2 flex items-center justify-center">
+                <div className="relative w-full max-w-xs sm:max-w-md lg:max-w-lg">
+                  <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
+                  <img 
+                    src={hero?.backgroundImageUrl || heroImageUrl} 
+                    alt="طبيب كيان ميديكال مع أجهزة السونار الطبية"
+                    className="relative w-full h-auto drop-shadow-2xl"
+                    data-testid="image-hero-ultrasound"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -122,29 +142,49 @@ export default function Home() {
       <StatsSection />
 
       {/* Special Offer Section */}
-      <section className="py-12 md:py-16 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
-          <div className="bg-card border border-card-border rounded-lg p-6 sm:p-8 md:p-12">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-right">
-              <div className="flex-1 space-y-2 sm:space-y-3">
-                <Badge variant="destructive" className="mb-2 text-xs sm:text-sm">عرض خاص</Badge>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-                  خصم 10% على جميع أجهزة السونار
-                </h2>
-                <p className="text-base sm:text-lg text-muted-foreground">
-                  للأطباء الجدد - عرض محدود لفترة قصيرة
-                </p>
+      {(offersLoading || activeOffer) && (
+        <section className="py-12 md:py-16 bg-gradient-to-br from-primary/5 to-accent/5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
+            {offersLoading ? (
+              <div className="bg-card border border-card-border rounded-lg p-6 sm:p-8 md:p-12 animate-pulse">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex-1 space-y-3">
+                    <div className="h-6 bg-muted rounded w-24" />
+                    <div className="h-10 bg-muted rounded" />
+                    <div className="h-6 bg-muted rounded w-3/4" />
+                  </div>
+                  <div className="h-12 w-48 bg-muted rounded" />
+                </div>
               </div>
-              <Link href="/offers" className="w-full md:w-auto">
-                <Button size="lg" className="gap-2 text-base sm:text-lg w-full md:w-auto min-h-12" data-testid="button-view-offers">
-                  استفيد من العروض الآن
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Button>
-              </Link>
-            </div>
+            ) : activeOffer && (
+              <div className="bg-card border border-card-border rounded-lg p-6 sm:p-8 md:p-12">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-right">
+                  <div className="flex-1 space-y-2 sm:space-y-3">
+                    <Badge variant="destructive" className="mb-2 text-xs sm:text-sm">عرض خاص</Badge>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+                      {activeOffer.titleAr}
+                    </h2>
+                    <p className="text-base sm:text-lg text-muted-foreground">
+                      {activeOffer.description}
+                    </p>
+                    {activeOffer.validUntil && (
+                      <p className="text-sm text-muted-foreground">
+                        ساري حتى: {activeOffer.validUntil}
+                      </p>
+                    )}
+                  </div>
+                  <Link href="/offers" className="w-full md:w-auto">
+                    <Button size="lg" className="gap-2 text-base sm:text-lg w-full md:w-auto min-h-12" data-testid="button-view-offers">
+                      استفيد من العروض الآن
+                      <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Features Section */}
       <section className="py-12 md:py-16">
@@ -158,20 +198,34 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all"
-                data-testid={`feature-${index}`}
-              >
-                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-primary/10 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          {featuresLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 animate-pulse">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center gap-4 p-6 rounded-lg bg-muted">
+                  <div className="w-12 h-12 bg-muted-foreground/20 rounded-md" />
+                  <div className="flex-1 h-6 bg-muted-foreground/20 rounded" />
                 </div>
-                <p className="text-base sm:text-lg font-medium">{feature.text}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {features.map((feature) => (
+                <div 
+                  key={feature.id}
+                  className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all"
+                  data-testid={`feature-${feature.id}`}
+                >
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-primary/10 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-base sm:text-lg font-medium">{feature.titleAr}</p>
+                    <p className="text-sm text-muted-foreground">{feature.descriptionAr}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -187,11 +241,32 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {testimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-            ))}
-          </div>
+          {testimonialsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-pulse">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-card rounded-lg p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-muted rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-muted rounded" />
+                    <div className="h-3 bg-muted rounded" />
+                    <div className="h-3 bg-muted rounded w-5/6" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {testimonials.map((testimonial) => (
+                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
