@@ -8,7 +8,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Testimonial, Feature, HeroSection, Offer } from "@shared/schema";
-import heroImageUrl from "@assets/Copy_of_بنشتري_جهاز_السونار_منك_بأحسن_سعر-removebg-preview_1761845516919.png";
+import heroImageUrl from "@assets/Copy_of_بنشتري_جهاز_السونار_منك_بأحسن_سعر-removebg-preview_1761936119890.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
