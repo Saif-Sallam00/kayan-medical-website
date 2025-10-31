@@ -39,10 +39,18 @@ export const products = pgTable("products", {
   specifications: text("specifications").array().notNull(),
   imageUrl: text("image_url"),
   priceInfo: text("price_info"), // "استفسر عن السعر" or actual price
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: text("display_order").default("0"),
 });
 
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
+}).extend({
+  nameAr: z.string().min(2, "الاسم بالعربية مطلوب"),
+  nameEn: z.string().min(2, "الاسم بالإنجليزية مطلوب"),
+  description: z.string().min(10, "الوصف مطلوب"),
+  brand: z.string().min(2, "الماركة مطلوبة"),
+  model: z.string().min(1, "الموديل مطلوب"),
 });
 
 export const updateProductSchema = insertProductSchema.partial();
