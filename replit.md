@@ -153,8 +153,17 @@ Preferred communication style: Simple, everyday language.
 - Replit-specific Vite plugins (cartographer, dev-banner, runtime-error-modal)
 - ESBuild for server bundling in production
 
+**Product Data Management**:
+- Shared product data file at `client/src/data/products.ts`
+- 6 ultrasound devices from premium brands (GE, Philips, Samsung, Mindray, Clarius)
+- Each product includes: id, nameAr, nameEn, category, brand, model, description, specifications array, imageUrl, priceInfo
+- Helper functions: `getProductById(id)` and `getProductsByCategory(category)`
+- Product images sourced from Unsplash with local fallback
+- Categories: hospital, clinic, portable
+
 **Asset Management**:
 - Logo and images stored in attached_assets directory
+- Product images from Unsplash CDN with local fallback support
 - Vite alias configuration for @assets imports
 - Design guidelines reference premium platforms like Shopify and Medtronic
 
