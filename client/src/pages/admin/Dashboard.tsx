@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { LogOut, Mail, Wrench, MessageSquare, Package, Edit, Trash2, Plus, MessageCircle, Tag } from "lucide-react";
 import type { SafeUser, Product, Testimonial, Offer } from "@shared/schema";
+import AdminHeroTab from "./tabs/AdminHeroTab";
+import AdminFeaturesTab from "./tabs/AdminFeaturesTab";
+import AdminStatsTab from "./tabs/AdminStatsTab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -603,10 +606,13 @@ export default function AdminDashboard() {
 
         {/* Data Tables */}
         <Tabs defaultValue="products" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
             <TabsTrigger value="products" data-testid="tab-products">المنتجات</TabsTrigger>
             <TabsTrigger value="testimonials" data-testid="tab-testimonials">الشهادات</TabsTrigger>
             <TabsTrigger value="offers" data-testid="tab-offers">العروض</TabsTrigger>
+            <TabsTrigger value="hero" data-testid="tab-hero">Hero</TabsTrigger>
+            <TabsTrigger value="features" data-testid="tab-features">المميزات</TabsTrigger>
+            <TabsTrigger value="stats" data-testid="tab-stats">الإحصائيات</TabsTrigger>
             <TabsTrigger value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
             <TabsTrigger value="maintenance" data-testid="tab-maintenance">طلبات الصيانة</TabsTrigger>
             <TabsTrigger value="consultation" data-testid="tab-consultation">طلبات الاستشارة</TabsTrigger>
@@ -993,6 +999,18 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="hero">
+            <AdminHeroTab />
+          </TabsContent>
+
+          <TabsContent value="features">
+            <AdminFeaturesTab />
+          </TabsContent>
+
+          <TabsContent value="stats">
+            <AdminStatsTab />
           </TabsContent>
         </Tabs>
       </main>
