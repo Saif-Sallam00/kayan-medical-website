@@ -11,10 +11,11 @@ import {
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  // User methods (existing)
+  // User methods
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUserLastLogin(id: string): Promise<void>;
   
   // Contact form methods
   createContactForm(form: InsertContactForm): Promise<ContactForm>;
@@ -50,17 +51,34 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
+  async getUserByEmail(email: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+      (user) => user.email === email,
     );
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      id,
+      email: insertUser.email,
+      passwordHash: insertUser.passwordHash,
+      name: insertUser.name,
+      role: insertUser.role || "admin",
+      isActive: insertUser.isActive ?? true,
+      createdAt: new Date(),
+      lastLoginAt: null,
+    };
     this.users.set(id, user);
     return user;
+  }
+
+  async updateUserLastLogin(id: string): Promise<void> {
+    const user = this.users.get(id);
+    if (user) {
+      user.lastLoginAt = new Date();
+      this.users.set(id, user);
+    }
   }
 
   // Contact form methods
@@ -111,8 +129,13 @@ export class MemStorage implements IStorage {
   async createConsultationRequest(insertRequest: InsertConsultationRequest): Promise<ConsultationRequest> {
     const id = randomUUID();
     const consultationRequest: ConsultationRequest = {
-      ...insertRequest,
       id,
+      name: insertRequest.name,
+      phone: insertRequest.phone,
+      email: insertRequest.email || null,
+      productId: insertRequest.productId || null,
+      productName: insertRequest.productName || null,
+      message: insertRequest.message || null,
       createdAt: new Date(),
     };
     this.consultationRequests.set(id, consultationRequest);
