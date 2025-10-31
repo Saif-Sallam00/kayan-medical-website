@@ -45,7 +45,10 @@ export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
 });
 
+export const updateProductSchema = insertProductSchema.partial();
+
 export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type UpdateProduct = z.infer<typeof updateProductSchema>;
 export type Product = typeof products.$inferSelect;
 
 // Contact Form Schema
@@ -145,7 +148,10 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   clinicName: z.string().min(2, "اسم العيادة مطلوب"),
 });
 
+export const updateTestimonialSchema = insertTestimonialSchema.partial();
+
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+export type UpdateTestimonial = z.infer<typeof updateTestimonialSchema>;
 export type Testimonial = typeof testimonials.$inferSelect;
 
 // Offers Schema (Special deals and news)
@@ -169,7 +175,10 @@ export const insertOfferSchema = createInsertSchema(offers).omit({
   description: z.string().min(10, "الوصف يجب أن يكون 10 أحرف على الأقل"),
 });
 
+export const updateOfferSchema = insertOfferSchema.partial();
+
 export type InsertOffer = z.infer<typeof insertOfferSchema>;
+export type UpdateOffer = z.infer<typeof updateOfferSchema>;
 export type Offer = typeof offers.$inferSelect;
 
 // Hero Sections Schema (Homepage hero sections)
@@ -191,7 +200,10 @@ export const insertHeroSectionSchema = createInsertSchema(heroSections).omit({
   subtitleAr: z.string().min(10, "النص الفرعي مطلوب"),
 });
 
+export const updateHeroSectionSchema = insertHeroSectionSchema.partial();
+
 export type InsertHeroSection = z.infer<typeof insertHeroSectionSchema>;
+export type UpdateHeroSection = z.infer<typeof updateHeroSectionSchema>;
 export type HeroSection = typeof heroSections.$inferSelect;
 
 // Features Schema (Homepage features)
@@ -212,7 +224,10 @@ export const insertFeatureSchema = createInsertSchema(features).omit({
   icon: z.string().min(2, "اسم الأيقونة مطلوب"),
 });
 
+export const updateFeatureSchema = insertFeatureSchema.partial();
+
 export type InsertFeature = z.infer<typeof insertFeatureSchema>;
+export type UpdateFeature = z.infer<typeof updateFeatureSchema>;
 export type Feature = typeof features.$inferSelect;
 
 // Stats Schema (Homepage statistics)
@@ -233,5 +248,8 @@ export const insertStatSchema = createInsertSchema(stats).omit({
   icon: z.string().min(2, "اسم الأيقونة مطلوب"),
 });
 
+export const updateStatSchema = insertStatSchema.partial();
+
 export type InsertStat = z.infer<typeof insertStatSchema>;
+export type UpdateStat = z.infer<typeof updateStatSchema>;
 export type Stat = typeof stats.$inferSelect;
