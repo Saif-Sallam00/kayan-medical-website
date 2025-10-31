@@ -111,9 +111,11 @@ Preferred communication style: Simple, everyday language.
 - Admin user automatically seeded on startup
 
 **Products Table**:
-- Stores ultrasound device information
-- Fields: nameAr, nameEn, category (clinic/hospital/portable), brand, model, description, specifications (array), imageUrl, priceInfo
+- Stores ultrasound device information with CMS capabilities
+- Fields: nameAr, nameEn, category (clinic/hospital/portable), brand, model, description, specifications (array), imageUrl, priceInfo, isActive, displayOrder
 - UUID primary keys generated server-side
+- isActive: boolean flag to control product visibility on public pages
+- displayOrder: text field for controlling sort order in admin and public views
 
 **Contact Forms Table**:
 - Captures customer inquiries
