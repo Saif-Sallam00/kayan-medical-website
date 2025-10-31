@@ -136,12 +136,8 @@ export default function Products() {
               <TabsTrigger value="clinic" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-clinic">
                 العيادات
               </TabsTrigger>
-              <TabsTrigger value="hospital" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-hospital">
-                المستشفيات
-              </TabsTrigger>
-              <TabsTrigger value="portable" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-portable">
-                محمولة
-              </TabsTrigger>
+              <TabsTrigger value="hospital" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-hospital">شراء</TabsTrigger>
+              <TabsTrigger value="portable" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-portable">بيع</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
