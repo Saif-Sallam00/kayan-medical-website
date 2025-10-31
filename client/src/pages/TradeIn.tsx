@@ -9,20 +9,20 @@ export default function TradeIn() {
 
   const policyItems = [
     {
-      title: "الأجهزة المقبولة",
-      description: "نستقبل جميع أنواع أجهزة السونار من كافة العلامات التجارية العالمية مثل GE، Philips، Mindray، Samsung في أي حالة",
+      title: "شراء الأجهزة المستعملة",
+      description: "نشتري جميع أنواع أجهزة السونار من كافة العلامات التجارية العالمية مثل GE، Philips، Mindray، Samsung بأفضل الأسعار في السوق المصري",
       icon: Package,
       gradient: "from-primary to-primary/70"
     },
     {
-      title: "شروط الاستبدال",
-      description: "نقبل الأجهزة القديمة بغض النظر عن حالتها. سواء كانت شغالة أو محتاجة صيانة، نحن نقدم أفضل سعر في السوق",
+      title: "استبدل القديم بالجديد",
+      description: "نقبل جهازك القديم ونحسب قيمته من سعر الجهاز الجديد. وفر مبلغ كبير عند الاستبدال مقارنة بالشراء المباشر",
       icon: Shield,
       gradient: "from-accent to-accent/70"
     },
     {
-      title: "التقييم والسعر",
-      description: "تقييم فوري لجهازك القديم مع عرض سعر منافس. نضمن لك أفضل قيمة استبدال في مصر مع الشفافية الكاملة",
+      title: "تقييم عادل وشفاف",
+      description: "خبراء متخصصون يقيمون جهازك بدقة حسب الموديل والحالة. نضمن لك أفضل قيمة استبدال أو شراء في مصر",
       icon: DollarSign,
       gradient: "from-primary to-accent"
     }
@@ -30,8 +30,8 @@ export default function TradeIn() {
 
   const benefits = [
     {
-      title: "أحسن سعر في السوق",
-      description: "نشتري جهاز السونار منك بأفضل الأسعار مقارنة بالسوق المصري",
+      title: "أفضل عروض الشراء والاستبدال",
+      description: "نشتري جهازك القديم أو نستبدله بجديد بأفضل الأسعار في السوق المصري",
       icon: TrendingUp
     },
     {
@@ -40,13 +40,13 @@ export default function TradeIn() {
       icon: Sparkles
     },
     {
-      title: "إجراءات سريعة",
-      description: "لا تعقيدات، لا أوراق كثيرة. عملية استبدال سريعة وسهلة",
+      title: "إجراءات سريعة وسهلة",
+      description: "لا تعقيدات، لا أوراق كثيرة. عملية شراء أو استبدال سريعة ومريحة",
       icon: Clock
     },
     {
-      title: "ضمان الجودة",
-      description: "عند شراء جهاز جديد، تحصل على ضمان شامل ودعم فني مستمر",
+      title: "ضمان شامل",
+      description: "عند الاستبدال بجهاز جديد، تحصل على ضمان شامل ودعم فني مستمر",
       icon: CheckCircle2
     }
   ];
@@ -55,12 +55,12 @@ export default function TradeIn() {
     {
       number: "١",
       title: "تواصل معنا",
-      description: "اتصل بنا عبر الواتساب أو الهاتف وأخبرنا بتفاصيل جهازك القديم"
+      description: "اتصل بنا عبر الواتساب أو الهاتف وأخبرنا بتفاصيل جهازك وهل تريد البيع أو الاستبدال"
     },
     {
       number: "٢",
       title: "التقييم المبدئي",
-      description: "نقدم لك تقييم مبدئي للجهاز بناءً على الموديل والحالة العامة"
+      description: "نقدم لك تقييم مبدئي للجهاز ونعرض عليك خيارات الشراء أو الاستبدال"
     },
     {
       number: "٣",
@@ -69,8 +69,8 @@ export default function TradeIn() {
     },
     {
       number: "٤",
-      title: "الاستبدال والشراء",
-      description: "نتفق على السعر النهائي، وتستلم المبلغ أو تستبدل بجهاز جديد مع الفرق"
+      title: "إتمام الصفقة",
+      description: "نتفق على السعر النهائي وتستلم المبلغ نقداً، أو تستبدل بجهاز جديد مع دفع الفرق"
     }
   ];
 
@@ -80,15 +80,15 @@ export default function TradeIn() {
       <section className="relative py-16 md:py-24 bg-gradient-to-br from-primary/10 via-background to-accent/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 text-center">
           <Badge className="mb-4 text-sm px-4 py-2" data-testid="badge-tradein-hero">
-            خدمة استبدال أجهزة السونار
+            خدمة شراء واستبدال أجهزة السونار
           </Badge>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-['Cairo']" data-testid="text-tradein-title">
-            بنشتري جهاز السونار منك بأحسن سعر
+            بنشتري ونستبدل أجهزة السونار بأحسن سعر
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed font-['Tajawal']">
-            هل عندك جهاز سونار قديم؟ كيان ميديكال تشتريه منك بأفضل سعر في السوق المصري. استبدل جهازك القديم بجهاز جديد بأحدث التقنيات العالمية
+            هل عندك جهاز سونار قديم؟ كيان ميديكال تشتريه منك بأفضل سعر في السوق المصري، أو استبدله بجهاز جديد بأحدث التقنيات العالمية مع دفع الفرق فقط
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -121,12 +121,12 @@ export default function TradeIn() {
       <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
           <div className="text-center mb-12">
-            <Badge className="mb-4" data-testid="badge-policy">سياسة الاستبدال</Badge>
+            <Badge className="mb-4" data-testid="badge-policy">سياسة الشراء والاستبدال</Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4 font-['Cairo']" data-testid="text-policy-title">
-              كل ما تحتاج معرفته عن خدمة الاستبدال
+              كل ما تحتاج معرفته عن خدمة الشراء والاستبدال
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-['Tajawal']">
-              نقدم خدمة استبدال شفافة وعادلة لجميع أجهزة السونار
+              نقدم خدمة شراء واستبدال شفافة وعادلة لجميع أجهزة السونار
             </p>
           </div>
 
@@ -161,7 +161,7 @@ export default function TradeIn() {
               ليه تختار كيان ميديكال؟
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-['Tajawal']">
-              نوفر لك تجربة استبدال سلسة ومريحة مع أفضل الأسعار
+              نوفر لك تجربة شراء واستبدال سلسة ومريحة مع أفضل الأسعار
             </p>
           </div>
 
@@ -191,12 +191,12 @@ export default function TradeIn() {
       <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
           <div className="text-center mb-12">
-            <Badge className="mb-4" data-testid="badge-process">خطوات الاستبدال</Badge>
+            <Badge className="mb-4" data-testid="badge-process">خطوات العملية</Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4 font-['Cairo']" data-testid="text-process-title">
-              كيف تتم عملية الاستبدال؟
+              كيف تتم عملية الشراء أو الاستبدال؟
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-['Tajawal']">
-              أربع خطوات بسيطة للحصول على أفضل سعر لجهازك القديم
+              أربع خطوات بسيطة لبيع جهازك أو استبداله بجهاز جديد
             </p>
           </div>
 
