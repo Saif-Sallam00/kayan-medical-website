@@ -1,0 +1,48 @@
+You are an expert developer. Your task is to build a complete, functional web dashboard for a client that allows content editing similar to WordPress or Shopify. The dashboard should include login authentication with the following credentials:
+
+Username: Abdullah@kayan.com
+Password: faris12345
+
+The dashboard must have the following features:
+
+1. User Authentication
+   - Implement a login page.
+   - Validate user credentials against the provided email and password.
+   - After login, redirect to the main dashboard.
+
+2. Dashboard Interface
+   - Create a clean, user-friendly admin interface.
+   - Include sections for editing website content like text, images, and layout.
+   - Use forms and editors for content input.
+   - Save changes to a backend database.
+
+3. Content Management
+   - Set up a simple database (SQLite or other lightweight DB) to store editable content.
+   - Provide interfaces to add, update, and delete content.
+   - Display the current content on the website.
+
+4. Security
+   - Basic security: hash passwords, use sessions or tokens for login persistence.
+   - Do not expose credentials directly in the client code.
+
+5. Frontend
+   - Responsive design, modern look.
+   - Leave placeholders for custom styling.
+
+6. Backend
+   - Use Node.js with Express or Python with Flask/Django.
+   - Connect to the database to handle CRUD operations.
+   - Make sure all content updates are reflected live.
+
+Generate the code in clear, modular sections, including:
+- `app.py` or `server.js`
+- `index.html` for login
+- `dashboard.html` for content editing
+- API routes for login/authentication and content management
+- Basic CSS for styling
+
+Remember, the goal is to produce a clean, working prototype that a user can log into and update website content dynamically. Upon completion, you should have a working dashboard accessible at a specific URL, with user login handled by the provided credentials.
+
+---
+
+**Important:** Please review and test the AI-generated code thoroughly, especially security aspects like password hashing and session management, before deploying for real client use. Adjust credentials for production
