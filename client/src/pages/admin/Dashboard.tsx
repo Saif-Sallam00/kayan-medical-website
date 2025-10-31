@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { LogOut, Mail, Wrench, MessageSquare, Package, Edit, Trash2, Plus } from "lucide-react";
-import type { SafeUser, Product } from "@shared/schema";
+import { LogOut, Mail, Wrench, MessageSquare, Package, Edit, Trash2, Plus, MessageCircle } from "lucide-react";
+import type { SafeUser, Product, Testimonial } from "@shared/schema";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { insertProductSchema } from "@shared/schema";
+import { insertProductSchema, insertTestimonialSchema } from "@shared/schema";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -46,12 +46,30 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
+// Form schema for testimonials
+const testimonialFormSchema = z.object({
+  doctorName: z.string().min(2, "الاسم مطلوب"),
+  specialization: z.string().min(2, "التخصص مطلوب"),
+  quote: z.string().min(10, "الشهادة يجب أن تكون 10 أحرف على الأقل"),
+  rating: z.string().default("5"),
+  clinicName: z.string().min(2, "اسم العيادة مطلوب"),
+  photoUrl: z.string().nullable().optional(),
+  isActive: z.boolean().default(true),
+  displayOrder: z.string().optional(),
+});
+
+type TestimonialFormValues = z.infer<typeof testimonialFormSchema>;
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  
+  const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
+  const [deletingTestimonialId, setDeletingTestimonialId] = useState<string | null>(null);
 
   // Check if user is authenticated
   const { data: authData, isLoading: authLoading, error: authError } = useQuery<{ success: boolean; user: SafeUser }>({
@@ -86,6 +104,12 @@ export default function AdminDashboard() {
   // Fetch products (admin endpoint returns all products including inactive)
   const { data: productsData } = useQuery<{ success: boolean; data: Product[] }>({
     queryKey: ["/api/admin/products"],
+    enabled: !!authData?.user,
+  });
+
+  // Fetch testimonials (admin endpoint returns all testimonials including inactive)
+  const { data: testimonialsData } = useQuery<{ success: boolean; data: Testimonial[] }>({
+    queryKey: ["/api/testimonials/all"],
     enabled: !!authData?.user,
   });
 
@@ -176,6 +200,71 @@ export default function AdminDashboard() {
     },
   });
 
+  // Testimonial mutations
+  const createTestimonialMutation = useMutation({
+    mutationFn: async (data: TestimonialFormValues) => {
+      return await apiRequest("POST", "/api/testimonials", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/testimonials/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
+      toast({
+        title: "تم إضافة الشهادة بنجاح",
+      });
+      setIsTestimonialDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "فشل في إضافة الشهادة",
+        description: error.message,
+      });
+    },
+  });
+
+  const updateTestimonialMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: TestimonialFormValues }) => {
+      return await apiRequest("PUT", `/api/testimonials/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/testimonials/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
+      toast({
+        title: "تم تحديث الشهادة بنجاح",
+      });
+      setIsTestimonialDialogOpen(false);
+      setEditingTestimonial(null);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "فشل في تحديث الشهادة",
+        description: error.message,
+      });
+    },
+  });
+
+  const deleteTestimonialMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest("DELETE", `/api/testimonials/${id}`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/testimonials/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
+      toast({
+        title: "تم حذف الشهادة بنجاح",
+      });
+      setDeletingTestimonialId(null);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "فشل في حذف الشهادة",
+        description: error.message,
+      });
+    },
+  });
+
   // Product form
   const productForm = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -233,6 +322,60 @@ export default function AdminDashboard() {
     }
   };
 
+  // Testimonial form
+  const testimonialForm = useForm<TestimonialFormValues>({
+    resolver: zodResolver(testimonialFormSchema),
+    defaultValues: {
+      doctorName: "",
+      specialization: "",
+      quote: "",
+      rating: "5",
+      clinicName: "",
+      photoUrl: "",
+      isActive: true,
+      displayOrder: "0",
+    },
+  });
+
+  // Handle open testimonial dialog for adding/editing
+  const handleOpenTestimonialDialog = (testimonial?: Testimonial) => {
+    if (testimonial) {
+      setEditingTestimonial(testimonial);
+      testimonialForm.reset({
+        doctorName: testimonial.doctorName,
+        specialization: testimonial.specialization,
+        quote: testimonial.quote,
+        rating: testimonial.rating,
+        clinicName: testimonial.clinicName,
+        photoUrl: testimonial.photoUrl || "",
+        isActive: testimonial.isActive,
+        displayOrder: testimonial.displayOrder || "0",
+      });
+    } else {
+      setEditingTestimonial(null);
+      testimonialForm.reset({
+        doctorName: "",
+        specialization: "",
+        quote: "",
+        rating: "5",
+        clinicName: "",
+        photoUrl: "",
+        isActive: true,
+        displayOrder: "0",
+      });
+    }
+    setIsTestimonialDialogOpen(true);
+  };
+
+  // Handle testimonial form submit
+  const handleTestimonialSubmit = (data: TestimonialFormValues) => {
+    if (editingTestimonial) {
+      updateTestimonialMutation.mutate({ id: editingTestimonial.id, data });
+    } else {
+      createTestimonialMutation.mutate(data);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -249,6 +392,7 @@ export default function AdminDashboard() {
   const maintenanceRequests = maintenanceData?.data || [];
   const consultationRequests = consultationData?.data || [];
   const products = productsData?.data || [];
+  const testimonials = testimonialsData?.data || [];
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -311,8 +455,9 @@ export default function AdminDashboard() {
 
         {/* Data Tables */}
         <Tabs defaultValue="products" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="products" data-testid="tab-products">المنتجات</TabsTrigger>
+            <TabsTrigger value="testimonials" data-testid="tab-testimonials">الشهادات</TabsTrigger>
             <TabsTrigger value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
             <TabsTrigger value="maintenance" data-testid="tab-maintenance">طلبات الصيانة</TabsTrigger>
             <TabsTrigger value="consultation" data-testid="tab-consultation">طلبات الاستشارة</TabsTrigger>
@@ -388,6 +533,78 @@ export default function AdminDashboard() {
                                   <li>...و {product.specifications.length - 3} مواصفة أخرى</li>
                                 )}
                               </ul>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="testimonials">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between gap-2">
+                <div>
+                  <CardTitle>إدارة الشهادات</CardTitle>
+                  <CardDescription>إضافة وتعديل وحذف شهادات الأطباء</CardDescription>
+                </div>
+                <Button onClick={() => handleOpenTestimonialDialog()} data-testid="button-add-testimonial">
+                  <Plus className="w-4 h-4 mr-2" />
+                  إضافة شهادة جديدة
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {testimonials.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">لا توجد شهادات بعد</p>
+                  ) : (
+                    testimonials.map((testimonial) => (
+                      <Card key={testimonial.id} data-testid={`testimonial-${testimonial.id}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start gap-4">
+                            {testimonial.photoUrl && (
+                              <img 
+                                src={testimonial.photoUrl} 
+                                alt={testimonial.doctorName}
+                                className="w-16 h-16 object-cover rounded-full"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1">
+                                  <h3 className="text-lg font-semibold">{testimonial.doctorName}</h3>
+                                  <p className="text-sm text-muted-foreground">{testimonial.specialization}</p>
+                                  <div className="flex gap-2 mt-2">
+                                    <Badge variant="outline">{testimonial.clinicName}</Badge>
+                                    <Badge variant="outline">⭐ {testimonial.rating}</Badge>
+                                    <Badge variant={testimonial.isActive ? "default" : "secondary"}>
+                                      {testimonial.isActive ? "نشط" : "غير نشط"}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handleOpenTestimonialDialog(testimonial)}
+                                    data-testid={`button-edit-testimonial-${testimonial.id}`}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => setDeletingTestimonialId(testimonial.id)}
+                                    data-testid={`button-delete-testimonial-${testimonial.id}`}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-3 italic">"{testimonial.quote}"</p>
                             </div>
                           </div>
                         </CardContent>
@@ -769,6 +986,184 @@ export default function AdminDashboard() {
               onClick={() => deletingProductId && deleteProductMutation.mutate(deletingProductId)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-delete"
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Testimonial Dialog */}
+      <Dialog open={isTestimonialDialogOpen} onOpenChange={setIsTestimonialDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>{editingTestimonial ? "تعديل الشهادة" : "إضافة شهادة جديدة"}</DialogTitle>
+            <DialogDescription>
+              {editingTestimonial ? "قم بتعديل بيانات الشهادة" : "أدخل بيانات الشهادة الجديدة"}
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...testimonialForm}>
+            <form onSubmit={testimonialForm.handleSubmit(handleTestimonialSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={testimonialForm.control}
+                  name="doctorName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>اسم الطبيب</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-testimonial-doctor-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={testimonialForm.control}
+                  name="specialization"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>التخصص</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="مثال: استشاري النساء والتوليد" data-testid="input-testimonial-specialization" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={testimonialForm.control}
+                  name="clinicName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>اسم العيادة / المستشفى</FormLabel>
+                      <FormControl>
+                        <Input {...field} data-testid="input-testimonial-clinic" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={testimonialForm.control}
+                  name="rating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>التقييم</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-testimonial-rating">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="5">⭐⭐⭐⭐⭐ (5)</SelectItem>
+                          <SelectItem value="4">⭐⭐⭐⭐ (4)</SelectItem>
+                          <SelectItem value="3">⭐⭐⭐ (3)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={testimonialForm.control}
+                name="quote"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>نص الشهادة</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="اكتب شهادة الطبيب هنا..."
+                        rows={4}
+                        data-testid="input-testimonial-quote"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={testimonialForm.control}
+                name="photoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>رابط الصورة (اختياري)</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value || ""} placeholder="https://..." data-testid="input-testimonial-photo" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={testimonialForm.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="w-4 h-4"
+                        data-testid="checkbox-testimonial-active"
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">نشط (يظهر للعملاء)</FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsTestimonialDialogOpen(false);
+                    setEditingTestimonial(null);
+                  }}
+                  data-testid="button-cancel-testimonial"
+                >
+                  إلغاء
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createTestimonialMutation.isPending || updateTestimonialMutation.isPending}
+                  data-testid="button-submit-testimonial"
+                >
+                  {editingTestimonial ? "تحديث" : "إضافة"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Testimonial Confirmation */}
+      <AlertDialog open={!!deletingTestimonialId} onOpenChange={(open) => !open && setDeletingTestimonialId(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم حذف الشهادة بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete-testimonial">إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deletingTestimonialId && deleteTestimonialMutation.mutate(deletingTestimonialId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete-testimonial"
             >
               حذف
             </AlertDialogAction>
