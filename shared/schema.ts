@@ -121,24 +121,117 @@ export const insertConsultationRequestSchema = createInsertSchema(consultationRe
 export type InsertConsultationRequest = z.infer<typeof insertConsultationRequestSchema>;
 export type ConsultationRequest = typeof consultationRequests.$inferSelect;
 
-// Testimonial Schema (for display, not user-generated)
-export interface Testimonial {
-  id: string;
-  doctorName: string;
-  specialization: string;
-  quote: string;
-  rating: number;
-  clinicName: string;
-  photoUrl?: string;
-}
+// Testimonials Schema (Client testimonials)
+export const testimonials = pgTable("testimonials", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  doctorName: text("doctor_name").notNull(),
+  specialization: text("specialization").notNull(),
+  quote: text("quote").notNull(),
+  rating: text("rating").notNull().default("5"),
+  clinicName: text("clinic_name").notNull(),
+  photoUrl: text("photo_url"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  displayOrder: text("display_order").default("0"),
+});
 
-// Offer/News Schema
-export interface Offer {
-  id: string;
-  titleAr: string;
-  description: string;
-  discount?: string;
-  validUntil?: string;
-  imageUrl?: string;
-  isActive: boolean;
-}
+export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  doctorName: z.string().min(2, "الاسم يجب أن يكون حرفين على الأقل"),
+  specialization: z.string().min(2, "التخصص مطلوب"),
+  quote: z.string().min(10, "الشهادة يجب أن تكون 10 أحرف على الأقل"),
+  clinicName: z.string().min(2, "اسم العيادة مطلوب"),
+});
+
+export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+export type Testimonial = typeof testimonials.$inferSelect;
+
+// Offers Schema (Special deals and news)
+export const offers = pgTable("offers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  titleAr: text("title_ar").notNull(),
+  description: text("description").notNull(),
+  discount: text("discount"),
+  validUntil: text("valid_until"),
+  imageUrl: text("image_url"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  displayOrder: text("display_order").default("0"),
+});
+
+export const insertOfferSchema = createInsertSchema(offers).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  titleAr: z.string().min(3, "العنوان يجب أن يكون 3 أحرف على الأقل"),
+  description: z.string().min(10, "الوصف يجب أن يكون 10 أحرف على الأقل"),
+});
+
+export type InsertOffer = z.infer<typeof insertOfferSchema>;
+export type Offer = typeof offers.$inferSelect;
+
+// Hero Sections Schema (Homepage hero sections)
+export const heroSections = pgTable("hero_sections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  titleAr: text("title_ar").notNull(),
+  subtitleAr: text("subtitle_ar").notNull(),
+  backgroundImageUrl: text("background_image_url"),
+  ctaText: text("cta_text"),
+  ctaLink: text("cta_link"),
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: text("display_order").default("0"),
+});
+
+export const insertHeroSectionSchema = createInsertSchema(heroSections).omit({
+  id: true,
+}).extend({
+  titleAr: z.string().min(3, "العنوان مطلوب"),
+  subtitleAr: z.string().min(10, "النص الفرعي مطلوب"),
+});
+
+export type InsertHeroSection = z.infer<typeof insertHeroSectionSchema>;
+export type HeroSection = typeof heroSections.$inferSelect;
+
+// Features Schema (Homepage features)
+export const features = pgTable("features", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  titleAr: text("title_ar").notNull(),
+  descriptionAr: text("description_ar").notNull(),
+  icon: text("icon").notNull(), // lucide icon name
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: text("display_order").default("0"),
+});
+
+export const insertFeatureSchema = createInsertSchema(features).omit({
+  id: true,
+}).extend({
+  titleAr: z.string().min(2, "العنوان مطلوب"),
+  descriptionAr: z.string().min(10, "الوصف مطلوب"),
+  icon: z.string().min(2, "اسم الأيقونة مطلوب"),
+});
+
+export type InsertFeature = z.infer<typeof insertFeatureSchema>;
+export type Feature = typeof features.$inferSelect;
+
+// Stats Schema (Homepage statistics)
+export const stats = pgTable("stats", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  labelAr: text("label_ar").notNull(),
+  value: text("value").notNull(),
+  icon: text("icon").notNull(), // lucide icon name
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: text("display_order").default("0"),
+});
+
+export const insertStatSchema = createInsertSchema(stats).omit({
+  id: true,
+}).extend({
+  labelAr: z.string().min(2, "التسمية مطلوبة"),
+  value: z.string().min(1, "القيمة مطلوبة"),
+  icon: z.string().min(2, "اسم الأيقونة مطلوب"),
+});
+
+export type InsertStat = z.infer<typeof insertStatSchema>;
+export type Stat = typeof stats.$inferSelect;
