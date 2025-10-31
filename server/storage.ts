@@ -6,9 +6,32 @@ import {
   type MaintenanceRequest,
   type InsertMaintenanceRequest,
   type ConsultationRequest,
-  type InsertConsultationRequest
+  type InsertConsultationRequest,
+  type Product,
+  type InsertProduct,
+  type Testimonial,
+  type InsertTestimonial,
+  type Offer,
+  type InsertOffer,
+  type HeroSection,
+  type InsertHeroSection,
+  type Feature,
+  type InsertFeature,
+  type Stat,
+  type InsertStat,
+  users,
+  contactForms,
+  maintenanceRequests,
+  consultationRequests,
+  products,
+  testimonials,
+  offers,
+  heroSections,
+  features,
+  stats,
 } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -31,126 +54,320 @@ export interface IStorage {
   createConsultationRequest(request: InsertConsultationRequest): Promise<ConsultationRequest>;
   getAllConsultationRequests(): Promise<ConsultationRequest[]>;
   getConsultationRequest(id: string): Promise<ConsultationRequest | undefined>;
+
+  // Product methods
+  createProduct(product: InsertProduct): Promise<Product>;
+  getAllProducts(): Promise<Product[]>;
+  getProduct(id: string): Promise<Product | undefined>;
+  updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
+  deleteProduct(id: string): Promise<boolean>;
+
+  // Testimonial methods
+  createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
+  getAllTestimonials(): Promise<Testimonial[]>;
+  getActiveTestimonials(): Promise<Testimonial[]>;
+  getTestimonial(id: string): Promise<Testimonial | undefined>;
+  updateTestimonial(id: string, testimonial: Partial<InsertTestimonial>): Promise<Testimonial | undefined>;
+  deleteTestimonial(id: string): Promise<boolean>;
+
+  // Offer methods
+  createOffer(offer: InsertOffer): Promise<Offer>;
+  getAllOffers(): Promise<Offer[]>;
+  getActiveOffers(): Promise<Offer[]>;
+  getOffer(id: string): Promise<Offer | undefined>;
+  updateOffer(id: string, offer: Partial<InsertOffer>): Promise<Offer | undefined>;
+  deleteOffer(id: string): Promise<boolean>;
+
+  // Hero section methods
+  createHeroSection(hero: InsertHeroSection): Promise<HeroSection>;
+  getAllHeroSections(): Promise<HeroSection[]>;
+  getActiveHeroSections(): Promise<HeroSection[]>;
+  getHeroSection(id: string): Promise<HeroSection | undefined>;
+  updateHeroSection(id: string, hero: Partial<InsertHeroSection>): Promise<HeroSection | undefined>;
+  deleteHeroSection(id: string): Promise<boolean>;
+
+  // Feature methods
+  createFeature(feature: InsertFeature): Promise<Feature>;
+  getAllFeatures(): Promise<Feature[]>;
+  getActiveFeatures(): Promise<Feature[]>;
+  getFeature(id: string): Promise<Feature | undefined>;
+  updateFeature(id: string, feature: Partial<InsertFeature>): Promise<Feature | undefined>;
+  deleteFeature(id: string): Promise<boolean>;
+
+  // Stat methods
+  createStat(stat: InsertStat): Promise<Stat>;
+  getAllStats(): Promise<Stat[]>;
+  getActiveStats(): Promise<Stat[]>;
+  getStat(id: string): Promise<Stat | undefined>;
+  updateStat(id: string, stat: Partial<InsertStat>): Promise<Stat | undefined>;
+  deleteStat(id: string): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private contactForms: Map<string, ContactForm>;
-  private maintenanceRequests: Map<string, MaintenanceRequest>;
-  private consultationRequests: Map<string, ConsultationRequest>;
-
-  constructor() {
-    this.users = new Map();
-    this.contactForms = new Map();
-    this.maintenanceRequests = new Map();
-    this.consultationRequests = new Map();
-  }
-
+export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email === email,
-    );
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { 
-      id,
-      email: insertUser.email,
-      passwordHash: insertUser.passwordHash,
-      name: insertUser.name,
-      role: insertUser.role || "admin",
-      isActive: insertUser.isActive ?? true,
-      createdAt: new Date(),
-      lastLoginAt: null,
-    };
-    this.users.set(id, user);
-    return user;
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
   }
 
   async updateUserLastLogin(id: string): Promise<void> {
-    const user = this.users.get(id);
-    if (user) {
-      user.lastLoginAt = new Date();
-      this.users.set(id, user);
-    }
+    await db.update(users)
+      .set({ lastLoginAt: new Date() })
+      .where(eq(users.id, id));
   }
 
   // Contact form methods
   async createContactForm(insertForm: InsertContactForm): Promise<ContactForm> {
-    const id = randomUUID();
-    const contactForm: ContactForm = {
-      ...insertForm,
-      id,
-      createdAt: new Date(),
-    };
-    this.contactForms.set(id, contactForm);
-    return contactForm;
+    const result = await db.insert(contactForms).values(insertForm).returning();
+    return result[0];
   }
 
   async getAllContactForms(): Promise<ContactForm[]> {
-    return Array.from(this.contactForms.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    return await db.select().from(contactForms).orderBy(desc(contactForms.createdAt));
   }
 
   async getContactForm(id: string): Promise<ContactForm | undefined> {
-    return this.contactForms.get(id);
+    const result = await db.select().from(contactForms).where(eq(contactForms.id, id));
+    return result[0];
   }
 
   // Maintenance request methods
   async createMaintenanceRequest(insertRequest: InsertMaintenanceRequest): Promise<MaintenanceRequest> {
-    const id = randomUUID();
-    const maintenanceRequest: MaintenanceRequest = {
-      ...insertRequest,
-      id,
-      createdAt: new Date(),
-    };
-    this.maintenanceRequests.set(id, maintenanceRequest);
-    return maintenanceRequest;
+    const result = await db.insert(maintenanceRequests).values(insertRequest).returning();
+    return result[0];
   }
 
   async getAllMaintenanceRequests(): Promise<MaintenanceRequest[]> {
-    return Array.from(this.maintenanceRequests.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    return await db.select().from(maintenanceRequests).orderBy(desc(maintenanceRequests.createdAt));
   }
 
   async getMaintenanceRequest(id: string): Promise<MaintenanceRequest | undefined> {
-    return this.maintenanceRequests.get(id);
+    const result = await db.select().from(maintenanceRequests).where(eq(maintenanceRequests.id, id));
+    return result[0];
   }
 
   // Consultation request methods
   async createConsultationRequest(insertRequest: InsertConsultationRequest): Promise<ConsultationRequest> {
-    const id = randomUUID();
-    const consultationRequest: ConsultationRequest = {
-      id,
-      name: insertRequest.name,
-      phone: insertRequest.phone,
-      email: insertRequest.email || null,
-      productId: insertRequest.productId || null,
-      productName: insertRequest.productName || null,
-      message: insertRequest.message || null,
-      createdAt: new Date(),
-    };
-    this.consultationRequests.set(id, consultationRequest);
-    return consultationRequest;
+    const result = await db.insert(consultationRequests).values(insertRequest).returning();
+    return result[0];
   }
 
   async getAllConsultationRequests(): Promise<ConsultationRequest[]> {
-    return Array.from(this.consultationRequests.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    return await db.select().from(consultationRequests).orderBy(desc(consultationRequests.createdAt));
   }
 
   async getConsultationRequest(id: string): Promise<ConsultationRequest | undefined> {
-    return this.consultationRequests.get(id);
+    const result = await db.select().from(consultationRequests).where(eq(consultationRequests.id, id));
+    return result[0];
+  }
+
+  // Product methods
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    const result = await db.insert(products).values(insertProduct).returning();
+    return result[0];
+  }
+
+  async getAllProducts(): Promise<Product[]> {
+    return await db.select().from(products);
+  }
+
+  async getProduct(id: string): Promise<Product | undefined> {
+    const result = await db.select().from(products).where(eq(products.id, id));
+    return result[0];
+  }
+
+  async updateProduct(id: string, updateData: Partial<InsertProduct>): Promise<Product | undefined> {
+    const result = await db.update(products)
+      .set(updateData)
+      .where(eq(products.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteProduct(id: string): Promise<boolean> {
+    const result = await db.delete(products).where(eq(products.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Testimonial methods
+  async createTestimonial(insertTestimonial: InsertTestimonial): Promise<Testimonial> {
+    const result = await db.insert(testimonials).values(insertTestimonial).returning();
+    return result[0];
+  }
+
+  async getAllTestimonials(): Promise<Testimonial[]> {
+    return await db.select().from(testimonials).orderBy(desc(testimonials.displayOrder));
+  }
+
+  async getActiveTestimonials(): Promise<Testimonial[]> {
+    return await db.select().from(testimonials)
+      .where(eq(testimonials.isActive, true))
+      .orderBy(desc(testimonials.displayOrder));
+  }
+
+  async getTestimonial(id: string): Promise<Testimonial | undefined> {
+    const result = await db.select().from(testimonials).where(eq(testimonials.id, id));
+    return result[0];
+  }
+
+  async updateTestimonial(id: string, updateData: Partial<InsertTestimonial>): Promise<Testimonial | undefined> {
+    const result = await db.update(testimonials)
+      .set(updateData)
+      .where(eq(testimonials.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteTestimonial(id: string): Promise<boolean> {
+    const result = await db.delete(testimonials).where(eq(testimonials.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Offer methods
+  async createOffer(insertOffer: InsertOffer): Promise<Offer> {
+    const result = await db.insert(offers).values(insertOffer).returning();
+    return result[0];
+  }
+
+  async getAllOffers(): Promise<Offer[]> {
+    return await db.select().from(offers).orderBy(desc(offers.displayOrder));
+  }
+
+  async getActiveOffers(): Promise<Offer[]> {
+    return await db.select().from(offers)
+      .where(eq(offers.isActive, true))
+      .orderBy(desc(offers.displayOrder));
+  }
+
+  async getOffer(id: string): Promise<Offer | undefined> {
+    const result = await db.select().from(offers).where(eq(offers.id, id));
+    return result[0];
+  }
+
+  async updateOffer(id: string, updateData: Partial<InsertOffer>): Promise<Offer | undefined> {
+    const result = await db.update(offers)
+      .set(updateData)
+      .where(eq(offers.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteOffer(id: string): Promise<boolean> {
+    const result = await db.delete(offers).where(eq(offers.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Hero section methods
+  async createHeroSection(insertHero: InsertHeroSection): Promise<HeroSection> {
+    const result = await db.insert(heroSections).values(insertHero).returning();
+    return result[0];
+  }
+
+  async getAllHeroSections(): Promise<HeroSection[]> {
+    return await db.select().from(heroSections).orderBy(desc(heroSections.displayOrder));
+  }
+
+  async getActiveHeroSections(): Promise<HeroSection[]> {
+    return await db.select().from(heroSections)
+      .where(eq(heroSections.isActive, true))
+      .orderBy(desc(heroSections.displayOrder));
+  }
+
+  async getHeroSection(id: string): Promise<HeroSection | undefined> {
+    const result = await db.select().from(heroSections).where(eq(heroSections.id, id));
+    return result[0];
+  }
+
+  async updateHeroSection(id: string, updateData: Partial<InsertHeroSection>): Promise<HeroSection | undefined> {
+    const result = await db.update(heroSections)
+      .set(updateData)
+      .where(eq(heroSections.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteHeroSection(id: string): Promise<boolean> {
+    const result = await db.delete(heroSections).where(eq(heroSections.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Feature methods
+  async createFeature(insertFeature: InsertFeature): Promise<Feature> {
+    const result = await db.insert(features).values(insertFeature).returning();
+    return result[0];
+  }
+
+  async getAllFeatures(): Promise<Feature[]> {
+    return await db.select().from(features).orderBy(desc(features.displayOrder));
+  }
+
+  async getActiveFeatures(): Promise<Feature[]> {
+    return await db.select().from(features)
+      .where(eq(features.isActive, true))
+      .orderBy(desc(features.displayOrder));
+  }
+
+  async getFeature(id: string): Promise<Feature | undefined> {
+    const result = await db.select().from(features).where(eq(features.id, id));
+    return result[0];
+  }
+
+  async updateFeature(id: string, updateData: Partial<InsertFeature>): Promise<Feature | undefined> {
+    const result = await db.update(features)
+      .set(updateData)
+      .where(eq(features.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteFeature(id: string): Promise<boolean> {
+    const result = await db.delete(features).where(eq(features.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Stat methods
+  async createStat(insertStat: InsertStat): Promise<Stat> {
+    const result = await db.insert(stats).values(insertStat).returning();
+    return result[0];
+  }
+
+  async getAllStats(): Promise<Stat[]> {
+    return await db.select().from(stats).orderBy(desc(stats.displayOrder));
+  }
+
+  async getActiveStats(): Promise<Stat[]> {
+    return await db.select().from(stats)
+      .where(eq(stats.isActive, true))
+      .orderBy(desc(stats.displayOrder));
+  }
+
+  async getStat(id: string): Promise<Stat | undefined> {
+    const result = await db.select().from(stats).where(eq(stats.id, id));
+    return result[0];
+  }
+
+  async updateStat(id: string, updateData: Partial<InsertStat>): Promise<Stat | undefined> {
+    const result = await db.update(stats)
+      .set(updateData)
+      .where(eq(stats.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteStat(id: string): Promise<boolean> {
+    const result = await db.delete(stats).where(eq(stats.id, id)).returning();
+    return result.length > 0;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
