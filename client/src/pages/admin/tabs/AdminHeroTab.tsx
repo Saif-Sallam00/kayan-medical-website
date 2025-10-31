@@ -14,7 +14,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ObjectUploader } from "@/components/ObjectUploader";
-import type { UploadResult } from "@uppy/core";
 
 const heroFormSchema = z.object({
   titleAr: z.string().min(5, "العنوان يجب أن يكون 5 أحرف على الأقل"),
@@ -214,18 +213,20 @@ export default function AdminHeroTab() {
                         <ObjectUploader
                           onGetUploadParameters={async () => {
                             const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const data = await response.json();
                             return {
                               method: "PUT" as const,
-                              url: response.uploadURL,
+                              url: data.uploadURL,
                             };
                           }}
-                          onComplete={async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                          onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
                             if (result.successful[0]) {
                               const uploadURL = result.successful[0].uploadURL;
                               const aclResponse = await apiRequest("POST", "/api/objects/set-acl", {
                                 imageUrl: uploadURL,
                               });
-                              field.onChange(aclResponse.objectPath);
+                              const aclData = await aclResponse.json();
+                              field.onChange(aclData.objectPath);
                               toast({
                                 title: "تم رفع الصورة بنجاح",
                               });
