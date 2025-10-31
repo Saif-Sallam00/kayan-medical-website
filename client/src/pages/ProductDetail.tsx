@@ -1,31 +1,85 @@
 import { useParams, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, CheckCircle2, ArrowRight, Building2, Laptop } from "lucide-react";
-import { getProductById } from "@/data/products";
 import ultrasoundMachineUrl from "@/assets/ultrasound-machine.png";
+import { useToast } from "@/hooks/use-toast";
+import type { Product } from "@shared/schema";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
-  const product = id ? getProductById(id) : undefined;
+  const { toast } = useToast();
+  
+  const { data, isLoading, isError } = useQuery<{ success: boolean; data: Product }>({
+    queryKey: ["/api/products", id],
+    enabled: !!id,
+    retry: 2,
+  });
+  
+  useEffect(() => {
+    if (isError) {
+      toast({
+        variant: "destructive",
+        title: "خطأ في تحميل المنتج",
+        description: "حدث خطأ أثناء تحميل تفاصيل المنتج. يرجى المحاولة مرة أخرى.",
+      });
+    }
+  }, [isError, toast]);
+  
+  const product = data?.data;
 
   const whatsappLink = "https://wa.link/hn35ok";
   const phoneNumber = "+20 10 25253012";
 
-  if (!product) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">المنتج غير موجود</h1>
-          <Button onClick={() => setLocation("/products")} data-testid="button-back-products">
-            العودة للمنتجات
-          </Button>
+      <div className="min-h-screen py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
+          <div className="mb-6 h-10 bg-muted rounded w-32 animate-pulse" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <div className="aspect-square bg-muted rounded-lg animate-pulse" />
+            <div className="space-y-6">
+              <div className="h-8 bg-muted rounded w-32 animate-pulse" />
+              <div className="h-12 bg-muted rounded w-3/4 animate-pulse" />
+              <div className="h-6 bg-muted rounded w-1/2 animate-pulse" />
+              <div className="space-y-3">
+                <div className="h-4 bg-muted rounded animate-pulse" />
+                <div className="h-4 bg-muted rounded animate-pulse" />
+                <div className="h-4 bg-muted rounded w-5/6 animate-pulse" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
+
+  if (isError || (!isLoading && !product)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">{isError ? "خطأ في تحميل المنتج" : "المنتج غير موجود"}</h1>
+          <div className="flex gap-4 justify-center">
+            <Button onClick={() => setLocation("/products")} data-testid="button-back-products">
+              العودة للمنتجات
+            </Button>
+            {isError && (
+              <Button onClick={() => window.location.reload()} variant="outline" data-testid="button-retry">
+                إعادة المحاولة
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Type guard: if we reach here, product must be defined
+  if (!product) return null;
 
   const getCategoryIcon = (category: string) => {
     switch (category) {

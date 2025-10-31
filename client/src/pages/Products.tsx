@@ -1,14 +1,36 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getProductsByCategory } from "@/data/products";
+import { useToast } from "@/hooks/use-toast";
+import type { Product } from "@shared/schema";
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const { toast } = useToast();
 
-  const filteredProducts = getProductsByCategory(selectedCategory);
+  const { data, isLoading, isError, error } = useQuery<{ success: boolean; data: Product[] }>({
+    queryKey: ["/api/products"],
+    retry: 2,
+  });
+
+  useEffect(() => {
+    if (isError) {
+      toast({
+        variant: "destructive",
+        title: "خطأ في تحميل المنتجات",
+        description: "حدث خطأ أثناء تحميل المنتجات. يرجى المحاولة مرة أخرى.",
+      });
+    }
+  }, [isError, toast]);
+
+  const filteredProducts = useMemo(() => {
+    if (!data?.data) return [];
+    if (selectedCategory === "all") return data.data;
+    return data.data.filter(p => p.category === selectedCategory);
+  }, [data, selectedCategory]);
 
   return (
     <div className="min-h-screen py-8 sm:py-12">
@@ -40,15 +62,44 @@ export default function Products() {
           </Tabs>
         </div>
 
+        {/* Error State */}
+        {isError && (
+          <div className="text-center py-12">
+            <p className="text-destructive text-base sm:text-lg mb-4">فشل في تحميل المنتجات</p>
+            <Button onClick={() => window.location.reload()} data-testid="button-retry">
+              إعادة المحاولة
+            </Button>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {isLoading && !isError && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-card border border-card-border rounded-lg p-4 animate-pulse">
+                <div className="aspect-[4/3] bg-muted rounded-lg mb-4" />
+                <div className="h-6 bg-muted rounded mb-2" />
+                <div className="h-4 bg-muted rounded w-2/3 mb-3" />
+                <div className="space-y-2">
+                  <div className="h-3 bg-muted rounded" />
+                  <div className="h-3 bg-muted rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {!isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredProducts.length === 0 && (
+        {!isLoading && filteredProducts.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-base sm:text-lg">لا توجد منتجات في هذه الفئة حالياً</p>
           </div>
