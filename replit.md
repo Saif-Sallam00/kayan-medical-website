@@ -23,7 +23,7 @@ Preferred communication style: Simple, everyday language.
 **Routing**: Wouter for lightweight client-side routing with the following pages:
 - Home (landing page with hero, features, testimonials)
 - Products (catalog with category filtering)
-- Trade-In (device exchange/buy-back service information and policy)
+- Trade-In (device buying and exchange service - both purchasing used devices and trading old for new)
 - Maintenance (service request forms)
 - About (company information and team)
 - Contact (contact form and location details)
