@@ -4,6 +4,7 @@ import passport from "./auth";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedAdminUser } from "./seed";
+import { seedContent } from "./seed-content";
 
 const app = express();
 
@@ -68,6 +69,8 @@ app.use((req, res, next) => {
 (async () => {
   // Seed admin user on startup
   await seedAdminUser();
+  // Seed default content (products, testimonials, etc.)
+  await seedContent();
   
   const server = await registerRoutes(app);
 
