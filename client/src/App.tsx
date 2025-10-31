@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import Home from "@/pages/Home";
 import Products from "@/pages/Products";
+import TradeIn from "@/pages/TradeIn";
 import Maintenance from "@/pages/Maintenance";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
@@ -19,6 +20,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/products" component={Products} />
+      <Route path="/trade-in" component={TradeIn} />
       <Route path="/maintenance" component={Maintenance} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
