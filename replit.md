@@ -29,6 +29,8 @@ Preferred communication style: Simple, everyday language.
 - About (company information and team)
 - Contact (contact form and location details)
 - Offers (special deals and news)
+- Admin Login (`/admin/login` - authentication page for admin access)
+- Admin Dashboard (`/admin/dashboard` - protected admin panel for viewing submissions)
 
 **UI Component System**: Shadcn UI components (New York style) with Radix UI primitives for:
 - Forms with React Hook Form and Zod validation
@@ -71,10 +73,20 @@ Preferred communication style: Simple, everyday language.
 
 **Server Framework**: Express.js with TypeScript running in ESM mode
 
+**Authentication System**:
+- Passport.js with local strategy for email/password authentication
+- Express session management with httpOnly cookies (24-hour expiration)
+- bcryptjs for password hashing (10 rounds)
+- Admin user seeded on server startup: Abdullah@kayan.com / faris12345
+- Protected routes using requireAuth and requireAdmin middleware
+
 **API Structure**: RESTful endpoints organized by resource type:
-- `/api/contact` - Contact form submissions
-- `/api/maintenance` - Maintenance request handling
-- `/api/consultation` - Consultation booking (schema defined)
+- `/api/auth/login` - Admin login with email/password
+- `/api/auth/logout` - Session logout
+- `/api/auth/me` - Check authentication status
+- `/api/contact` - Contact form submissions (POST public, GET protected)
+- `/api/maintenance` - Maintenance request handling (POST public, GET protected)
+- `/api/consultation` - Consultation booking (POST public, GET protected)
 
 **Request Handling**:
 - JSON body parsing with raw body capture for webhook verification
@@ -91,6 +103,12 @@ Preferred communication style: Simple, everyday language.
 **ORM**: Drizzle ORM for type-safe database operations
 
 **Database Schema** (PostgreSQL with Neon serverless):
+
+**Users Table**:
+- Admin authentication for dashboard access
+- Fields: email (unique), passwordHash, name, role (admin/editor/viewer), isActive, createdAt, lastLoginAt
+- Passwords hashed with bcryptjs before storage
+- Admin user automatically seeded on startup
 
 **Products Table**:
 - Stores ultrasound device information
