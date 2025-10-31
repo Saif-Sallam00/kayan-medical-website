@@ -23,6 +23,7 @@ Preferred communication style: Simple, everyday language.
 **Routing**: Wouter for lightweight client-side routing with the following pages:
 - Home (landing page with hero, features, testimonials)
 - Products (catalog with category filtering)
+- Product Detail (`/products/:id` - individual product pages with specifications and WhatsApp CTA)
 - Trade-In (device buying and exchange service - both purchasing used devices and trading old for new)
 - Maintenance (service request forms)
 - About (company information and team)
