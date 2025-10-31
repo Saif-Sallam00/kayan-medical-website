@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { LogOut, Mail, Wrench, MessageSquare, Package, Edit, Trash2, Plus, MessageCircle } from "lucide-react";
-import type { SafeUser, Product, Testimonial } from "@shared/schema";
+import { LogOut, Mail, Wrench, MessageSquare, Package, Edit, Trash2, Plus, MessageCircle, Tag } from "lucide-react";
+import type { SafeUser, Product, Testimonial, Offer } from "@shared/schema";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { insertProductSchema, insertTestimonialSchema } from "@shared/schema";
+import { insertProductSchema, insertTestimonialSchema, insertOfferSchema } from "@shared/schema";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -60,6 +60,19 @@ const testimonialFormSchema = z.object({
 
 type TestimonialFormValues = z.infer<typeof testimonialFormSchema>;
 
+// Form schema for offers
+const offerFormSchema = z.object({
+  titleAr: z.string().min(3, "العنوان يجب أن يكون 3 أحرف على الأقل"),
+  description: z.string().min(10, "الوصف يجب أن يكون 10 أحرف على الأقل"),
+  discount: z.string().nullable().optional(),
+  validUntil: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+  isActive: z.boolean().default(true),
+  displayOrder: z.string().optional(),
+});
+
+type OfferFormValues = z.infer<typeof offerFormSchema>;
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -70,6 +83,10 @@ export default function AdminDashboard() {
   const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [deletingTestimonialId, setDeletingTestimonialId] = useState<string | null>(null);
+  
+  const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
+  const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
+  const [deletingOfferId, setDeletingOfferId] = useState<string | null>(null);
 
   // Check if user is authenticated
   const { data: authData, isLoading: authLoading, error: authError } = useQuery<{ success: boolean; user: SafeUser }>({
@@ -110,6 +127,12 @@ export default function AdminDashboard() {
   // Fetch testimonials (admin endpoint returns all testimonials including inactive)
   const { data: testimonialsData } = useQuery<{ success: boolean; data: Testimonial[] }>({
     queryKey: ["/api/testimonials/all"],
+    enabled: !!authData?.user,
+  });
+
+  // Fetch offers (admin endpoint returns all offers including inactive)
+  const { data: offersData } = useQuery<{ success: boolean; data: Offer[] }>({
+    queryKey: ["/api/offers/all"],
     enabled: !!authData?.user,
   });
 
@@ -265,6 +288,71 @@ export default function AdminDashboard() {
     },
   });
 
+  // Offer mutations
+  const createOfferMutation = useMutation({
+    mutationFn: async (data: OfferFormValues) => {
+      return await apiRequest("POST", "/api/offers", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/offers/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
+      toast({
+        title: "تم إضافة العرض بنجاح",
+      });
+      setIsOfferDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "فشل في إضافة العرض",
+        description: error.message,
+      });
+    },
+  });
+
+  const updateOfferMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: OfferFormValues }) => {
+      return await apiRequest("PUT", `/api/offers/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/offers/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
+      toast({
+        title: "تم تحديث العرض بنجاح",
+      });
+      setIsOfferDialogOpen(false);
+      setEditingOffer(null);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "فشل في تحديث العرض",
+        description: error.message,
+      });
+    },
+  });
+
+  const deleteOfferMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest("DELETE", `/api/offers/${id}`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/offers/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
+      toast({
+        title: "تم حذف العرض بنجاح",
+      });
+      setDeletingOfferId(null);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "فشل في حذف العرض",
+        description: error.message,
+      });
+    },
+  });
+
   // Product form
   const productForm = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -376,6 +464,65 @@ export default function AdminDashboard() {
     }
   };
 
+  // Offer form
+  const offerForm = useForm<OfferFormValues>({
+    resolver: zodResolver(offerFormSchema),
+    defaultValues: {
+      titleAr: "",
+      description: "",
+      discount: "",
+      validUntil: "",
+      imageUrl: "",
+      isActive: true,
+      displayOrder: "0",
+    },
+  });
+
+  // Handle open offer dialog for adding/editing
+  const handleOpenOfferDialog = (offer?: Offer) => {
+    if (offer) {
+      setEditingOffer(offer);
+      offerForm.reset({
+        titleAr: offer.titleAr,
+        description: offer.description,
+        discount: offer.discount || "",
+        validUntil: offer.validUntil || "",
+        imageUrl: offer.imageUrl || "",
+        isActive: offer.isActive,
+        displayOrder: offer.displayOrder || "0",
+      });
+    } else {
+      setEditingOffer(null);
+      offerForm.reset({
+        titleAr: "",
+        description: "",
+        discount: "",
+        validUntil: "",
+        imageUrl: "",
+        isActive: true,
+        displayOrder: "0",
+      });
+    }
+    setIsOfferDialogOpen(true);
+  };
+
+  // Handle offer form submit
+  const handleOfferSubmit = (data: OfferFormValues) => {
+    // Transform empty strings to null for optional fields
+    const transformedData = {
+      ...data,
+      discount: data.discount || null,
+      validUntil: data.validUntil || null,
+      imageUrl: data.imageUrl || null,
+    };
+    
+    if (editingOffer) {
+      updateOfferMutation.mutate({ id: editingOffer.id, data: transformedData });
+    } else {
+      createOfferMutation.mutate(transformedData);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -393,6 +540,7 @@ export default function AdminDashboard() {
   const consultationRequests = consultationData?.data || [];
   const products = productsData?.data || [];
   const testimonials = testimonialsData?.data || [];
+  const offers = offersData?.data || [];
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -455,9 +603,10 @@ export default function AdminDashboard() {
 
         {/* Data Tables */}
         <Tabs defaultValue="products" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="products" data-testid="tab-products">المنتجات</TabsTrigger>
             <TabsTrigger value="testimonials" data-testid="tab-testimonials">الشهادات</TabsTrigger>
+            <TabsTrigger value="offers" data-testid="tab-offers">العروض</TabsTrigger>
             <TabsTrigger value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
             <TabsTrigger value="maintenance" data-testid="tab-maintenance">طلبات الصيانة</TabsTrigger>
             <TabsTrigger value="consultation" data-testid="tab-consultation">طلبات الاستشارة</TabsTrigger>
@@ -605,6 +754,81 @@ export default function AdminDashboard() {
                                 </div>
                               </div>
                               <p className="text-sm text-muted-foreground mt-3 italic">"{testimonial.quote}"</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="offers">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between gap-2">
+                <div>
+                  <CardTitle>إدارة العروض</CardTitle>
+                  <CardDescription>إضافة وتعديل وحذف العروض والأخبار</CardDescription>
+                </div>
+                <Button onClick={() => handleOpenOfferDialog()} data-testid="button-add-offer">
+                  <Plus className="w-4 h-4 mr-2" />
+                  إضافة عرض جديد
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {offers.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">لا توجد عروض بعد</p>
+                  ) : (
+                    offers.map((offer) => (
+                      <Card key={offer.id} data-testid={`offer-${offer.id}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start gap-4">
+                            {offer.imageUrl && (
+                              <img 
+                                src={offer.imageUrl} 
+                                alt={offer.titleAr}
+                                className="w-24 h-24 object-cover rounded-md"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1">
+                                  <h3 className="text-lg font-semibold">{offer.titleAr}</h3>
+                                  <div className="flex gap-2 mt-2">
+                                    {offer.discount && (
+                                      <Badge variant="outline">{offer.discount}</Badge>
+                                    )}
+                                    {offer.validUntil && (
+                                      <Badge variant="outline">صالح حتى: {offer.validUntil}</Badge>
+                                    )}
+                                    <Badge variant={offer.isActive ? "default" : "secondary"}>
+                                      {offer.isActive ? "نشط" : "غير نشط"}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handleOpenOfferDialog(offer)}
+                                    data-testid={`button-edit-offer-${offer.id}`}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => setDeletingOfferId(offer.id)}
+                                    data-testid={`button-delete-offer-${offer.id}`}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-3">{offer.description}</p>
                             </div>
                           </div>
                         </CardContent>
@@ -1164,6 +1388,160 @@ export default function AdminDashboard() {
               onClick={() => deletingTestimonialId && deleteTestimonialMutation.mutate(deletingTestimonialId)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-delete-testimonial"
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Offer Dialog */}
+      <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>{editingOffer ? "تعديل العرض" : "إضافة عرض جديد"}</DialogTitle>
+            <DialogDescription>
+              {editingOffer ? "قم بتعديل بيانات العرض" : "أدخل بيانات العرض الجديد"}
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...offerForm}>
+            <form onSubmit={offerForm.handleSubmit(handleOfferSubmit)} className="space-y-4">
+              <FormField
+                control={offerForm.control}
+                name="titleAr"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>عنوان العرض</FormLabel>
+                    <FormControl>
+                      <Input {...field} data-testid="input-offer-title" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={offerForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>وصف العرض</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="اكتب تفاصيل العرض هنا..."
+                        rows={4}
+                        data-testid="input-offer-description"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={offerForm.control}
+                  name="discount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الخصم (اختياري)</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} placeholder="مثال: خصم 20%" data-testid="input-offer-discount" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={offerForm.control}
+                  name="validUntil"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>صالح حتى (اختياري)</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} placeholder="مثال: 31/12/2024" data-testid="input-offer-valid-until" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={offerForm.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>رابط الصورة (اختياري)</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value || ""} placeholder="https://..." data-testid="input-offer-image" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={offerForm.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="w-4 h-4"
+                        data-testid="checkbox-offer-active"
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">نشط (يظهر للعملاء)</FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsOfferDialogOpen(false);
+                    setEditingOffer(null);
+                  }}
+                  data-testid="button-cancel-offer"
+                >
+                  إلغاء
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createOfferMutation.isPending || updateOfferMutation.isPending}
+                  data-testid="button-submit-offer"
+                >
+                  {editingOffer ? "تحديث" : "إضافة"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Offer Confirmation */}
+      <AlertDialog open={!!deletingOfferId} onOpenChange={(open) => !open && setDeletingOfferId(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم حذف العرض بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete-offer">إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deletingOfferId && deleteOfferMutation.mutate(deletingOfferId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete-offer"
             >
               حذف
             </AlertDialogAction>
