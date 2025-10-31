@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 const heroFormSchema = z.object({
   titleAr: z.string().min(5, "العنوان يجب أن يكون 5 أحرف على الأقل"),
@@ -189,9 +191,48 @@ export default function AdminHeroTab() {
                 name="backgroundImageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>رابط صورة الخلفية (اختياري)</FormLabel>
+                    <FormLabel>صورة الخلفية (اختياري)</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="https://..." data-testid="input-hero-image" />
+                      <div className="space-y-2">
+                        {field.value && (
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={field.value} 
+                              alt="Preview" 
+                              className="w-24 h-24 object-cover rounded-md"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => field.onChange("")}
+                            >
+                              إزالة الصورة
+                            </Button>
+                          </div>
+                        )}
+                        <ObjectUploader
+                          onGetUploadParameters={async () => {
+                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            return {
+                              method: "PUT" as const,
+                              url: response.uploadURL,
+                            };
+                          }}
+                          onComplete={async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                            if (result.successful[0]) {
+                              const uploadURL = result.successful[0].uploadURL;
+                              const aclResponse = await apiRequest("POST", "/api/objects/set-acl", {
+                                imageUrl: uploadURL,
+                              });
+                              field.onChange(aclResponse.objectPath);
+                              toast({
+                                title: "تم رفع الصورة بنجاح",
+                              });
+                            }
+                          }}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

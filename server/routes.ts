@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import passport from "./auth";
 import type { SafeUser } from "@shared/schema";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { 
   insertContactFormSchema,
   insertMaintenanceRequestSchema,
@@ -908,6 +909,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: "فشل في حذف الإحصائية" 
+      });
+    }
+  });
+
+  // Object Storage Routes - From blueprint: javascript_object_storage
+  
+  // Endpoint to serve uploaded images (public access)
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error accessing object:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  // Endpoint to get upload URL (admin only)
+  app.post("/api/objects/upload", requireAdmin, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error: any) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "فشل في إنشاء رابط الرفع" 
+      });
+    }
+  });
+
+  // Endpoint to set ACL policy for uploaded image (admin only)
+  app.post("/api/objects/set-acl", requireAdmin, async (req, res) => {
+    try {
+      if (!req.body.imageUrl) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "رابط الصورة مطلوب" 
+        });
+      }
+
+      const userId = (req.user as SafeUser).id;
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.imageUrl,
+        {
+          owner: userId,
+          visibility: "public", // All uploaded images are public (visible to website visitors)
+        }
+      );
+
+      res.json({ 
+        success: true, 
+        objectPath 
+      });
+    } catch (error: any) {
+      console.error("Error setting ACL policy:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "فشل في معالجة الصورة" 
       });
     }
   });
