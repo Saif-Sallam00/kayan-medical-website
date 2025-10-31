@@ -123,7 +123,7 @@ export default function AdminDashboard() {
 
   // Fetch products (admin endpoint returns all products including inactive)
   const { data: productsData } = useQuery<{ success: boolean; data: Product[] }>({
-    queryKey: ["/api/admin/products"],
+    queryKey: ["/api/products/all"],
     enabled: !!authData?.user,
   });
 
@@ -160,10 +160,10 @@ export default function AdminDashboard() {
         ...data,
         specifications: data.specifications.split(',').map(s => s.trim()).filter(Boolean),
       };
-      return await apiRequest("POST", "/api/admin/products", productData);
+      return await apiRequest("POST", "/api/products", productData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
         title: "تم إضافة المنتج بنجاح",
@@ -185,10 +185,10 @@ export default function AdminDashboard() {
         ...data,
         specifications: data.specifications.split(',').map(s => s.trim()).filter(Boolean),
       };
-      return await apiRequest("PUT", `/api/admin/products/${id}`, productData);
+      return await apiRequest("PUT", `/api/products/${id}`, productData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
         title: "تم تحديث المنتج بنجاح",
@@ -207,10 +207,10 @@ export default function AdminDashboard() {
 
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/admin/products/${id}`, {});
+      return await apiRequest("DELETE", `/api/products/${id}`, {});
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
         title: "تم حذف المنتج بنجاح",

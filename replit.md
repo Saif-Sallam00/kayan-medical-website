@@ -81,12 +81,35 @@ Preferred communication style: Simple, everyday language.
 - Protected routes using requireAuth and requireAdmin middleware
 
 **API Structure**: RESTful endpoints organized by resource type:
+
+**Authentication:**
 - `/api/auth/login` - Admin login with email/password
 - `/api/auth/logout` - Session logout
 - `/api/auth/me` - Check authentication status
+
+**Form Submissions:**
 - `/api/contact` - Contact form submissions (POST public, GET protected)
 - `/api/maintenance` - Maintenance request handling (POST public, GET protected)
 - `/api/consultation` - Consultation booking (POST public, GET protected)
+
+**Content Management (CMS):**
+All content types follow consistent patterns:
+- Public endpoints: GET `/api/{resource}` - Returns only active items
+- Admin endpoints: GET `/api/{resource}/all` - Returns all items including inactive (requireAdmin)
+- Mutations: POST `/api/{resource}`, PUT `/api/{resource}/:id`, DELETE `/api/{resource}/:id` (requireAdmin)
+
+Implemented resources:
+- `/api/products` & `/api/products/all` - Full CRUD for ultrasound devices
+- `/api/testimonials` & `/api/testimonials/all` - Full CRUD for doctor testimonials
+- `/api/offers` & `/api/offers/all` - Full CRUD for special offers
+- `/api/hero-sections` & `/api/hero-sections/all` - Single-record edit for hero section
+- `/api/features` & `/api/features/all` - Full CRUD for company features/benefits
+- `/api/stats` & `/api/stats/all` - Full CRUD for statistics counters
+
+**Cache Invalidation Strategy:**
+- All mutations invalidate both admin (`/all`) and public query caches
+- Uses TanStack Query's `queryClient.invalidateQueries()`
+- Ensures immediate updates on both admin dashboard and public pages
 
 **Request Handling**:
 - JSON body parsing with raw body capture for webhook verification
