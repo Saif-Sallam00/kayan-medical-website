@@ -99,8 +99,13 @@ export default function AdminDashboard() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
+    console.log("Dashboard auth check:", { authLoading, authError, hasUser: !!authData?.user });
+    
     if (!authLoading && (authError || !authData?.user)) {
+      console.log("Not authenticated, redirecting to login...");
       setLocation("/admin/login");
+    } else if (!authLoading && authData?.user) {
+      console.log("Authenticated as:", authData.user.email);
     }
   }, [authLoading, authError, authData, setLocation]);
 
