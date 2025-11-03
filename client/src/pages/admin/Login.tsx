@@ -31,39 +31,42 @@ export default function AdminLogin() {
     },
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginForm) => {
-      const res = await apiRequest("POST", "/api/auth/login", data);
+  const onSubmit = async (data: LoginForm) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      
       const jsonData = await res.json();
-      if (!jsonData.success) {
-        throw new Error(jsonData.message || "فشل تسجيل الدخول");
+      
+      if (!res.ok || !jsonData.success) {
+        toast({
+          variant: "destructive",
+          title: "فشل تسجيل الدخول",
+          description: jsonData.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+        });
+        setIsLoading(false);
+        return;
       }
-      return jsonData;
-    },
-    onSuccess: () => {
+      
       toast({
         title: "تم تسجيل الدخول بنجاح",
         description: "مرحباً بك في لوحة التحكم",
       });
-      // Use window.location for full page redirect after login
-      setTimeout(() => {
-        window.location.href = "/admin/dashboard";
-      }, 500);
-    },
-    onError: (error: any) => {
+      
+      // Redirect immediately
+      window.location.href = "/admin/dashboard";
+      
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "فشل تسجيل الدخول",
-        description: error.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+        description: error.message || "حدث خطأ أثناء تسجيل الدخول",
       });
-    },
-  });
-
-  const onSubmit = async (data: LoginForm) => {
-    setIsLoading(true);
-    try {
-      await loginMutation.mutateAsync(data);
-    } finally {
       setIsLoading(false);
     }
   };
