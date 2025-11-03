@@ -35,7 +35,11 @@ export default function AdminLogin() {
   const loginMutation = useMutation({
     mutationFn: async (data: LoginForm) => {
       const res = await apiRequest("POST", "/api/auth/login", data);
-      return res;
+      const jsonData = await res.json();
+      if (!jsonData.success) {
+        throw new Error(jsonData.message || "فشل تسجيل الدخول");
+      }
+      return jsonData;
     },
     onSuccess: () => {
       toast({
