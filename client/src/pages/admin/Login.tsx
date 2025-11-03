@@ -60,16 +60,18 @@ export default function AdminLogin() {
       }
       
       console.log("Login successful! Redirecting to dashboard...");
+      
+      // Show toast
       toast({
         title: "تم تسجيل الدخول بنجاح",
         description: "مرحباً بك في لوحة التحكم",
       });
       
-      // Redirect after a short delay to ensure toast is visible
-      setTimeout(() => {
-        console.log("Executing redirect...");
-        window.location.href = "/admin/dashboard";
-      }, 1000);
+      // Force immediate redirect using multiple methods
+      console.log("Executing redirect NOW...");
+      
+      // Try window.location.replace first (doesn't add to history)
+      window.location.replace("/admin/dashboard");
       
     } catch (error: any) {
       console.error("Login error:", error);
