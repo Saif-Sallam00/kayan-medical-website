@@ -20,7 +20,6 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function AdminLogin() {
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,7 +45,10 @@ export default function AdminLogin() {
         title: "تم تسجيل الدخول بنجاح",
         description: "مرحباً بك في لوحة التحكم",
       });
-      setLocation("/admin/dashboard");
+      // Use window.location for full page redirect after login
+      setTimeout(() => {
+        window.location.href = "/admin/dashboard";
+      }, 500);
     },
     onError: (error: any) => {
       toast({
