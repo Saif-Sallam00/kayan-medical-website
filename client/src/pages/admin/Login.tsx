@@ -32,8 +32,11 @@ export default function AdminLogin() {
   });
 
   const onSubmit = async (data: LoginForm) => {
+    console.log("Login form submitted:", data);
     setIsLoading(true);
+    
     try {
+      console.log("Sending login request...");
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,9 +44,12 @@ export default function AdminLogin() {
         credentials: "include",
       });
       
+      console.log("Login response status:", res.status);
       const jsonData = await res.json();
+      console.log("Login response data:", jsonData);
       
       if (!res.ok || !jsonData.success) {
+        console.error("Login failed:", jsonData);
         toast({
           variant: "destructive",
           title: "فشل تسجيل الدخول",
@@ -53,15 +59,20 @@ export default function AdminLogin() {
         return;
       }
       
+      console.log("Login successful! Redirecting to dashboard...");
       toast({
         title: "تم تسجيل الدخول بنجاح",
         description: "مرحباً بك في لوحة التحكم",
       });
       
-      // Redirect immediately
-      window.location.href = "/admin/dashboard";
+      // Redirect after a short delay to ensure toast is visible
+      setTimeout(() => {
+        console.log("Executing redirect...");
+        window.location.href = "/admin/dashboard";
+      }, 1000);
       
     } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         variant: "destructive",
         title: "فشل تسجيل الدخول",
