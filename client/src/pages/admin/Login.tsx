@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { LockKeyhole } from "lucide-react";
 
 const loginSchema = z.object({
@@ -21,6 +21,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function AdminLogin() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginForm>({
@@ -59,7 +60,11 @@ export default function AdminLogin() {
         return;
       }
       
-      console.log("Login successful! Redirecting to dashboard...");
+      console.log("Login successful! Invalidating auth cache...");
+      
+      // CRITICAL: Clear the old auth cache so Dashboard doesn't get 401
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      console.log("Auth cache invalidated!");
       
       // Show toast
       toast({
@@ -67,11 +72,9 @@ export default function AdminLogin() {
         description: "مرحباً بك في لوحة التحكم",
       });
       
-      // Force immediate redirect using multiple methods
-      console.log("Executing redirect NOW...");
-      
-      // Try window.location.replace first (doesn't add to history)
-      window.location.replace("/admin/dashboard");
+      // Now redirect using wouter (not window.location)
+      console.log("Redirecting to dashboard...");
+      setLocation("/admin/dashboard");
       
     } catch (error: any) {
       console.error("Login error:", error);
