@@ -60,21 +60,43 @@ export default function AdminLogin() {
         return;
       }
       
-      console.log("Login successful! Invalidating auth cache...");
+      console.log("Login successful! Verifying session...");
       
-      // CRITICAL: Clear the old auth cache so Dashboard doesn't get 401
-      await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
-      console.log("Auth cache invalidated!");
-      
-      // Show toast
-      toast({
-        title: "تم تسجيل الدخول بنجاح",
-        description: "مرحباً بك في لوحة التحكم",
-      });
-      
-      // Now redirect using wouter (not window.location)
-      console.log("Redirecting to dashboard...");
-      setLocation("/admin/dashboard");
+      // CRITICAL: Verify session actually works by fetching /api/auth/me
+      try {
+        console.log("Fetching /api/auth/me to verify session...");
+        const authResponse = await apiRequest("GET", "/api/auth/me");
+        const authData = await authResponse.json();
+        console.log("Session verified:", authData);
+        
+        if (!authData.success || !authData.user) {
+          throw new Error("Session verification failed");
+        }
+        
+        // Manually set the auth data in cache so Dashboard doesn't refetch
+        queryClient.setQueryData(["/api/auth/me"], authData);
+        console.log("Auth data cached!");
+        
+        // Show success toast
+        toast({
+          title: "تم تسجيل الدخول بنجاح",
+          description: `مرحباً ${authData.user.name}`,
+        });
+        
+        // Now safely redirect
+        console.log("Redirecting to dashboard...");
+        setLocation("/admin/dashboard");
+        
+      } catch (verifyError: any) {
+        console.error("Session verification failed:", verifyError);
+        toast({
+          variant: "destructive",
+          title: "فشل التحقق من الجلسة",
+          description: "تم تسجيل الدخول ولكن لم نتمكن من التحقق. يرجى المحاولة مرة أخرى.",
+        });
+        setIsLoading(false);
+        return;
+      }
       
     } catch (error: any) {
       console.error("Login error:", error);
