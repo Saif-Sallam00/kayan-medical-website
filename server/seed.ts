@@ -4,7 +4,7 @@ import { storage } from "./storage";
 export async function seedAdminUser() {
   try {
     // Check if admin user already exists
-    const existingUser = await storage.getUserByEmail("Abdullah@kayan.com");
+    const existingUser = await storage.getUserByEmail("faris@omniflowai.agency");
     
     if (existingUser) {
       console.log("Admin user already exists");
@@ -12,12 +12,12 @@ export async function seedAdminUser() {
     }
 
     // Create admin user with the provided credentials
-    const passwordHash = await bcrypt.hash("faris12345", 10);
+    const passwordHash = await bcrypt.hash("faris123456", 10);
     
     const adminUser = await storage.createUser({
-      email: "Abdullah@kayan.com",
+      email: "faris@omniflowai.agency",
       passwordHash,
-      name: "Abdullah",
+      name: "Faris",
       role: "admin",
       isActive: true,
     });

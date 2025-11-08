@@ -132,7 +132,7 @@ export default function AdminLogin() {
                       <Input
                         {...field}
                         type="email"
-                        placeholder="Abdullah@kayan.com"
+                        placeholder="faris@omniflowai.agency"
                         autoComplete="email"
                         data-testid="input-email"
                       />
