@@ -111,12 +111,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.email, email));
+    // Normalize email to lowercase for case-insensitive matching
+    const normalizedEmail = email.trim().toLowerCase();
+    const result = await db.select().from(users).where(eq(users.email, normalizedEmail));
     return result[0];
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const result = await db.insert(users).values(insertUser).returning();
+    // Normalize email to lowercase before storing
+    const normalizedUser = {
+      ...insertUser,
+      email: insertUser.email.trim().toLowerCase(),
+    };
+    const result = await db.insert(users).values(normalizedUser).returning();
     return result[0];
   }
 

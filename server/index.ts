@@ -20,13 +20,16 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 
+// Trust proxy for production environments (Replit, Render, etc.)
+app.set("trust proxy", 1);
+
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || "kayan-medical-secret-key-change-in-production",
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Allow cookies in development
+    secure: process.env.NODE_ENV === "production", // Secure cookies in production
     httpOnly: true,
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
