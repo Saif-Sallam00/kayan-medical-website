@@ -1,0 +1,162 @@
+## *Root Cause*
+
+The dashboard login fails because the authentication system cannot find the admin user in the database — even when the credentials are correct.
+
+The *main reason* is *case-sensitive email matching* in PostgreSQL.
+When users type abdullah@kayan.com instead of Abdullah@kayan.com, the backend looks for an exact match and finds nothing.
+
+PostgreSQL treats string comparisons (=) as *case-sensitive*, so both are considered different.
+Thus, authentication fails, and the dashboard keeps redirecting to the login page.
+
+---
+
+## *Secondary Contributors*
+
+1. *Session not persisting properly* due to missing proxy trust or insecure cookies in production.
+2. *Seed script* creating an admin user with a *mixed-case email*.
+3. *No unique constraint on lowercase emails*, so the same email could exist in multiple case variants.
+
+---
+
+## *How to Solve It (step-by-step)*
+
+You need to fix *three main layers*:
+
+1. Input normalization (code)
+2. Database constraint (migration)
+3. Session reliability (configuration)
+
+---
+
+### *1. Normalize Email Input (Authentication)*
+
+*File:* server/auth.ts
+
+Before querying the user in the local strategy, always normalize the email.
+
+ts
+passport.use(
+  new LocalStrategy(
+    { usernameField: "email", passwordField: "password" },
+    async (email, password, done) => {
+      try {
+        // Normalize email
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // Fetch normalized email
+        const user = await storage.getUserByEmail(normalizedEmail);
+
+        if (!user) return done(null, false, { message: "Invalid email or password" });
+
+        const match = await bcrypt.compare(password, user.passwordHash);
+        if (!match) return done(null, false, { message: "Invalid email or password" });
+
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
+
+
+This ensures the lookup always works regardless of input case.
+
+---
+
+### *2. Query by Lowercased Email (Storage Layer)*
+
+*File:* server/storage.ts
+
+Normalize again at the query level to keep logic consistent across the app.
+
+ts
+async getUserByEmail(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const result = await db.select().from(users).where(eq(users.email, normalizedEmail));
+  return result[0];
+}
+
+
+---
+
+### *3. Store Emails in Lowercase (Seed Script)*
+
+*File:* server/seed.ts
+
+Ensure seeded data follows the same rule.
+
+ts
+export async function seedAdminUser() {
+  const email = "Abdullah@kayan.com".toLowerCase(); // Normalize
+  const existingUser = await storage.getUserByEmail(email);
+
+  if (!existingUser) {
+    const passwordHash = await bcrypt.hash("faris12345", 10);
+    await storage.createUser({
+      email,
+      passwordHash,
+      role: "admin",
+      isActive: true,
+    });
+  }
+}
+
+
+---
+
+### *4. Enforce Lowercase Email Constraint (Database)*
+
+*Migration file:* migrations/2025_add_lowercase_email_constraint.sql
+
+Create a migration so the database enforces lowercase uniqueness and updates existing data.
+
+sql
+-- Ensure pgcrypto is available for UUID generation
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Convert existing emails to lowercase
+UPDATE users SET email = lower(email);
+
+-- Add a unique index to prevent duplicates by case
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower_idx ON users (lower(email));
+
+
+Then run your migration command (depending on your setup):
+
+bash
+npm run db:push
+
+
+or
+
+bash
+npx drizzle-kit migrate
+
+
+---
+
+### *5. Fix Session Reliability (Production Issue)*
+
+*File:* server/index.ts
+
+If you’re running in production or behind a proxy (e.g., Replit, Render, or Nginx), the session cookie may not persist unless you set trust proxy and secure cookies correctly.
+
+ts
+app.set("trust proxy", 1); // Trust the proxy (needed for secure cookies)
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
+    // Recommended: use connect-pg-simple in production
+    // store: new (require('connect-pg-simple')(session))({ conString: process.env.DATABASE_URL })
+  })
+);

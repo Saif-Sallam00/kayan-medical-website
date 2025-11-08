@@ -77,8 +77,13 @@ Preferred communication style: Simple, everyday language.
 - Passport.js with local strategy for email/password authentication
 - Express session management with httpOnly cookies (24-hour expiration)
 - bcryptjs for password hashing (10 rounds)
-- Admin user seeded on server startup: Abdullah@kayan.com / faris12345
+- Admin user seeded on server startup: faris@omniflowai.agency / faris123456
 - Protected routes using requireAuth and requireAdmin middleware
+- **Case-insensitive email authentication**: All emails normalized to lowercase
+  - Auth layer: Email normalized before lookup (`email.trim().toLowerCase()`)
+  - Storage layer: Email normalized in queries and user creation
+  - Database: Unique index on `LOWER(email)` prevents duplicate emails with different cases
+- **Production-ready session**: Trust proxy enabled for secure cookies in production environments
 
 **API Structure**: RESTful endpoints organized by resource type:
 

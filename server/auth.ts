@@ -13,7 +13,9 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const user = await storage.getUserByEmail(email);
+        // Normalize email to lowercase for case-insensitive matching
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await storage.getUserByEmail(normalizedEmail);
         
         if (!user) {
           return done(null, false, { message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
