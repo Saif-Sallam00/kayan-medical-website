@@ -275,10 +275,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Hero section methods
-  async createHeroSection(insertHero: InsertHeroSection): Promise<HeroSection> {
-    const result = await db.insert(heroSections).values(insertHero).returning();
-    return result[0];
+  async createHeroSection(data: any) {
+    return await db.insert(heroSections).values({
+      titleAr: data.titleAr,
+      subtitleAr: data.subtitleAr,
+      descriptionAr: data.descriptionAr, // ✅ new line
+      backgroundImageUrl: data.backgroundImageUrl,
+      ctaText: data.ctaText,
+      isActive: data.isActive ?? true,
+    }).returning();
   }
+
 
   async getAllHeroSections(): Promise<HeroSection[]> {
     return await db.select().from(heroSections).orderBy(desc(heroSections.displayOrder));
@@ -295,13 +302,19 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async updateHeroSection(id: string, updateData: Partial<InsertHeroSection>): Promise<HeroSection | undefined> {
-    const result = await db.update(heroSections)
-      .set(updateData)
+  async updateHeroSection(id: string, data: any) {
+    return await db.update(heroSections)
+      .set({
+        titleAr: data.titleAr,
+        subtitleAr: data.subtitleAr,
+        descriptionAr: data.descriptionAr, // ✅ new line
+        ctaText: data.ctaText,
+        backgroundImageUrl: data.backgroundImageUrl,
+      })
       .where(eq(heroSections.id, id))
       .returning();
-    return result[0];
   }
+
 
   async deleteHeroSection(id: string): Promise<boolean> {
     const result = await db.delete(heroSections).where(eq(heroSections.id, id)).returning();
