@@ -6,19 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { LogOut, Mail, Wrench, MessageSquare, Package, Edit, Trash2, Plus, MessageCircle, Tag } from "lucide-react";
+import { LogOut, Mail, Wrench, MessageSquare, Edit, Trash2, Plus } from "lucide-react";
 import type { SafeUser, Product, Testimonial, Offer } from "@shared/schema";
 import AdminHeroTab from "./tabs/AdminHeroTab";
 import AdminFeaturesTab from "./tabs/AdminFeaturesTab";
 import AdminStatsTab from "./tabs/AdminStatsTab";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { insertProductSchema, insertTestimonialSchema, insertOfferSchema } from "@shared/schema";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -83,11 +82,11 @@ export default function AdminDashboard() {
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
-  
+
   const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [deletingTestimonialId, setDeletingTestimonialId] = useState<string | null>(null);
-  
+
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
   const [deletingOfferId, setDeletingOfferId] = useState<string | null>(null);
@@ -99,13 +98,8 @@ export default function AdminDashboard() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    console.log("Dashboard auth check:", { authLoading, authError, hasUser: !!authData?.user });
-    
     if (!authLoading && (authError || !authData?.user)) {
-      console.log("Not authenticated, redirecting to login...");
       setLocation("/admin/login");
-    } else if (!authLoading && authData?.user) {
-      console.log("Authenticated as:", authData.user.email);
     }
   }, [authLoading, authError, authData, setLocation]);
 
@@ -151,10 +145,7 @@ export default function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.clear();
-      toast({
-        title: "تم تسجيل الخروج",
-        description: "نراك قريباً",
-      });
+      toast({ title: "تم تسجيل الخروج", description: "نراك قريباً" });
       setLocation("/admin/login");
     },
   });
@@ -164,24 +155,18 @@ export default function AdminDashboard() {
     mutationFn: async (data: ProductFormValues) => {
       const productData = {
         ...data,
-        specifications: data.specifications.split(',').map(s => s.trim()).filter(Boolean),
+        specifications: data.specifications.split(",").map((s) => s.trim()).filter(Boolean),
       };
       return await apiRequest("POST", "/api/products", productData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      toast({
-        title: "تم إضافة المنتج بنجاح",
-      });
+      toast({ title: "تم إضافة المنتج بنجاح" });
       setIsProductDialogOpen(false);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في إضافة المنتج",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في إضافة المنتج", description: error.message });
     },
   });
 
@@ -189,25 +174,19 @@ export default function AdminDashboard() {
     mutationFn: async ({ id, data }: { id: string; data: ProductFormValues }) => {
       const productData = {
         ...data,
-        specifications: data.specifications.split(',').map(s => s.trim()).filter(Boolean),
+        specifications: data.specifications.split(",").map((s) => s.trim()).filter(Boolean),
       };
       return await apiRequest("PUT", `/api/products/${id}`, productData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      toast({
-        title: "تم تحديث المنتج بنجاح",
-      });
+      toast({ title: "تم تحديث المنتج بنجاح" });
       setIsProductDialogOpen(false);
       setEditingProduct(null);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في تحديث المنتج",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في تحديث المنتج", description: error.message });
     },
   });
 
@@ -218,17 +197,11 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      toast({
-        title: "تم حذف المنتج بنجاح",
-      });
+      toast({ title: "تم حذف المنتج بنجاح" });
       setDeletingProductId(null);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في حذف المنتج",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في حذف المنتج", description: error.message });
     },
   });
 
@@ -240,17 +213,11 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/testimonials/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
-      toast({
-        title: "تم إضافة الشهادة بنجاح",
-      });
+      toast({ title: "تم إضافة الشهادة بنجاح" });
       setIsTestimonialDialogOpen(false);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في إضافة الشهادة",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في إضافة الشهادة", description: error.message });
     },
   });
 
@@ -261,18 +228,12 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/testimonials/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
-      toast({
-        title: "تم تحديث الشهادة بنجاح",
-      });
+      toast({ title: "تم تحديث الشهادة بنجاح" });
       setIsTestimonialDialogOpen(false);
       setEditingTestimonial(null);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في تحديث الشهادة",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في تحديث الشهادة", description: error.message });
     },
   });
 
@@ -283,17 +244,11 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/testimonials/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
-      toast({
-        title: "تم حذف الشهادة بنجاح",
-      });
+      toast({ title: "تم حذف الشهادة بنجاح" });
       setDeletingTestimonialId(null);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في حذف الشهادة",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في حذف الشهادة", description: error.message });
     },
   });
 
@@ -305,17 +260,11 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/offers/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
-      toast({
-        title: "تم إضافة العرض بنجاح",
-      });
+      toast({ title: "تم إضافة العرض بنجاح" });
       setIsOfferDialogOpen(false);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في إضافة العرض",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في إضافة العرض", description: error.message });
     },
   });
 
@@ -326,18 +275,12 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/offers/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
-      toast({
-        title: "تم تحديث العرض بنجاح",
-      });
+      toast({ title: "تم تحديث العرض بنجاح" });
       setIsOfferDialogOpen(false);
       setEditingOffer(null);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في تحديث العرض",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في تحديث العرض", description: error.message });
     },
   });
 
@@ -348,17 +291,11 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/offers/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
-      toast({
-        title: "تم حذف العرض بنجاح",
-      });
+      toast({ title: "تم حذف العرض بنجاح" });
       setDeletingOfferId(null);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "فشل في حذف العرض",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "فشل في حذف العرض", description: error.message });
     },
   });
 
@@ -380,13 +317,12 @@ export default function AdminDashboard() {
     },
   });
 
-  // Handle open product dialog for adding/editing
   const handleOpenProductDialog = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
       productForm.reset({
         ...product,
-        specifications: product.specifications.join(', '),
+        specifications: product.specifications.join(", "),
         imageUrl: product.imageUrl || "",
         priceInfo: product.priceInfo || "",
         displayOrder: product.displayOrder || "0",
@@ -410,7 +346,6 @@ export default function AdminDashboard() {
     setIsProductDialogOpen(true);
   };
 
-  // Handle product form submit
   const handleProductSubmit = (data: ProductFormValues) => {
     if (editingProduct) {
       updateProductMutation.mutate({ id: editingProduct.id, data });
@@ -434,7 +369,6 @@ export default function AdminDashboard() {
     },
   });
 
-  // Handle open testimonial dialog for adding/editing
   const handleOpenTestimonialDialog = (testimonial?: Testimonial) => {
     if (testimonial) {
       setEditingTestimonial(testimonial);
@@ -464,7 +398,6 @@ export default function AdminDashboard() {
     setIsTestimonialDialogOpen(true);
   };
 
-  // Handle testimonial form submit
   const handleTestimonialSubmit = (data: TestimonialFormValues) => {
     if (editingTestimonial) {
       updateTestimonialMutation.mutate({ id: editingTestimonial.id, data });
@@ -487,7 +420,6 @@ export default function AdminDashboard() {
     },
   });
 
-  // Handle open offer dialog for adding/editing
   const handleOpenOfferDialog = (offer?: Offer) => {
     if (offer) {
       setEditingOffer(offer);
@@ -515,16 +447,13 @@ export default function AdminDashboard() {
     setIsOfferDialogOpen(true);
   };
 
-  // Handle offer form submit
   const handleOfferSubmit = (data: OfferFormValues) => {
-    // Transform empty strings to null for optional fields
     const transformedData = {
       ...data,
       discount: data.discount || null,
       validUntil: data.validUntil || null,
       imageUrl: data.imageUrl || null,
     };
-    
     if (editingOffer) {
       updateOfferMutation.mutate({ id: editingOffer.id, data: transformedData });
     } else {
@@ -536,7 +465,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
           <p className="text-muted-foreground">جاري التحميل...</p>
         </div>
       </div>
@@ -555,10 +484,10 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background" dir="rtl">
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">لوحة التحكم - كيان ميديكال</h1>
-            <p className="text-sm text-muted-foreground">مرحباً {user?.name}</p>
+        <div className="mx-auto w-full max-w-screen-2xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold truncate">لوحة التحكم - كيان ميديكال</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">مرحباً {user?.name}</p>
           </div>
           <Button
             variant="outline"
@@ -567,13 +496,14 @@ export default function AdminDashboard() {
             data-testid="button-logout"
           >
             <LogOut className="w-4 h-4" />
-            تسجيل الخروج
+            <span className="hidden sm:inline">تسجيل الخروج</span>
+            <span className="sm:hidden">خروج</span>
           </Button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8">
+      {/* Main */}
+      <main className="w-full max-w-screen-2xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <Card>
@@ -610,25 +540,27 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Data Tables */}
+        {/* Tabs */}
         <Tabs defaultValue="products" className="space-y-4">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-2 w-full text-xs sm:text-sm">
-            <TabsTrigger value="products" data-testid="tab-products">المنتجات</TabsTrigger>
-            <TabsTrigger value="testimonials" data-testid="tab-testimonials">الشهادات</TabsTrigger>
-            <TabsTrigger value="offers" data-testid="tab-offers">العروض</TabsTrigger>
-            <TabsTrigger value="hero" data-testid="tab-hero">Hero</TabsTrigger>
-            <TabsTrigger value="features" data-testid="tab-features">المميزات</TabsTrigger>
-            <TabsTrigger value="stats" data-testid="tab-stats">الإحصائيات</TabsTrigger>
-            <TabsTrigger value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
-            <TabsTrigger value="maintenance" data-testid="tab-maintenance">طلبات الصيانة</TabsTrigger>
-            <TabsTrigger value="consultation" data-testid="tab-consultation">طلبات الاستشارة</TabsTrigger>
+          {/* Scrollable Tabs on mobile */}
+          <TabsList className="w-full flex gap-2 overflow-x-auto whitespace-nowrap no-scrollbar p-1 sm:p-0">
+            <TabsTrigger className="shrink-0" value="products" data-testid="tab-products">المنتجات</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="testimonials" data-testid="tab-testimonials">الشهادات</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="offers" data-testid="tab-offers">العروض</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="hero" data-testid="tab-hero">Hero</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="features" data-testid="tab-features">المميزات</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="stats" data-testid="tab-stats">الإحصائيات</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="maintenance" data-testid="tab-maintenance">طلبات الصيانة</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="consultation" data-testid="tab-consultation">طلبات الاستشارة</TabsTrigger>
           </TabsList>
 
+          {/* Products */}
           <TabsContent value="products">
             <Card>
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-                <div>
-                  <CardTitle>إدارة المنتجات</CardTitle>
+                <div className="min-w-0">
+                  <CardTitle className="truncate">إدارة المنتجات</CardTitle>
                   <CardDescription>إضافة وتعديل وحذف المنتجات</CardDescription>
                 </div>
                 <Button onClick={() => handleOpenProductDialog()} data-testid="button-add-product">
@@ -652,12 +584,12 @@ export default function AdminDashboard() {
                                 className="w-full sm:w-24 h-auto sm:h-24 object-cover rounded-md"
                               />
                             )}
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-4">
-                                <div>
-                                  <h3 className="text-lg font-semibold">{product.nameAr}</h3>
-                                  <p className="text-sm text-muted-foreground">{product.nameEn}</p>
-                                  <div className="flex gap-2 mt-2">
+                                <div className="min-w-0">
+                                  <h3 className="text-lg font-semibold truncate">{product.nameAr}</h3>
+                                  <p className="text-sm text-muted-foreground truncate">{product.nameEn}</p>
+                                  <div className="flex flex-wrap gap-2 mt-2">
                                     <Badge variant="outline">{product.category}</Badge>
                                     <Badge variant="outline">{product.brand}</Badge>
                                     <Badge variant={product.isActive ? "default" : "secondary"}>
@@ -665,7 +597,7 @@ export default function AdminDashboard() {
                                     </Badge>
                                   </div>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 flex-shrink-0">
                                   <Button
                                     variant="outline"
                                     size="icon"
@@ -684,11 +616,11 @@ export default function AdminDashboard() {
                                   </Button>
                                 </div>
                               </div>
-                              <p className="text-sm text-muted-foreground mt-2">{product.description}</p>
+                              <p className="text-sm text-muted-foreground mt-2 break-words">{product.description}</p>
                               <p className="text-sm font-medium mt-2">المواصفات:</p>
-                              <ul className="text-sm text-muted-foreground list-disc list-inside">
+                              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-0.5">
                                 {product.specifications.slice(0, 3).map((spec, idx) => (
-                                  <li key={idx}>{spec}</li>
+                                  <li key={idx} className="break-words">{spec}</li>
                                 ))}
                                 {product.specifications.length > 3 && (
                                   <li>...و {product.specifications.length - 3} مواصفة أخرى</li>
@@ -705,9 +637,10 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Testimonials */}
           <TabsContent value="testimonials">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
                   <CardTitle>إدارة الشهادات</CardTitle>
                   <CardDescription>إضافة وتعديل وحذف شهادات الأطباء</CardDescription>
@@ -727,18 +660,18 @@ export default function AdminDashboard() {
                         <CardContent className="pt-6">
                           <div className="flex items-start gap-4">
                             {testimonial.photoUrl && (
-                              <img 
-                                src={testimonial.photoUrl} 
+                              <img
+                                src={testimonial.photoUrl}
                                 alt={testimonial.doctorName}
                                 className="w-16 h-16 object-cover rounded-full"
                               />
                             )}
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1">
-                                  <h3 className="text-lg font-semibold">{testimonial.doctorName}</h3>
-                                  <p className="text-sm text-muted-foreground">{testimonial.specialization}</p>
-                                  <div className="flex gap-2 mt-2">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-lg font-semibold truncate">{testimonial.doctorName}</h3>
+                                  <p className="text-sm text-muted-foreground truncate">{testimonial.specialization}</p>
+                                  <div className="flex flex-wrap gap-2 mt-2">
                                     <Badge variant="outline">{testimonial.clinicName}</Badge>
                                     <Badge variant="outline">⭐ {testimonial.rating}</Badge>
                                     <Badge variant={testimonial.isActive ? "default" : "secondary"}>
@@ -746,7 +679,7 @@ export default function AdminDashboard() {
                                     </Badge>
                                   </div>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 flex-shrink-0">
                                   <Button
                                     variant="outline"
                                     size="icon"
@@ -765,7 +698,7 @@ export default function AdminDashboard() {
                                   </Button>
                                 </div>
                               </div>
-                              <p className="text-sm text-muted-foreground mt-3 italic">"{testimonial.quote}"</p>
+                              <p className="text-sm text-muted-foreground mt-3 italic break-words">"{testimonial.quote}"</p>
                             </div>
                           </div>
                         </CardContent>
@@ -777,9 +710,10 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Offers */}
           <TabsContent value="offers">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
                   <CardTitle>إدارة العروض</CardTitle>
                   <CardDescription>إضافة وتعديل وحذف العروض والأخبار</CardDescription>
@@ -799,29 +733,25 @@ export default function AdminDashboard() {
                         <CardContent className="pt-6">
                           <div className="flex items-start gap-4">
                             {offer.imageUrl && (
-                              <img 
-                                src={offer.imageUrl} 
+                              <img
+                                src={offer.imageUrl}
                                 alt={offer.titleAr}
                                 className="w-24 h-24 object-cover rounded-md"
                               />
                             )}
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1">
-                                  <h3 className="text-lg font-semibold">{offer.titleAr}</h3>
-                                  <div className="flex gap-2 mt-2">
-                                    {offer.discount && (
-                                      <Badge variant="outline">{offer.discount}</Badge>
-                                    )}
-                                    {offer.validUntil && (
-                                      <Badge variant="outline">صالح حتى: {offer.validUntil}</Badge>
-                                    )}
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-lg font-semibold truncate">{offer.titleAr}</h3>
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    {offer.discount && <Badge variant="outline">{offer.discount}</Badge>}
+                                    {offer.validUntil && <Badge variant="outline">صالح حتى: {offer.validUntil}</Badge>}
                                     <Badge variant={offer.isActive ? "default" : "secondary"}>
                                       {offer.isActive ? "نشط" : "غير نشط"}
                                     </Badge>
                                   </div>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 flex-shrink-0">
                                   <Button
                                     variant="outline"
                                     size="icon"
@@ -840,7 +770,7 @@ export default function AdminDashboard() {
                                   </Button>
                                 </div>
                               </div>
-                              <p className="text-sm text-muted-foreground mt-3">{offer.description}</p>
+                              <p className="text-sm text-muted-foreground mt-3 break-words">{offer.description}</p>
                             </div>
                           </div>
                         </CardContent>
@@ -852,6 +782,7 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Contact */}
           <TabsContent value="contact">
             <Card>
               <CardHeader>
@@ -866,28 +797,28 @@ export default function AdminDashboard() {
                     contactForms.map((form: any) => (
                       <Card key={form.id} data-testid={`contact-${form.id}`}>
                         <CardContent className="pt-6">
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                               <p className="text-sm font-medium">الاسم</p>
-                              <p className="text-sm text-muted-foreground">{form.name}</p>
+                              <p className="text-sm text-muted-foreground break-words">{form.name}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">البريد الإلكتروني</p>
-                              <p className="text-sm text-muted-foreground">{form.email}</p>
+                              <p className="text-sm text-muted-foreground break-words">{form.email}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">رقم الهاتف</p>
-                              <p className="text-sm text-muted-foreground">{form.phone}</p>
+                              <p className="text-sm text-muted-foreground break-words">{form.phone}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">التاريخ</p>
                               <p className="text-sm text-muted-foreground">
-                                {new Date(form.createdAt).toLocaleDateString('ar-EG')}
+                                {new Date(form.createdAt).toLocaleDateString("ar-EG")}
                               </p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="sm:col-span-2">
                               <p className="text-sm font-medium">الرسالة</p>
-                              <p className="text-sm text-muted-foreground">{form.message}</p>
+                              <p className="text-sm text-muted-foreground break-words">{form.message}</p>
                             </div>
                           </div>
                         </CardContent>
@@ -899,6 +830,7 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Maintenance */}
           <TabsContent value="maintenance">
             <Card>
               <CardHeader>
@@ -913,31 +845,31 @@ export default function AdminDashboard() {
                     maintenanceRequests.map((request: any) => (
                       <Card key={request.id} data-testid={`maintenance-${request.id}`}>
                         <CardContent className="pt-6">
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                               <p className="text-sm font-medium">اسم العميل</p>
-                              <p className="text-sm text-muted-foreground">{request.clientName}</p>
+                              <p className="text-sm text-muted-foreground break-words">{request.clientName}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">نوع الجهاز</p>
-                              <p className="text-sm text-muted-foreground">{request.deviceType}</p>
+                              <p className="text-sm text-muted-foreground break-words">{request.deviceType}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">رقم الهاتف</p>
-                              <p className="text-sm text-muted-foreground">{request.phone}</p>
+                              <p className="text-sm text-muted-foreground break-words">{request.phone}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">موقع العيادة</p>
-                              <p className="text-sm text-muted-foreground">{request.clinicLocation}</p>
+                              <p className="text-sm text-muted-foreground break-words">{request.clinicLocation}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="sm:col-span-2">
                               <p className="text-sm font-medium">وصف المشكلة</p>
-                              <p className="text-sm text-muted-foreground">{request.issueDescription}</p>
+                              <p className="text-sm text-muted-foreground break-words">{request.issueDescription}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">التاريخ</p>
                               <p className="text-sm text-muted-foreground">
-                                {new Date(request.createdAt).toLocaleDateString('ar-EG')}
+                                {new Date(request.createdAt).toLocaleDateString("ar-EG")}
                               </p>
                             </div>
                           </div>
@@ -950,6 +882,7 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Consultation */}
           <TabsContent value="consultation">
             <Card>
               <CardHeader>
@@ -964,37 +897,37 @@ export default function AdminDashboard() {
                     consultationRequests.map((request: any) => (
                       <Card key={request.id} data-testid={`consultation-${request.id}`}>
                         <CardContent className="pt-6">
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                               <p className="text-sm font-medium">الاسم</p>
-                              <p className="text-sm text-muted-foreground">{request.name}</p>
+                              <p className="text-sm text-muted-foreground break-words">{request.name}</p>
                             </div>
                             <div>
                               <p className="text-sm font-medium">رقم الهاتف</p>
-                              <p className="text-sm text-muted-foreground">{request.phone}</p>
+                              <p className="text-sm text-muted-foreground break-words">{request.phone}</p>
                             </div>
                             {request.email && (
                               <div>
                                 <p className="text-sm font-medium">البريد الإلكتروني</p>
-                                <p className="text-sm text-muted-foreground">{request.email}</p>
+                                <p className="text-sm text-muted-foreground break-words">{request.email}</p>
                               </div>
                             )}
                             {request.productName && (
                               <div>
                                 <p className="text-sm font-medium">المنتج</p>
-                                <p className="text-sm text-muted-foreground">{request.productName}</p>
+                                <p className="text-sm text-muted-foreground break-words">{request.productName}</p>
                               </div>
                             )}
                             {request.message && (
-                              <div className="col-span-2">
+                              <div className="sm:col-span-2">
                                 <p className="text-sm font-medium">الرسالة</p>
-                                <p className="text-sm text-muted-foreground">{request.message}</p>
+                                <p className="text-sm text-muted-foreground break-words">{request.message}</p>
                               </div>
                             )}
                             <div>
                               <p className="text-sm font-medium">التاريخ</p>
                               <p className="text-sm text-muted-foreground">
-                                {new Date(request.createdAt).toLocaleDateString('ar-EG')}
+                                {new Date(request.createdAt).toLocaleDateString("ar-EG")}
                               </p>
                             </div>
                           </div>
@@ -1007,14 +940,13 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Other tabs */}
           <TabsContent value="hero">
             <AdminHeroTab />
           </TabsContent>
-
           <TabsContent value="features">
             <AdminFeaturesTab />
           </TabsContent>
-
           <TabsContent value="stats">
             <AdminStatsTab />
           </TabsContent>
@@ -1023,7 +955,10 @@ export default function AdminDashboard() {
 
       {/* Product Dialog */}
       <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent
+          className="w-[calc(100vw-1rem)] sm:w-auto max-w-[min(100vw-1rem,42rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6"
+          dir="rtl"
+        >
           <DialogHeader>
             <DialogTitle>{editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}</DialogTitle>
             <DialogDescription>
@@ -1032,7 +967,7 @@ export default function AdminDashboard() {
           </DialogHeader>
           <Form {...productForm}>
             <form onSubmit={productForm.handleSubmit(handleProductSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={productForm.control}
                   name="nameAr"
@@ -1061,7 +996,7 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <FormField
                   control={productForm.control}
                   name="category"
@@ -1133,8 +1068,8 @@ export default function AdminDashboard() {
                   <FormItem>
                     <FormLabel>المواصفات (مفصولة بفواصل)</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        {...field} 
+                      <Textarea
+                        {...field}
                         placeholder="مثال: شاشة 15 إنش, تقنية 4D, ذاكرة 256 جيجا"
                         rows={3}
                         data-testid="input-product-specifications"
@@ -1155,17 +1090,8 @@ export default function AdminDashboard() {
                       <div className="space-y-2">
                         {field.value && (
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={field.value} 
-                              alt="Preview" 
-                              className="w-24 h-24 object-cover rounded-md"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => field.onChange("")}
-                            >
+                            <img src={field.value} alt="Preview" className="w-24 h-24 object-cover rounded-md" />
+                            <Button type="button" variant="outline" size="sm" onClick={() => field.onChange("")}>
                               إزالة الصورة
                             </Button>
                           </div>
@@ -1174,10 +1100,7 @@ export default function AdminDashboard() {
                           onGetUploadParameters={async () => {
                             const response = await apiRequest("POST", "/api/objects/upload", {});
                             const data = await response.json();
-                            return {
-                              method: "PUT" as const,
-                              url: data.uploadURL,
-                            };
+                            return { method: "PUT" as const, url: data.uploadURL };
                           }}
                           onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
                             if (result.successful[0]) {
@@ -1187,9 +1110,7 @@ export default function AdminDashboard() {
                               });
                               const aclData = await aclResponse.json();
                               field.onChange(aclData.objectPath);
-                              toast({
-                                title: "تم رفع الصورة بنجاح",
-                              });
+                              toast({ title: "تم رفع الصورة بنجاح" });
                             }
                           }}
                         />
@@ -1207,7 +1128,12 @@ export default function AdminDashboard() {
                   <FormItem>
                     <FormLabel>معلومات السعر</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="مثال: اتصل للسعر" data-testid="input-product-price" />
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        placeholder="مثال: اتصل للسعر"
+                        data-testid="input-product-price"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1261,12 +1187,10 @@ export default function AdminDashboard() {
 
       {/* Delete Product Confirmation */}
       <AlertDialog open={!!deletingProductId} onOpenChange={(open) => !open && setDeletingProductId(null)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent className="w-[calc(100vw-1rem)] sm:w-auto max-w-[min(100vw-1rem,32rem)]" dir="rtl">
           <AlertDialogHeader>
             <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
-            <AlertDialogDescription>
-              سيتم حذف المنتج بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
-            </AlertDialogDescription>
+            <AlertDialogDescription>سيتم حذف المنتج بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="button-cancel-delete">إلغاء</AlertDialogCancel>
@@ -1283,7 +1207,10 @@ export default function AdminDashboard() {
 
       {/* Testimonial Dialog */}
       <Dialog open={isTestimonialDialogOpen} onOpenChange={setIsTestimonialDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent
+          className="w-[calc(100vw-1rem)] sm:w-auto max-w-[min(100vw-1rem,42rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6"
+          dir="rtl"
+        >
           <DialogHeader>
             <DialogTitle>{editingTestimonial ? "تعديل الشهادة" : "إضافة شهادة جديدة"}</DialogTitle>
             <DialogDescription>
@@ -1292,7 +1219,7 @@ export default function AdminDashboard() {
           </DialogHeader>
           <Form {...testimonialForm}>
             <form onSubmit={testimonialForm.handleSubmit(handleTestimonialSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={testimonialForm.control}
                   name="doctorName"
@@ -1313,7 +1240,11 @@ export default function AdminDashboard() {
                     <FormItem>
                       <FormLabel>التخصص</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="مثال: استشاري النساء والتوليد" data-testid="input-testimonial-specialization" />
+                        <Input
+                          {...field}
+                          placeholder="مثال: استشاري النساء والتوليد"
+                          data-testid="input-testimonial-specialization"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1321,7 +1252,7 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={testimonialForm.control}
                   name="clinicName"
@@ -1366,8 +1297,8 @@ export default function AdminDashboard() {
                   <FormItem>
                     <FormLabel>نص الشهادة</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        {...field} 
+                      <Textarea
+                        {...field}
                         placeholder="اكتب شهادة الطبيب هنا..."
                         rows={4}
                         data-testid="input-testimonial-quote"
@@ -1388,17 +1319,8 @@ export default function AdminDashboard() {
                       <div className="space-y-2">
                         {field.value && (
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={field.value} 
-                              alt="Preview" 
-                              className="w-24 h-24 object-cover rounded-md"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => field.onChange("")}
-                            >
+                            <img src={field.value} alt="Preview" className="w-24 h-24 object-cover rounded-md" />
+                            <Button type="button" variant="outline" size="sm" onClick={() => field.onChange("")}>
                               إزالة الصورة
                             </Button>
                           </div>
@@ -1407,10 +1329,7 @@ export default function AdminDashboard() {
                           onGetUploadParameters={async () => {
                             const response = await apiRequest("POST", "/api/objects/upload", {});
                             const data = await response.json();
-                            return {
-                              method: "PUT" as const,
-                              url: data.uploadURL,
-                            };
+                            return { method: "PUT" as const, url: data.uploadURL };
                           }}
                           onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
                             if (result.successful[0]) {
@@ -1420,9 +1339,7 @@ export default function AdminDashboard() {
                               });
                               const aclData = await aclResponse.json();
                               field.onChange(aclData.objectPath);
-                              toast({
-                                title: "تم رفع الصورة بنجاح",
-                              });
+                              toast({ title: "تم رفع الصورة بنجاح" });
                             }
                           }}
                         />
@@ -1480,12 +1397,10 @@ export default function AdminDashboard() {
 
       {/* Delete Testimonial Confirmation */}
       <AlertDialog open={!!deletingTestimonialId} onOpenChange={(open) => !open && setDeletingTestimonialId(null)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent className="w-[calc(100vw-1rem)] sm:w-auto max-w-[min(100vw-1rem,32rem)]" dir="rtl">
           <AlertDialogHeader>
             <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
-            <AlertDialogDescription>
-              سيتم حذف الشهادة بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
-            </AlertDialogDescription>
+            <AlertDialogDescription>سيتم حذف الشهادة بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="button-cancel-delete-testimonial">إلغاء</AlertDialogCancel>
@@ -1502,7 +1417,10 @@ export default function AdminDashboard() {
 
       {/* Offer Dialog */}
       <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent
+          className="w-[calc(100vw-1rem)] sm:w-auto max-w-[min(100vw-1rem,42rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6"
+          dir="rtl"
+        >
           <DialogHeader>
             <DialogTitle>{editingOffer ? "تعديل العرض" : "إضافة عرض جديد"}</DialogTitle>
             <DialogDescription>
@@ -1532,8 +1450,8 @@ export default function AdminDashboard() {
                   <FormItem>
                     <FormLabel>وصف العرض</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        {...field} 
+                      <Textarea
+                        {...field}
                         placeholder="اكتب تفاصيل العرض هنا..."
                         rows={4}
                         data-testid="input-offer-description"
@@ -1544,7 +1462,7 @@ export default function AdminDashboard() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={offerForm.control}
                   name="discount"
@@ -1552,7 +1470,12 @@ export default function AdminDashboard() {
                     <FormItem>
                       <FormLabel>الخصم (اختياري)</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} placeholder="مثال: خصم 20%" data-testid="input-offer-discount" />
+                        <Input
+                          {...field}
+                          value={field.value || ""}
+                          placeholder="مثال: خصم 20%"
+                          data-testid="input-offer-discount"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1565,7 +1488,12 @@ export default function AdminDashboard() {
                     <FormItem>
                       <FormLabel>صالح حتى (اختياري)</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} placeholder="مثال: 31/12/2024" data-testid="input-offer-valid-until" />
+                        <Input
+                          {...field}
+                          value={field.value || ""}
+                          placeholder="مثال: 31/12/2024"
+                          data-testid="input-offer-valid-until"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1583,17 +1511,8 @@ export default function AdminDashboard() {
                       <div className="space-y-2">
                         {field.value && (
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={field.value} 
-                              alt="Preview" 
-                              className="w-24 h-24 object-cover rounded-md"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => field.onChange("")}
-                            >
+                            <img src={field.value} alt="Preview" className="w-24 h-24 object-cover rounded-md" />
+                            <Button type="button" variant="outline" size="sm" onClick={() => field.onChange("")}>
                               إزالة الصورة
                             </Button>
                           </div>
@@ -1602,10 +1521,7 @@ export default function AdminDashboard() {
                           onGetUploadParameters={async () => {
                             const response = await apiRequest("POST", "/api/objects/upload", {});
                             const data = await response.json();
-                            return {
-                              method: "PUT" as const,
-                              url: data.uploadURL,
-                            };
+                            return { method: "PUT" as const, url: data.uploadURL };
                           }}
                           onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
                             if (result.successful[0]) {
@@ -1615,9 +1531,7 @@ export default function AdminDashboard() {
                               });
                               const aclData = await aclResponse.json();
                               field.onChange(aclData.objectPath);
-                              toast({
-                                title: "تم رفع الصورة بنجاح",
-                              });
+                              toast({ title: "تم رفع الصورة بنجاح" });
                             }
                           }}
                         />
@@ -1675,12 +1589,10 @@ export default function AdminDashboard() {
 
       {/* Delete Offer Confirmation */}
       <AlertDialog open={!!deletingOfferId} onOpenChange={(open) => !open && setDeletingOfferId(null)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent className="w-[calc(100vw-1rem)] sm:w-auto max-w-[min(100vw-1rem,32rem)]" dir="rtl">
           <AlertDialogHeader>
             <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
-            <AlertDialogDescription>
-              سيتم حذف العرض بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
-            </AlertDialogDescription>
+            <AlertDialogDescription>سيتم حذف العرض بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="button-cancel-delete-offer">إلغاء</AlertDialogCancel>
