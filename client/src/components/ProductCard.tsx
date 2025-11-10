@@ -25,9 +25,10 @@ export function ProductCard({ product }: ProductCardProps) {
         
         <div className="aspect-[4/3] bg-gradient-to-br from-primary/5 to-accent/5 rounded-md mb-3 sm:mb-4 flex items-center justify-center overflow-hidden p-3 sm:p-4">
           <img 
-            src={ultrasoundMachineUrl} 
+            src={product.imageUrl || ultrasoundMachineUrl} 
             alt={product.nameAr} 
             className="w-full h-full object-contain"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = ultrasoundMachineUrl; }}
           />
         </div>
 
