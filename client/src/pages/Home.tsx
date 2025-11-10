@@ -85,7 +85,7 @@ export default function Home() {
                 </Badge>
                 
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
-                  {hero?.titleAr || "أفضل حلول السونار الطبي في مصر"}
+                  {hero?.titleAr || "كيان ميديكال"}
                 </h1>
                 
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-muted-foreground font-['Tajawal']">
