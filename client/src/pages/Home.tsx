@@ -93,7 +93,7 @@ export default function Home() {
                 </p>
                 
                 <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
-                  نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص
+                  {hero?.descriptionAr || "نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص"}
                 </p>
 
                 <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-4 justify-center lg:justify-start">
