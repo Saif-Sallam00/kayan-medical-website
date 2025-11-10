@@ -18,6 +18,7 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 const heroFormSchema = z.object({
   titleAr: z.string().min(5, "العنوان يجب أن يكون 5 أحرف على الأقل"),
   subtitleAr: z.string().min(10, "العنوان الفرعي يجب أن يكون 10 أحرف على الأقل"),
+  descriptionAr: z.string().optional(), // ✅ NEW FIELD
   ctaText: z.string().nullable().optional(),
   backgroundImageUrl: z.string().nullable().optional(),
 });
@@ -39,6 +40,7 @@ export default function AdminHeroTab() {
     defaultValues: {
       titleAr: "",
       subtitleAr: "",
+      descriptionAr: "", // ✅ default added
       ctaText: "",
       backgroundImageUrl: "",
     },
@@ -47,13 +49,13 @@ export default function AdminHeroTab() {
   const updateMutation = useMutation({
     mutationFn: async (data: HeroFormValues) => {
       if (!heroSection) throw new Error("Hero section not found");
-      
+
       const transformedData = {
         ...data,
         ctaText: data.ctaText || null,
         backgroundImageUrl: data.backgroundImageUrl || null,
       };
-      
+
       return await apiRequest("PUT", `/api/hero-sections/${heroSection.id}`, transformedData);
     },
     onSuccess: () => {
@@ -78,6 +80,7 @@ export default function AdminHeroTab() {
       form.reset({
         titleAr: heroSection.titleAr,
         subtitleAr: heroSection.subtitleAr,
+        descriptionAr: heroSection.descriptionAr || "", // ✅ load current value
         ctaText: heroSection.ctaText || "",
         backgroundImageUrl: heroSection.backgroundImageUrl || "",
       });
@@ -111,6 +114,9 @@ export default function AdminHeroTab() {
             <div className="p-4 border rounded-lg bg-card" data-testid="hero-preview">
               <h3 className="text-xl font-bold mb-2">{heroSection.titleAr}</h3>
               <p className="text-muted-foreground mb-2">{heroSection.subtitleAr}</p>
+              {heroSection.descriptionAr && ( // ✅ show new paragraph
+                <p className="text-muted-foreground mb-2">{heroSection.descriptionAr}</p>
+              )}
               {heroSection.ctaText && (
                 <p className="text-sm"><strong>CTA:</strong> {heroSection.ctaText}</p>
               )}
@@ -128,6 +134,7 @@ export default function AdminHeroTab() {
         )}
       </CardContent>
 
+      {/* === Dialog Form === */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
@@ -138,6 +145,8 @@ export default function AdminHeroTab() {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+
+              {/* Title */}
               <FormField
                 control={form.control}
                 name="titleAr"
@@ -152,6 +161,7 @@ export default function AdminHeroTab() {
                 )}
               />
 
+              {/* Subtitle */}
               <FormField
                 control={form.control}
                 name="subtitleAr"
@@ -171,6 +181,27 @@ export default function AdminHeroTab() {
                 )}
               />
 
+              {/* ✅ New description field */}
+              <FormField
+                control={form.control}
+                name="descriptionAr"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الوصف الإضافي (يظهر أسفل النص الرئيسي)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="نحن نقدم الحلول الطبية..."
+                        rows={3}
+                        data-testid="input-hero-description"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* CTA */}
               <FormField
                 control={form.control}
                 name="ctaText"
@@ -185,6 +216,7 @@ export default function AdminHeroTab() {
                 )}
               />
 
+              {/* Image uploader */}
               <FormField
                 control={form.control}
                 name="backgroundImageUrl"
@@ -240,6 +272,7 @@ export default function AdminHeroTab() {
                 )}
               />
 
+              {/* Buttons */}
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   type="button"
