@@ -557,7 +557,7 @@ export default function AdminDashboard() {
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">لوحة التحكم - كيان ميديكال</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">لوحة التحكم - كيان ميديكال</h1>
             <p className="text-sm text-muted-foreground">مرحباً {user?.name}</p>
           </div>
           <Button
@@ -573,9 +573,9 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">نماذج الاتصال</CardTitle>
@@ -612,7 +612,7 @@ export default function AdminDashboard() {
 
         {/* Data Tables */}
         <Tabs defaultValue="products" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-2 w-full text-xs sm:text-sm">
             <TabsTrigger value="products" data-testid="tab-products">المنتجات</TabsTrigger>
             <TabsTrigger value="testimonials" data-testid="tab-testimonials">الشهادات</TabsTrigger>
             <TabsTrigger value="offers" data-testid="tab-offers">العروض</TabsTrigger>
@@ -626,7 +626,7 @@ export default function AdminDashboard() {
 
           <TabsContent value="products">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <div>
                   <CardTitle>إدارة المنتجات</CardTitle>
                   <CardDescription>إضافة وتعديل وحذف المنتجات</CardDescription>
@@ -644,12 +644,12 @@ export default function AdminDashboard() {
                     products.map((product) => (
                       <Card key={product.id} data-testid={`product-${product.id}`}>
                         <CardContent className="pt-6">
-                          <div className="flex items-start gap-4">
+                          <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                             {product.imageUrl && (
-                              <img 
-                                src={product.imageUrl} 
+                              <img
+                                src={product.imageUrl}
                                 alt={product.nameAr}
-                                className="w-24 h-24 object-cover rounded-md"
+                                className="w-full sm:w-24 h-auto sm:h-24 object-cover rounded-md"
                               />
                             )}
                             <div className="flex-1">
