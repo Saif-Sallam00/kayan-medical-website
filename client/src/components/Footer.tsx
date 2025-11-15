@@ -1,8 +1,16 @@
 import { Link } from "wouter";
 import { MapPin, Phone, Mail, Facebook, Instagram } from "lucide-react";
-import logoUrl from "@/assets/logo.png";
+import logoUrl from "/src/assets/logo.png"; // <-- Corrected path
+import { useQuery } from "@tanstack/react-query";
 
 export function Footer() {
+  // Fetch site settings for dynamic contact info
+  const { data: settingsData } = useQuery<{ success: boolean; data: any }>({
+    queryKey: ["/api/settings"],
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+  });
+  const settings = settingsData?.data;
+
   return (
     <footer className="bg-card border-t border-card-border mt-12 sm:mt-16 md:mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-10 md:py-12">
@@ -27,6 +35,11 @@ export function Footer() {
               <li>
                 <Link href="/products" data-testid="link-footer-products">
                   <span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">المنتجات</span>
+                </Link>
+              </li>
+               <li>
+                <Link href="/trade-in" data-testid="link-footer-trade-in">
+                  <span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">شراء واستبدال</span>
                 </Link>
               </li>
               <li>
@@ -55,23 +68,37 @@ export function Footer() {
                 <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mt-1 flex-shrink-0" />
                 <div>
                   <p className="font-medium text-foreground">المقر الرئيسي</p>
-                  <p>شيبين الكوم، المنوفية</p>
+                  <p>{settings?.addressShebin || "شيبين الكوم، المنوفية"}</p>
                 </div>
               </li>
               <li className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground">
                 <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mt-1 flex-shrink-0" />
                 <div>
                   <p className="font-medium text-foreground">المقر الثاني</p>
-                  <p>الشيخ زايد، القاهرة</p>
+                  <p>{settings?.addressZayed || "الشيخ زايد، القاهرة"}</p>
                 </div>
               </li>
               <li className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                 <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                <a href="https://wa.link/hn35ok" target="_blank" rel="noopener noreferrer" className="font-['Inter'] hover:text-foreground transition-colors" dir="ltr">+20 10 25253012</a>
+                <a 
+                  href={settings?.whatsappLink || "https://wa.link/hn35ok"} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="font-['Inter'] hover:text-foreground transition-colors" 
+                  dir="ltr"
+                >
+                  {settings?.mainPhone || "+20 10 25253012"}
+                </a>
               </li>
               <li className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                 <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="font-['Inter']" dir="ltr">info@kayanmedical.com</span>
+                <a 
+                  href={`mailto:${settings?.email || "info@kayanmedical.com"}`} 
+                  className="font-['Inter'] hover:text-foreground transition-colors" 
+                  dir="ltr"
+                >
+                  {settings?.email || "info@kayanmedical.com"}
+                </a>
               </li>
             </ul>
           </div>
@@ -81,7 +108,7 @@ export function Footer() {
             <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">تابعنا</h3>
             <div className="flex gap-3">
               <a
-                href="https://facebook.com"
+                href={settings?.facebookUrl || "https://facebook.com"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 flex items-center justify-center rounded-md bg-muted hover-elevate active-elevate-2"
@@ -91,7 +118,7 @@ export function Footer() {
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="https://instagram.com"
+                href={settings?.instagramUrl || "https://instagram.com"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 flex items-center justify-center rounded-md bg-muted hover-elevate active-elevate-2"
