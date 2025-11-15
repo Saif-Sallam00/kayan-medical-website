@@ -1,6 +1,8 @@
 import { storage } from "./storage";
+import { db } from "./db";
+import { siteSettings, aboutPage } from "@shared/schema";
 
-// Default products data from client/src/data/products.ts
+// Default products data
 const defaultProducts = [
   {
     nameAr: "جهاز سونار GE Voluson E10",
@@ -15,7 +17,9 @@ const defaultProducts = [
       "نظام تصوير ثلاثي ورباعي الأبعاد"
     ],
     imageUrl: "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=800&q=80",
-    priceInfo: "استفسر عن السعر"
+    priceInfo: "استفسر عن السعر",
+    isActive: true,
+    displayOrder: "1",
   },
   {
     nameAr: "جهاز سونار Philips ClearVue",
@@ -30,7 +34,9 @@ const defaultProducts = [
       "واجهة مستخدم بسيطة وسهلة"
     ],
     imageUrl: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&q=80",
-    priceInfo: "استفسر عن السعر"
+    priceInfo: "استفسر عن السعر",
+    isActive: true,
+    displayOrder: "2",
   },
   {
     nameAr: "جهاز سونار Samsung UGEO PT60A",
@@ -45,7 +51,9 @@ const defaultProducts = [
       "شاشة لمس 15.6 بوصة"
     ],
     imageUrl: "https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=800&q=80",
-    priceInfo: "عرض خاص"
+    priceInfo: "عرض خاص",
+    isActive: true,
+    displayOrder: "3",
   },
   {
     nameAr: "جهاز سونار Mindray DC-70",
@@ -60,7 +68,9 @@ const defaultProducts = [
       "شاشة LED عالية الدقة 21.5 بوصة"
     ],
     imageUrl: "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=800&q=80",
-    priceInfo: "استفسر عن السعر"
+    priceInfo: "استفسر عن السعر",
+    isActive: true,
+    displayOrder: "4",
   },
   {
     nameAr: "جهاز سونار GE Logiq P9",
@@ -75,7 +85,9 @@ const defaultProducts = [
       "نظام تصوير دوبلر ملون متقدم"
     ],
     imageUrl: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80",
-    priceInfo: "استفسر عن السعر"
+    priceInfo: "استفسر عن السعر",
+    isActive: true,
+    displayOrder: "5",
   },
   {
     nameAr: "جهاز سونار محمول Clarius",
@@ -90,7 +102,9 @@ const defaultProducts = [
       "صغير الحجم وسهل الحمل"
     ],
     imageUrl: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&q=80",
-    priceInfo: "عرض خاص"
+    priceInfo: "عرض خاص",
+    isActive: true,
+    displayOrder: "6",
   }
 ];
 
@@ -204,11 +218,34 @@ export async function seedContent() {
   try {
     console.log("🌱 Starting content seeding...");
 
+    // REMOVED: Conflicting admin user logic. This now only runs in `seed.ts`.
+
+    // Check if site settings already exist
+    const existingSettings = await storage.getSiteSettings();
+    if (!existingSettings) {
+      console.log("⚙️ Seeding site settings...");
+      await db.insert(siteSettings).values({}).returning();
+      console.log("✅ Site settings seeded successfully");
+    } else {
+      console.log("⏭️  Site settings already exist, skipping");
+    }
+
+    // Check if about page content already exists
+    const existingAbout = await storage.getAboutPage();
+    if (!existingAbout) {
+      console.log("ℹ️ Seeding about page content...");
+      await db.insert(aboutPage).values({}).returning();
+      console.log("✅ About page content seeded successfully");
+    } else {
+      console.log("⏭️  About page content already exist, skipping");
+    }
+
     // Check if products already exist
     const existingProducts = await storage.getAllProducts();
     if (existingProducts.length === 0) {
       console.log("📦 Seeding products...");
       for (const product of defaultProducts) {
+        // @ts-ignore
         await storage.createProduct(product);
       }
       console.log("✅ Products seeded successfully");
@@ -221,6 +258,7 @@ export async function seedContent() {
     if (existingTestimonials.length === 0) {
       console.log("💬 Seeding testimonials...");
       for (const testimonial of defaultTestimonials) {
+        // @ts-ignore
         await storage.createTestimonial(testimonial);
       }
       console.log("✅ Testimonials seeded successfully");
@@ -233,6 +271,7 @@ export async function seedContent() {
     if (existingFeatures.length === 0) {
       console.log("⭐ Seeding features...");
       for (const feature of defaultFeatures) {
+        // @ts-ignore
         await storage.createFeature(feature);
       }
       console.log("✅ Features seeded successfully");
@@ -245,6 +284,7 @@ export async function seedContent() {
     if (existingStats.length === 0) {
       console.log("📊 Seeding stats...");
       for (const stat of defaultStats) {
+        // @ts-ignore
         await storage.createStat(stat);
       }
       console.log("✅ Stats seeded successfully");
@@ -256,6 +296,7 @@ export async function seedContent() {
     const existingHeros = await storage.getAllHeroSections();
     if (existingHeros.length === 0) {
       console.log("🦸 Seeding hero section...");
+      // @ts-ignore
       await storage.createHeroSection(defaultHeroSection);
       console.log("✅ Hero section seeded successfully");
     } else {

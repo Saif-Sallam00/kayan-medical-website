@@ -1063,7 +1063,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Error setting ACL policy:", error);
-      res.status(5G00).json({
+      res.status(500).json({
         success: false,
         message: "فشل في معالجة الصورة"
       });

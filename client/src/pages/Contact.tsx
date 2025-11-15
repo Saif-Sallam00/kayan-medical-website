@@ -55,7 +55,9 @@ export default function Contact() {
     onError: (error: any) => {
       toast({
         title: "فشل الإرسال",
-        description: error.message || "حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى",
+        description:
+          error.message ||
+          "حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى",
         variant: "destructive",
       });
     },
@@ -67,26 +69,30 @@ export default function Contact() {
 
   // Locations array is now built dynamically from settings
   // We need to check if settings exists before building the array
-  const locations = settings ? [
-    {
-      title: "المقر الرئيسي",
-      city: settings.addressShebin || "شيبين الكوم، المنوفية",
-      address: "شارع الجلاء، وسط البلد", // This can be added to schema later if needed
-      phone: settings.mainPhone || "+20 10 25253012",
-      whatsapp: settings.whatsappLink || "https://wa.link/hn35ok",
-      email: settings.email || "info@kayanmedical.com",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDMwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890" // This can also be added to schema
-    },
-    {
-      title: "المقر الثاني",
-      city: settings.addressZayed || "الشيخ زايد، القاهرة",
-      address: "طريق الواحات، البوابة الثانية", // This can be added to schema later if needed
-      phone: settings.mainPhone || "+20 10 25253012",
-      whatsapp: settings.whatsappLink || "https://wa.link/hn35ok",
-      email: settings.email || "info@kayanmedical.com",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890"
-    }
-  ] : []; // Provide an empty array as a fallback while settings are loading
+  const locations = settings
+    ? [
+        {
+          title: "المقر الرئيسي",
+          city: settings.addressShebin || "شيبين الكوم، المنوفية",
+          address: "شارع الجلاء، وسط البلد", // This can be added to schema later if needed
+          phone: settings.mainPhone || "+20 10 25253012",
+          whatsapp: settings.whatsappLink || "https://wa.link/hn35ok",
+          email: settings.email || "info@kayanmedical.com",
+          mapUrl:
+            "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDMwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890", // This can also be added to schema
+        },
+        {
+          title: "المقر الثاني",
+          city: settings.addressZayed || "الشيخ زايد، القاهرة",
+          address: "طريق الواحات، البوابة الثانية", // This can be added to schema later if needed
+          phone: settings.mainPhone || "+20 10 25253012",
+          whatsapp: settings.whatsappLink || "https://wa.link/hn35ok",
+          email: settings.email || "info@kayanmedical.com",
+          mapUrl:
+            "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890",
+        },
+      ]
+    : []; // Provide an empty array as a fallback while settings are loading
 
   return (
     <div className="min-h-screen py-8 sm:py-12">
@@ -98,7 +104,8 @@ export default function Contact() {
             نحن هنا لمساعدتك
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto px-4">
-            تواصل معنا للحصول على استشارة مجانية أو لأي استفسار عن منتجاتنا وخدماتنا
+            تواصل معنا للحصول على استشارة مجانية أو لأي استفسار عن منتجاتنا
+            وخدماتنا
           </p>
         </div>
 
@@ -108,9 +115,14 @@ export default function Contact() {
           <div className="lg:col-span-3">
             <Card>
               <CardContent className="p-4 sm:p-6 md:p-8">
-                <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">أرسل لنا رسالة</h2>
+                <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
+                  أرسل لنا رسالة
+                </h2>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6"
+                  >
                     <FormField
                       control={form.control}
                       name="name"
@@ -118,8 +130,8 @@ export default function Contact() {
                         <FormItem>
                           <FormLabel>الاسم *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="أدخل اسمك الكامل" 
+                            <Input
+                              placeholder="أدخل اسمك الكامل"
                               {...field}
                               data-testid="input-contact-name"
                             />
@@ -137,9 +149,9 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>البريد الإلكتروني *</FormLabel>
                             <FormControl>
-                              <Input 
+                              <Input
                                 type="email"
-                                placeholder="name@example.com" 
+                                placeholder="name@example.com"
                                 {...field}
                                 dir="ltr"
                                 className="font-['Inter']"
@@ -158,8 +170,8 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>رقم الهاتف *</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="01234567890" 
+                              <Input
+                                placeholder="01234567890"
                                 {...field}
                                 dir="ltr"
                                 className="font-['Inter']"
@@ -215,12 +227,14 @@ export default function Contact() {
                     <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">اتصل بنا</h3>
-                    <a 
-                      href={settings?.whatsappLink || "https://wa.link/hn35ok"} 
+                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                      اتصل بنا
+                    </h3>
+                    <a
+                      href={settings?.whatsappLink || "https://wa.link/hn35ok"}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground font-['Inter']" 
+                      className="text-muted-foreground hover:text-foreground font-['Inter']"
                       dir="ltr"
                       data-testid="link-contact-phone"
                     >
@@ -234,10 +248,12 @@ export default function Contact() {
                     <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">البريد الإلكتروني</h3>
-                    <a 
-                      href={`mailto:${settings?.email || "info@kayanmedical.com"}`} 
-                      className="text-muted-foreground hover:text-foreground font-['Inter']" 
+                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                      البريد الإلكتروني
+                    </h3>
+                    <a
+                      href={`mailto:${settings?.email || "info@kayanmedical.com"}`}
+                      className="text-muted-foreground hover:text-foreground font-['Inter']"
                       dir="ltr"
                       data-testid="link-contact-email"
                     >
@@ -251,7 +267,9 @@ export default function Contact() {
                     <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">ساعات العمل</h3>
+                    <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">
+                      ساعات العمل
+                    </h3>
                     <p className="text-muted-foreground text-sm">
                       السبت - الخميس: 9 ص - 6 م<br />
                       الجمعة: عطلة
@@ -263,7 +281,9 @@ export default function Contact() {
 
             <Card>
               <CardContent className="p-4 sm:p-6">
-                <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">تابعنا</h3>
+                <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
+                  تابعنا
+                </h3>
                 <div className="flex gap-3">
                   <a
                     href={settings?.facebookUrl || "https://facebook.com"}
@@ -293,10 +313,16 @@ export default function Contact() {
 
         {/* Locations */}
         <div className="mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center">مواقعنا</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center">
+            مواقعنا
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             {locations.map((location, index) => (
-              <Card key={index} className="overflow-hidden" data-testid={`location-card-${index}`}>
+              <Card
+                key={index}
+                className="overflow-hidden"
+                data-testid={`location-card-${index}`}
+              >
                 <div className="aspect-video bg-muted">
                   <iframe
                     src={location.mapUrl}
@@ -310,7 +336,10 @@ export default function Contact() {
                   />
                 </div>
                 <CardContent className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4" data-testid={`location-title-${index}`}>
+                  <h3
+                    className="text-lg sm:text-xl font-bold mb-3 sm:mb-4"
+                    data-testid={`location-title-${index}`}
+                  >
                     {location.title}
                   </h3>
                   <div className="space-y-2 sm:space-y-3">
@@ -318,16 +347,18 @@ export default function Contact() {
                       <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-medium">{location.city}</p>
-                        <p className="text-sm text-muted-foreground">{location.address}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {location.address}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-                      <a 
+                      <a
                         href={location.whatsapp}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-muted-foreground hover:text-foreground font-['Inter']" 
+                        className="text-sm text-muted-foreground hover:text-foreground font-['Inter']"
                         dir="ltr"
                       >
                         {location.phone}
@@ -335,9 +366,9 @@ export default function Contact() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-                      <a 
-                        href={`mailto:${location.email}`} 
-                        className="text-sm text-muted-foreground hover:text-foreground font-['Inter']" 
+                      <a
+                        href={`mailto:${location.email}`}
+                        className="text-sm text-muted-foreground hover:text-foreground font-['Inter']"
                         dir="ltr"
                       >
                         {location.email}
@@ -353,4 +384,3 @@ export default function Contact() {
     </div>
   );
 }
-```eof

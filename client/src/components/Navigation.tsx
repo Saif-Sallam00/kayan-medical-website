@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, Phone, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoUrl from "../assets/logo.png";
+import logoUrl from "@/assets/logo.png";
 import { useQuery } from "@tanstack/react-query";
 
 export function Navigation() {

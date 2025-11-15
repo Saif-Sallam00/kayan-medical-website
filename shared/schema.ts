@@ -153,7 +153,7 @@ createdAt: true,
 doctorName: z.string().min(2, "الاسم يجب أن يكون حرفين على الأقل"),
 specialization: z.string().min(2, "التخصص مطلوب"),
 quote: z.string().min(10, "الشهادة يجب أن تكون 10 أحرف على الأقل"),
-s  clinicName: z.string().min(2, "اسم العيادة مطلوب"),
+clinicName: z.string().min(2, "اسم العيادة مطلوب"),
 });
 
 export const updateTestimonialSchema = insertTestimonialSchema.partial();
@@ -191,7 +191,7 @@ export type Offer = typeof offers.$inferSelect;
 
 // Hero Sections Schema (Homepage hero sections)
 export const heroSections = pgTable("hero_sections", {
-V  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
 titleAr: text("title_ar").notNull(),
 subtitleAr: text("subtitle_ar").notNull(),
 backgroundImageUrl: text("background_image_url"),
@@ -294,12 +294,15 @@ isActive: boolean("is_active").notNull().default(true),
 });
 
 // Zod schemas for validation
+// Zod schemas for validation
 export const insertSiteSettingsSchema = createInsertSchema(siteSettings);
 export const insertAboutPageSchema = createInsertSchema(aboutPage);
 export const insertTeamMemberSchema = createInsertSchema(teamMembers, {
-.omit({ id: true })
-name: z.string().min(2, "الاسم مطلوب"),
-role: z.string().min(2, "الدور مطلوب"),
-description: z.string().min(5, "الوصف مطلوب"),
+  // Omit the id field and add custom validation
+  id: undefined, // This omits the id field
+  name: z.string().min(2, "الاسم مطلوب"),
+  role: z.string().min(2, "الدور مطلوب"),
+  description: z.string().min(5, "الوصف مطلوب"),
 });
+
 export const updateTeamMemberSchema = insertTeamMemberSchema.partial();

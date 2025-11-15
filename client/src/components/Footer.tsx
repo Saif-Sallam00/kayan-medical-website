@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { MapPin, Phone, Mail, Facebook, Instagram } from "lucide-react";
-import logoUrl from "/src/assets/logo.png"; // <-- Corrected path
+import logoUrl from "@/assets/logo.png"; // <-- Corrected path
 import { useQuery } from "@tanstack/react-query";
 
 export function Footer() {
