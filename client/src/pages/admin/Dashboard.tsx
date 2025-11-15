@@ -555,10 +555,8 @@ export default function AdminDashboard() {
             <TabsTrigger className="shrink-0" value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
             <TabsTrigger className="shrink-0" value="maintenance" data-testid="tab-maintenance">طلبات الصيانة</TabsTrigger>
             <TabsTrigger className="shrink-0" value="consultation" data-testid="tab-consultation">طلبات الاستشارة</TabsTrigger>
-            <TabsTrigger value="stats" data-testid="tab-stats">الإحصائيات</TabsTrigger>
-            <TabsTrigger value="about" data-testid="tab-about">صفحة "من نحن"</TabsTrigger>
-            <TabsTrigger value="settings" data-testid="tab-settings">الإعدادات العامة</TabsTrigger>
-            <TabsTrigger value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="about" data-testid="tab-about">صفحة "من نحن"</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="settings" data-testid="tab-settings">الإعدادات العامة</TabsTrigger>
           </TabsList>
 
           {/* Products */}
