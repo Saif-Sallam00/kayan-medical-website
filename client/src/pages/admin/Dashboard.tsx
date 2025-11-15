@@ -11,6 +11,8 @@ import type { SafeUser, Product, Testimonial, Offer } from "@shared/schema";
 import AdminHeroTab from "./tabs/AdminHeroTab";
 import AdminFeaturesTab from "./tabs/AdminFeaturesTab";
 import AdminStatsTab from "./tabs/AdminStatsTab";
+import AdminSiteSettingsTab from "./tabs/AdminSiteSettingsTab";
+import AdminAboutTab from "./tabs/AdminAboutTab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -553,6 +555,10 @@ export default function AdminDashboard() {
             <TabsTrigger className="shrink-0" value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
             <TabsTrigger className="shrink-0" value="maintenance" data-testid="tab-maintenance">طلبات الصيانة</TabsTrigger>
             <TabsTrigger className="shrink-0" value="consultation" data-testid="tab-consultation">طلبات الاستشارة</TabsTrigger>
+            <TabsTrigger value="stats" data-testid="tab-stats">الإحصائيات</TabsTrigger>
+            <TabsTrigger value="about" data-testid="tab-about">صفحة "من نحن"</TabsTrigger>
+            <TabsTrigger value="settings" data-testid="tab-settings">الإعدادات العامة</TabsTrigger>
+            <TabsTrigger value="contact" data-testid="tab-contact">نماذج الاتصال</TabsTrigger>
           </TabsList>
 
           {/* Products */}
@@ -949,6 +955,15 @@ export default function AdminDashboard() {
           </TabsContent>
           <TabsContent value="stats">
             <AdminStatsTab />
+          </TabsContent>
+          <TabsContent value="stats">
+            <AdminStatsTab />
+          </TabsContent>
+          <TabsContent value="about">
+            <AdminAboutTab />
+          </TabsContent>
+          <TabsContent value="settings">
+            <AdminSiteSettingsTab />
           </TabsContent>
         </Tabs>
       </main>

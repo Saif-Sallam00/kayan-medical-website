@@ -1,5 +1,5 @@
-import { 
-  type User, 
+import {
+  type User,
   type InsertUser,
   type ContactForm,
   type InsertContactForm,
@@ -19,6 +19,10 @@ import {
   type InsertFeature,
   type Stat,
   type InsertStat,
+  type SiteSettings,
+  type AboutPage,
+  type TeamMember,
+  type InsertTeamMember,
   users,
   contactForms,
   maintenanceRequests,
@@ -29,6 +33,9 @@ import {
   heroSections,
   features,
   stats,
+  siteSettings,
+  aboutPage,
+  teamMembers,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -39,17 +46,17 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserLastLogin(id: string): Promise<void>;
-  
+
   // Contact form methods
   createContactForm(form: InsertContactForm): Promise<ContactForm>;
   getAllContactForms(): Promise<ContactForm[]>;
   getContactForm(id: string): Promise<ContactForm | undefined>;
-  
+
   // Maintenance request methods
   createMaintenanceRequest(request: InsertMaintenanceRequest): Promise<MaintenanceRequest>;
   getAllMaintenanceRequests(): Promise<MaintenanceRequest[]>;
   getMaintenanceRequest(id: string): Promise<MaintenanceRequest | undefined>;
-  
+
   // Consultation request methods
   createConsultationRequest(request: InsertConsultationRequest): Promise<ConsultationRequest>;
   getAllConsultationRequests(): Promise<ConsultationRequest[]>;
@@ -101,6 +108,22 @@ export interface IStorage {
   getStat(id: string): Promise<Stat | undefined>;
   updateStat(id: string, stat: Partial<InsertStat>): Promise<Stat | undefined>;
   deleteStat(id: string): Promise<boolean>;
+
+  // Site Settings
+  getSiteSettings(): Promise<SiteSettings | undefined>;
+  updateSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings | undefined>;
+
+  // About Page
+  getAboutPage(): Promise<AboutPage | undefined>;
+  updateAboutPage(content: Partial<AboutPage>): Promise<AboutPage | undefined>;
+
+  // Team Members
+  createTeamMember(member: InsertTeamMember): Promise<TeamMember>;
+  getAllTeamMembers(): Promise<TeamMember[]>;
+  getActiveTeamMembers(): Promise<TeamMember[]>;
+  getTeamMember(id: string): Promise<TeamMember | undefined>;
+  updateTeamMember(id: string, member: Partial<InsertTeamMember>): Promise<TeamMember | undefined>;
+  deleteTeamMember(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -275,17 +298,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Hero section methods
-  async createHeroSection(data: any) {
-    return await db.insert(heroSections).values({
-      titleAr: data.titleAr,
-      subtitleAr: data.subtitleAr,
-      descriptionAr: data.descriptionAr, // ✅ new line
-      backgroundImageUrl: data.backgroundImageUrl,
-      ctaText: data.ctaText,
-      isActive: data.isActive ?? true,
-    }).returning();
+  async createHeroSection(data: InsertHeroSection): Promise<HeroSection> {
+    const result = await db.insert(heroSections).values(data).returning();
+    return result[0];
   }
-
 
   async getAllHeroSections(): Promise<HeroSection[]> {
     return await db.select().from(heroSections).orderBy(desc(heroSections.displayOrder));
@@ -302,19 +318,13 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async updateHeroSection(id: string, data: any) {
-    return await db.update(heroSections)
-      .set({
-        titleAr: data.titleAr,
-        subtitleAr: data.subtitleAr,
-        descriptionAr: data.descriptionAr, // ✅ new line
-        ctaText: data.ctaText,
-        backgroundImageUrl: data.backgroundImageUrl,
-      })
+  async updateHeroSection(id: string, data: Partial<InsertHeroSection>): Promise<HeroSection | undefined> {
+    const result = await db.update(heroSections)
+      .set(data)
       .where(eq(heroSections.id, id))
       .returning();
+    return result[0];
   }
-
 
   async deleteHeroSection(id: string): Promise<boolean> {
     const result = await db.delete(heroSections).where(eq(heroSections.id, id)).returning();
@@ -386,6 +396,85 @@ export class DatabaseStorage implements IStorage {
 
   async deleteStat(id: string): Promise<boolean> {
     const result = await db.delete(stats).where(eq(stats.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // --- NEW METHODS ---
+
+  // Site Settings methods
+  async getSiteSettings(): Promise<SiteSettings | undefined> {
+    const result = await db.select().from(siteSettings).limit(1);
+    return result[0];
+  }
+
+  async updateSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings | undefined> {
+    const current = await this.getSiteSettings();
+    if (!current) {
+      // If no settings exist, create them
+      // We provide default values just in case `settings` is partial
+      const createResult = await db.insert(siteSettings).values({ ...settings }).returning();
+      return createResult[0];
+    }
+    // If settings exist, update them
+    const result = await db.update(siteSettings)
+      .set(settings)
+      .where(eq(siteSettings.id, current.id))
+      .returning();
+    return result[0];
+  }
+
+  // About Page methods
+  async getAboutPage(): Promise<AboutPage | undefined> {
+    const result = await db.select().from(aboutPage).limit(1);
+    return result[0];
+  }
+
+  async updateAboutPage(content: Partial<AboutPage>): Promise<AboutPage | undefined> {
+    const current = await this.getAboutPage();
+    if (!current) {
+      // If no about page content exists, create it
+      const createResult = await db.insert(aboutPage).values({ ...content }).returning();
+      return createResult[0];
+    }
+    // If content exists, update it
+    const result = await db.update(aboutPage)
+      .set(content)
+      .where(eq(aboutPage.id, current.id))
+      .returning();
+    return result[0];
+  }
+
+  // Team Member methods
+  async createTeamMember(member: InsertTeamMember): Promise<TeamMember> {
+    const result = await db.insert(teamMembers).values(member).returning();
+    return result[0];
+  }
+
+  async getAllTeamMembers(): Promise<TeamMember[]> {
+    return await db.select().from(teamMembers).orderBy(desc(teamMembers.displayOrder));
+  }
+
+  async getActiveTeamMembers(): Promise<TeamMember[]> {
+    return await db.select().from(teamMembers)
+      .where(eq(teamMembers.isActive, true))
+      .orderBy(desc(teamMembers.displayOrder));
+  }
+
+  async getTeamMember(id: string): Promise<TeamMember | undefined> {
+    const result = await db.select().from(teamMembers).where(eq(teamMembers.id, id));
+    return result[0];
+  }
+
+  async updateTeamMember(id: string, member: Partial<InsertTeamMember>): Promise<TeamMember | undefined> {
+    const result = await db.update(teamMembers)
+      .set(member)
+      .where(eq(teamMembers.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteTeamMember(id: string): Promise<boolean> {
+    const result = await db.delete(teamMembers).where(eq(teamMembers.id, id)).returning();
     return result.length > 0;
   }
 }

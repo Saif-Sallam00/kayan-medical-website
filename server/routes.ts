@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import passport from "./auth";
 import type { SafeUser } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { 
+import {
   insertContactFormSchema,
   insertMaintenanceRequestSchema,
   insertConsultationRequestSchema,
@@ -19,7 +19,10 @@ import {
   insertFeatureSchema,
   updateFeatureSchema,
   insertStatSchema,
-  updateStatSchema
+  updateStatSchema,
+  // Added from your request
+  insertTeamMemberSchema,
+  updateTeamMemberSchema
 } from "@shared/schema";
 
 // Auth middleware to protect routes
@@ -27,9 +30,9 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.status(401).json({ 
-    success: false, 
-    message: "يجب تسجيل الدخول أولاً" 
+  res.status(401).json({
+    success: false,
+    message: "يجب تسجيل الدخول أولاً"
   });
 }
 
@@ -38,9 +41,9 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (req.isAuthenticated() && (req.user as SafeUser).role === "admin") {
     return next();
   }
-  res.status(403).json({ 
-    success: false, 
-    message: "غير مصرح لك بالوصول لهذه الصفحة" 
+  res.status(403).json({
+    success: false,
+    message: "غير مصرح لك بالوصول لهذه الصفحة"
   });
 }
 
@@ -49,30 +52,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: SafeUser | false, info: any) => {
       if (err) {
-        return res.status(500).json({ 
-          success: false, 
-          message: "حدث خطأ أثناء تسجيل الدخول" 
+        return res.status(500).json({
+          success: false,
+          message: "حدث خطأ أثناء تسجيل الدخول"
         });
       }
-      
+
       if (!user) {
-        return res.status(401).json({ 
-          success: false, 
-          message: info?.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة" 
+        return res.status(401).json({
+          success: false,
+          message: info?.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة"
         });
       }
-      
+
       req.logIn(user, (err) => {
         if (err) {
-          return res.status(500).json({ 
-            success: false, 
-            message: "حدث خطأ أثناء تسجيل الدخول" 
+          return res.status(500).json({
+            success: false,
+            message: "حدث خطأ أثناء تسجيل الدخول"
           });
         }
-        
-        return res.json({ 
-          success: true, 
-          user 
+
+        return res.json({
+          success: true,
+          user
         });
       });
     })(req, res, next);
@@ -81,9 +84,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/logout", (req, res) => {
     req.logout((err) => {
       if (err) {
-        return res.status(500).json({ 
-          success: false, 
-          message: "حدث خطأ أثناء تسجيل الخروج" 
+        return res.status(500).json({
+          success: false,
+          message: "حدث خطأ أثناء تسجيل الخروج"
         });
       }
       res.json({ success: true });
@@ -92,14 +95,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/auth/me", (req, res) => {
     if (req.isAuthenticated()) {
-      res.json({ 
-        success: true, 
-        user: req.user 
+      res.json({
+        success: true,
+        user: req.user
       });
     } else {
-      res.status(401).json({ 
-        success: false, 
-        message: "غير مسجل الدخول" 
+      res.status(401).json({
+        success: false,
+        message: "غير مسجل الدخول"
       });
     }
   });
@@ -112,9 +115,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: contactForm });
     } catch (error: any) {
       console.error("Error creating contact form:", error);
-      res.status(400).json({ 
-        success: false, 
-        message: error.message || "فشل في إرسال النموذج" 
+      res.status(400).json({
+        success: false,
+        message: error.message || "فشل في إرسال النموذج"
       });
     }
   });
@@ -125,9 +128,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: forms });
     } catch (error: any) {
       console.error("Error fetching contact forms:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب النماذج" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب النماذج"
       });
     }
   });
@@ -136,17 +139,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const form = await storage.getContactForm(req.params.id);
       if (!form) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "النموذج غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "النموذج غير موجود"
         });
       }
       res.json({ success: true, data: form });
     } catch (error: any) {
       console.error("Error fetching contact form:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب النموذج" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب النموذج"
       });
     }
   });
@@ -159,9 +162,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: maintenanceRequest });
     } catch (error: any) {
       console.error("Error creating maintenance request:", error);
-      res.status(400).json({ 
-        success: false, 
-        message: error.message || "فشل في إرسال طلب الصيانة" 
+      res.status(400).json({
+        success: false,
+        message: error.message || "فشل في إرسال طلب الصيانة"
       });
     }
   });
@@ -172,9 +175,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: requests });
     } catch (error: any) {
       console.error("Error fetching maintenance requests:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب طلبات الصيانة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب طلبات الصيانة"
       });
     }
   });
@@ -183,17 +186,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const request = await storage.getMaintenanceRequest(req.params.id);
       if (!request) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "طلب الصيانة غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "طلب الصيانة غير موجود"
         });
       }
       res.json({ success: true, data: request });
     } catch (error: any) {
       console.error("Error fetching maintenance request:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب طلب الصيانة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب طلب الصيانة"
       });
     }
   });
@@ -206,9 +209,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: consultationRequest });
     } catch (error: any) {
       console.error("Error creating consultation request:", error);
-      res.status(400).json({ 
-        success: false, 
-        message: error.message || "فشل في إرسال طلب الاستشارة" 
+      res.status(400).json({
+        success: false,
+        message: error.message || "فشل في إرسال طلب الاستشارة"
       });
     }
   });
@@ -219,9 +222,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: requests });
     } catch (error: any) {
       console.error("Error fetching consultation requests:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب طلبات الاستشارة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب طلبات الاستشارة"
       });
     }
   });
@@ -230,17 +233,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const request = await storage.getConsultationRequest(req.params.id);
       if (!request) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "طلب الاستشارة غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "طلب الاستشارة غير موجود"
         });
       }
       res.json({ success: true, data: request });
     } catch (error: any) {
       console.error("Error fetching consultation request:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب طلب الاستشارة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب طلب الاستشارة"
       });
     }
   });
@@ -253,9 +256,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: activeProducts });
     } catch (error: any) {
       console.error("Error fetching products:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب المنتجات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب المنتجات"
       });
     }
   });
@@ -267,9 +270,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: products });
     } catch (error: any) {
       console.error("Error fetching all products:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب المنتجات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب المنتجات"
       });
     }
   });
@@ -278,17 +281,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const product = await storage.getProduct(req.params.id);
       if (!product) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "المنتج غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "المنتج غير موجود"
         });
       }
       res.json({ success: true, data: product });
     } catch (error: any) {
       console.error("Error fetching product:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب المنتج" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب المنتج"
       });
     }
   });
@@ -301,14 +304,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating product:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في إنشاء المنتج" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في إنشاء المنتج"
       });
     }
   });
@@ -318,23 +321,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = updateProductSchema.parse(req.body);
       const product = await storage.updateProduct(req.params.id, validatedData);
       if (!product) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "المنتج غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "المنتج غير موجود"
         });
       }
       res.json({ success: true, data: product });
     } catch (error: any) {
       console.error("Error updating product:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في تحديث المنتج" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في تحديث المنتج"
       });
     }
   });
@@ -343,17 +346,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const deleted = await storage.deleteProduct(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "المنتج غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "المنتج غير موجود"
         });
       }
       res.status(204).send();
     } catch (error: any) {
       console.error("Error deleting product:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في حذف المنتج" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في حذف المنتج"
       });
     }
   });
@@ -365,9 +368,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: testimonials });
     } catch (error: any) {
       console.error("Error fetching testimonials:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الشهادات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الشهادات"
       });
     }
   });
@@ -378,9 +381,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: testimonials });
     } catch (error: any) {
       console.error("Error fetching all testimonials:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الشهادات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الشهادات"
       });
     }
   });
@@ -389,17 +392,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const testimonial = await storage.getTestimonial(req.params.id);
       if (!testimonial) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الشهادة غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الشهادة غير موجودة"
         });
       }
       res.json({ success: true, data: testimonial });
     } catch (error: any) {
       console.error("Error fetching testimonial:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الشهادة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الشهادة"
       });
     }
   });
@@ -412,14 +415,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating testimonial:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في إنشاء الشهادة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في إنشاء الشهادة"
       });
     }
   });
@@ -429,23 +432,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = updateTestimonialSchema.parse(req.body);
       const testimonial = await storage.updateTestimonial(req.params.id, validatedData);
       if (!testimonial) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الشهادة غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الشهادة غير موجودة"
         });
       }
       res.json({ success: true, data: testimonial });
     } catch (error: any) {
       console.error("Error updating testimonial:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في تحديث الشهادة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في تحديث الشهادة"
       });
     }
   });
@@ -454,17 +457,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const deleted = await storage.deleteTestimonial(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الشهادة غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الشهادة غير موجودة"
         });
       }
       res.status(204).send();
     } catch (error: any) {
       console.error("Error deleting testimonial:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في حذف الشهادة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في حذف الشهادة"
       });
     }
   });
@@ -476,9 +479,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: offers });
     } catch (error: any) {
       console.error("Error fetching offers:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب العروض" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب العروض"
       });
     }
   });
@@ -489,9 +492,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: offers });
     } catch (error: any) {
       console.error("Error fetching all offers:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب العروض" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب العروض"
       });
     }
   });
@@ -500,17 +503,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const offer = await storage.getOffer(req.params.id);
       if (!offer) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "العرض غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "العرض غير موجود"
         });
       }
       res.json({ success: true, data: offer });
     } catch (error: any) {
       console.error("Error fetching offer:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب العرض" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب العرض"
       });
     }
   });
@@ -523,14 +526,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating offer:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في إنشاء العرض" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في إنشاء العرض"
       });
     }
   });
@@ -540,23 +543,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = updateOfferSchema.parse(req.body);
       const offer = await storage.updateOffer(req.params.id, validatedData);
       if (!offer) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "العرض غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "العرض غير موجود"
         });
       }
       res.json({ success: true, data: offer });
     } catch (error: any) {
       console.error("Error updating offer:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في تحديث العرض" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في تحديث العرض"
       });
     }
   });
@@ -565,17 +568,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const deleted = await storage.deleteOffer(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "العرض غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "العرض غير موجود"
         });
       }
       res.status(204).send();
     } catch (error: any) {
       console.error("Error deleting offer:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في حذف العرض" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في حذف العرض"
       });
     }
   });
@@ -587,9 +590,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: heroSections });
     } catch (error: any) {
       console.error("Error fetching hero sections:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الأقسام الرئيسية" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الأقسام الرئيسية"
       });
     }
   });
@@ -600,9 +603,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: heroSections });
     } catch (error: any) {
       console.error("Error fetching all hero sections:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الأقسام الرئيسية" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الأقسام الرئيسية"
       });
     }
   });
@@ -611,17 +614,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const heroSection = await storage.getHeroSection(req.params.id);
       if (!heroSection) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "القسم الرئيسي غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "القسم الرئيسي غير موجود"
         });
       }
       res.json({ success: true, data: heroSection });
     } catch (error: any) {
       console.error("Error fetching hero section:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب القسم الرئيسي" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب القسم الرئيسي"
       });
     }
   });
@@ -634,14 +637,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating hero section:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في إنشاء القسم الرئيسي" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في إنشاء القسم الرئيسي"
       });
     }
   });
@@ -651,23 +654,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = updateHeroSectionSchema.parse(req.body);
       const heroSection = await storage.updateHeroSection(req.params.id, validatedData);
       if (!heroSection) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "القسم الرئيسي غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "القسم الرئيسي غير موجود"
         });
       }
       res.json({ success: true, data: heroSection });
     } catch (error: any) {
       console.error("Error updating hero section:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في تحديث القسم الرئيسي" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في تحديث القسم الرئيسي"
       });
     }
   });
@@ -676,17 +679,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const deleted = await storage.deleteHeroSection(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "القسم الرئيسي غير موجود" 
+        return res.status(404).json({
+          success: false,
+          message: "القسم الرئيسي غير موجود"
         });
       }
       res.status(204).send();
     } catch (error: any) {
       console.error("Error deleting hero section:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في حذف القسم الرئيسي" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في حذف القسم الرئيسي"
       });
     }
   });
@@ -698,9 +701,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: features });
     } catch (error: any) {
       console.error("Error fetching features:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب المميزات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب المميزات"
       });
     }
   });
@@ -711,9 +714,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: features });
     } catch (error: any) {
       console.error("Error fetching all features:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب المميزات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب المميزات"
       });
     }
   });
@@ -722,17 +725,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const feature = await storage.getFeature(req.params.id);
       if (!feature) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الميزة غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الميزة غير موجودة"
         });
       }
       res.json({ success: true, data: feature });
     } catch (error: any) {
       console.error("Error fetching feature:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الميزة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الميزة"
       });
     }
   });
@@ -745,14 +748,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating feature:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في إنشاء الميزة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في إنشاء الميزة"
       });
     }
   });
@@ -762,23 +765,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = updateFeatureSchema.parse(req.body);
       const feature = await storage.updateFeature(req.params.id, validatedData);
       if (!feature) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الميزة غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الميزة غير موجودة"
         });
       }
       res.json({ success: true, data: feature });
     } catch (error: any) {
       console.error("Error updating feature:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في تحديث الميزة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في تحديث الميزة"
       });
     }
   });
@@ -787,17 +790,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const deleted = await storage.deleteFeature(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الميزة غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الميزة غير موجودة"
         });
       }
       res.status(204).send();
     } catch (error: any) {
       console.error("Error deleting feature:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في حذف الميزة" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في حذف الميزة"
       });
     }
   });
@@ -809,9 +812,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: stats });
     } catch (error: any) {
       console.error("Error fetching stats:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الإحصائيات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الإحصائيات"
       });
     }
   });
@@ -822,9 +825,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, data: stats });
     } catch (error: any) {
       console.error("Error fetching all stats:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الإحصائيات" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الإحصائيات"
       });
     }
   });
@@ -833,17 +836,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const stat = await storage.getStat(req.params.id);
       if (!stat) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الإحصائية غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الإحصائية غير موجودة"
         });
       }
       res.json({ success: true, data: stat });
     } catch (error: any) {
       console.error("Error fetching stat:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في جلب الإحصائية" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في جلب الإحصائية"
       });
     }
   });
@@ -856,14 +859,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating stat:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في إنشاء الإحصائية" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في إنشاء الإحصائية"
       });
     }
   });
@@ -873,23 +876,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = updateStatSchema.parse(req.body);
       const stat = await storage.updateStat(req.params.id, validatedData);
       if (!stat) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الإحصائية غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الإحصائية غير موجودة"
         });
       }
       res.json({ success: true, data: stat });
     } catch (error: any) {
       console.error("Error updating stat:", error);
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: error.message || "بيانات غير صحيحة" 
+        return res.status(400).json({
+          success: false,
+          message: error.message || "بيانات غير صحيحة"
         });
       }
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في تحديث الإحصائية" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في تحديث الإحصائية"
       });
     }
   });
@@ -898,23 +901,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const deleted = await storage.deleteStat(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "الإحصائية غير موجودة" 
+        return res.status(404).json({
+          success: false,
+          message: "الإحصائية غير موجودة"
         });
       }
       res.status(204).send();
     } catch (error: any) {
       console.error("Error deleting stat:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في حذف الإحصائية" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في حذف الإحصائية"
       });
     }
   });
 
+  // --- Site Settings Routes (Admin only) ---
+  app.get("/api/settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json({ success: true, data: settings });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في جلب الإعدادات" });
+    }
+  });
+
+  app.put("/api/settings", requireAdmin, async (req, res) => {
+    try {
+      // We don't need strict validation here, just pass the partial body
+      const settings = await storage.updateSiteSettings(req.body);
+      res.json({ success: true, data: settings });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في تحديث الإعدادات" });
+    }
+  });
+
+  // --- About Page Routes ---
+  app.get("/api/about-page", async (req, res) => {
+    try {
+      const content = await storage.getAboutPage();
+      res.json({ success: true, data: content });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في جلب محتوى الصفحة" });
+    }
+  });
+
+  app.put("/api/about-page", requireAdmin, async (req, res) => {
+    try {
+      const content = await storage.updateAboutPage(req.body);
+      res.json({ success: true, data: content });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في تحديث المحتوى" });
+    }
+  });
+
+  // --- Team Members Routes ---
+  app.get("/api/team-members", async (req, res) => {
+    try {
+      const members = await storage.getActiveTeamMembers();
+      res.json({ success: true, data: members });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في جلب أعضاء الفريق" });
+    }
+  });
+
+  app.get("/api/team-members/all", requireAdmin, async (req, res) => {
+    try {
+      const members = await storage.getAllTeamMembers();
+      res.json({ success: true, data: members });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في جلب أعضاء الفريق" });
+    }
+  });
+
+  app.post("/api/team-members", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertTeamMemberSchema.parse(req.body);
+      const member = await storage.createTeamMember(validatedData);
+      res.status(201).json({ success: true, data: member });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  });
+
+  app.put("/api/team-members/:id", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = updateTeamMemberSchema.parse(req.body);
+      const member = await storage.updateTeamMember(req.params.id, validatedData);
+      if (!member) return res.status(404).json({ success: false, message: "العضو غير موجود" });
+      res.json({ success: true, data: member });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  });
+
+  app.delete("/api/team-members/:id", requireAdmin, async (req, res) => {
+    try {
+      const deleted = await storage.deleteTeamMember(req.params.id);
+      if (!deleted) return res.status(404).json({ success: false, message: "العضو غير موجود" });
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في حذف العضو" });
+    }
+  });
+
   // Object Storage Routes - From blueprint: javascript_object_storage
-  
+
   // Endpoint to serve uploaded images (public access)
   app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();
@@ -938,9 +1030,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ uploadURL });
     } catch (error: any) {
       console.error("Error getting upload URL:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في إنشاء رابط الرفع" 
+      res.status(500).json({
+        success: false,
+        message: "فشل في إنشاء رابط الرفع"
       });
     }
   });
@@ -949,9 +1041,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/objects/set-acl", requireAdmin, async (req, res) => {
     try {
       if (!req.body.imageUrl) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "رابط الصورة مطلوب" 
+        return res.status(400).json({
+          success: false,
+          message: "رابط الصورة مطلوب"
         });
       }
 
@@ -965,15 +1057,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       );
 
-      res.json({ 
-        success: true, 
-        objectPath 
+      res.json({
+        success: true,
+        objectPath
       });
     } catch (error: any) {
       console.error("Error setting ACL policy:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "فشل في معالجة الصورة" 
+      res.status(5G00).json({
+        success: false,
+        message: "فشل في معالجة الصورة"
       });
     }
   });
