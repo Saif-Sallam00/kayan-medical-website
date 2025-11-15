@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,11 +16,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram } from "lucide-react";
-import { insertContactFormSchema, type InsertContactForm } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+// --- FIX: Replaced aliases with relative paths ---
+import { insertContactFormSchema, type InsertContactForm } from "../../shared/schema";
+import { apiRequest } from "../lib/queryClient";
+// --- End Fix ---
 
 export default function Contact() {
   const { toast } = useToast();
+
+  // Fetch site settings for dynamic contact info
+  const { data: settingsData } = useQuery<{ success: boolean; data: any }>({
+    queryKey: ["/api/settings"],
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+  });
+  const settings = settingsData?.data;
 
   const form = useForm<InsertContactForm>({
     resolver: zodResolver(insertContactFormSchema),
@@ -56,24 +65,28 @@ export default function Contact() {
     mutation.mutate(data);
   };
 
-  const locations = [
+  // Locations array is now built dynamically from settings
+  // We need to check if settings exists before building the array
+  const locations = settings ? [
     {
       title: "المقر الرئيسي",
-      city: "شيبين الكوم، المنوفية",
-      address: "شارع الجلاء، وسط البلد",
-      phone: "+20 10 25253012",
-      email: "shebin@kayanmedical.com",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDMwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890"
+      city: settings.addressShebin || "شيبين الكوم، المنوفية",
+      address: "شارع الجلاء، وسط البلد", // This can be added to schema later if needed
+      phone: settings.mainPhone || "+20 10 25253012",
+      whatsapp: settings.whatsappLink || "https://wa.link/hn35ok",
+      email: settings.email || "info@kayanmedical.com",
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDMwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890" // This can also be added to schema
     },
     {
       title: "المقر الثاني",
-      city: "الشيخ زايد، القاهرة",
-      address: "طريق الواحات، البوابة الثانية",
-      phone: "+20 10 25253012",
-      email: "zayed@kayanmedical.com",
+      city: settings.addressZayed || "الشيخ زايد، القاهرة",
+      address: "طريق الواحات، البوابة الثانية", // This can be added to schema later if needed
+      phone: settings.mainPhone || "+20 10 25253012",
+      whatsapp: settings.whatsappLink || "https://wa.link/hn35ok",
+      email: settings.email || "info@kayanmedical.com",
       mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.3!2d31.0!3d30.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAwJzAwLjAiTiAzMcKwMDAnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890"
     }
-  ];
+  ] : []; // Provide an empty array as a fallback while settings are loading
 
   return (
     <div className="min-h-screen py-8 sm:py-12">
@@ -204,14 +217,14 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">اتصل بنا</h3>
                     <a 
-                      href="https://wa.link/hn35ok" 
+                      href={settings?.whatsappLink || "https://wa.link/hn35ok"} 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground font-['Inter']" 
                       dir="ltr"
                       data-testid="link-contact-phone"
                     >
-                      +20 10 25253012
+                      {settings?.mainPhone || "+20 10 25253012"}
                     </a>
                   </div>
                 </div>
@@ -223,12 +236,12 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">البريد الإلكتروني</h3>
                     <a 
-                      href="mailto:info@kayanmedical.com" 
+                      href={`mailto:${settings?.email || "info@kayanmedical.com"}`} 
                       className="text-muted-foreground hover:text-foreground font-['Inter']" 
                       dir="ltr"
                       data-testid="link-contact-email"
                     >
-                      info@kayanmedical.com
+                      {settings?.email || "info@kayanmedical.com"}
                     </a>
                   </div>
                 </div>
@@ -253,7 +266,7 @@ export default function Contact() {
                 <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">تابعنا</h3>
                 <div className="flex gap-3">
                   <a
-                    href="https://facebook.com"
+                    href={settings?.facebookUrl || "https://facebook.com"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 flex items-center justify-center rounded-md bg-muted hover-elevate active-elevate-2"
@@ -263,7 +276,7 @@ export default function Contact() {
                     <Facebook className="w-6 h-6" />
                   </a>
                   <a
-                    href="https://instagram.com"
+                    href={settings?.instagramUrl || "https://instagram.com"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 flex items-center justify-center rounded-md bg-muted hover-elevate active-elevate-2"
@@ -311,7 +324,7 @@ export default function Contact() {
                     <div className="flex items-center gap-3">
                       <Phone className="w-5 h-5 text-primary flex-shrink-0" />
                       <a 
-                        href="https://wa.link/hn35ok" 
+                        href={location.whatsapp}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-muted-foreground hover:text-foreground font-['Inter']" 
