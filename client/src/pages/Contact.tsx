@@ -16,9 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram } from "lucide-react";
-// --- FIX: Replaced aliases with relative paths ---
-import { insertContactFormSchema, type InsertContactForm } from "../../shared/schema";
-import { apiRequest } from "../lib/queryClient";
+// --- FIX: Reverted to using the correct project aliases ---
+import { insertContactFormSchema, type InsertContactForm } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 // --- End Fix ---
 
 export default function Contact() {
@@ -353,3 +353,4 @@ export default function Contact() {
     </div>
   );
 }
+```eof
