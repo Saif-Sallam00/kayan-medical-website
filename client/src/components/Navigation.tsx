@@ -9,10 +9,9 @@ export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location] = useLocation();
 
-  // Fetch site settings for dynamic contact info
   const { data: settingsData } = useQuery<{ success: boolean; data: any }>({
     queryKey: ["/api/settings"],
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+    staleTime: 1000 * 60 * 60,
   });
   const settings = settingsData?.data;
 
@@ -28,22 +27,22 @@ export function Navigation() {
   return (
     <nav className="sticky top-0 z-50 bg-card border-b border-card-border">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* Main Flex Container */}
-        <div className="flex items-center justify-between h-28">
+        {/* RESPONSIVE HEIGHT: h-20 (mobile) -> h-28 (desktop) */}
+        <div className="flex items-center justify-between h-20 md:h-28">
 
-          {/* 1. LOGO SECTION (Fixed) */}
+          {/* 1. LOGO SECTION */}
           <div className="flex-shrink-0 flex items-center gap-2">
             <Link href="/">
+              {/* RESPONSIVE LOGO: h-14 (mobile) -> h-24 (desktop) */}
               <img 
                 src={logoUrl} 
                 alt="Kayan Medical" 
-                className="h-24 w-auto object-contain transition-all hover:scale-105" 
+                className="h-14 md:h-24 w-auto object-contain transition-all hover:scale-105" 
               />
             </Link>
           </div>
 
-          {/* 2. NAVIGATION LINKS (Centered) */}
-          {/* flex-1: takes all empty space, justify-center: centers the items inside */}
+          {/* 2. NAVIGATION LINKS (Centered - Desktop Only) */}
           <div className="hidden md:flex flex-1 items-center justify-center gap-8">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
@@ -60,7 +59,7 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* 3. ACTION BUTTONS (Fixed) */}
+          {/* 3. ACTION BUTTONS (Desktop Only) */}
           <div className="hidden md:flex items-center gap-3">
             <a href={settings?.whatsappLink || "https://wa.link/hn35ok"} target="_blank" rel="noopener noreferrer">
               <Button variant="default" size="sm" className="gap-2" data-testid="button-whatsapp">
@@ -76,7 +75,7 @@ export function Navigation() {
             </a>
           </div>
 
-          {/* MOBILE MENU TOGGLE (Small Screens Only) */}
+          {/* MOBILE MENU TOGGLE */}
           <div className="md:hidden">
             <Button
               variant="ghost"
@@ -84,18 +83,15 @@ export function Navigation() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
 
         {/* MOBILE MENU OVERLAY */}
         {isMenuOpen && (
-          <div className="md:hidden absolute top-28 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
+          // CHANGED: Top position matches new mobile header height (top-20)
+          <div className="md:hidden absolute top-20 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
             <div className="flex flex-col gap-2">
               {navItems.map((item, index) => (
                 <Link key={`${item.path}-${index}`} href={item.path}>

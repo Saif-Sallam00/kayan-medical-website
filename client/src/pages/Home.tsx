@@ -8,7 +8,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Testimonial, Feature, HeroSection, Offer } from "@shared/schema";
-import heroImageUrl from "@/assets/hero-doctor-ultrasound.png";
+import heroImageUrl from "@/assets/ultrasound-machine.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
@@ -204,12 +204,10 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            // CHANGED: grid-cols-2 for mobile (was grid-cols-1)
             <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               {features.map((feature) => (
                 <div 
                   key={feature.id}
-                  // CHANGED: flex-col on mobile, text-center on mobile, smaller padding (p-3)
                   className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-right gap-2 sm:gap-4 p-3 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all"
                   data-testid={`feature-${feature.id}`}
                 >
@@ -259,9 +257,13 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            // CHANGED: Horizontal scroll on mobile (flex overflow-x-auto) / Grid on Desktop
+            <div className="flex overflow-x-auto pb-4 gap-4 snap-x md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible">
               {testimonials.map((testimonial) => (
-                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+                // Added min-width for mobile scroll items
+                <div key={testimonial.id} className="min-w-[85%] sm:min-w-[300px] snap-center md:min-w-0">
+                  <TestimonialCard testimonial={testimonial} />
+                </div>
               ))}
             </div>
           )}
