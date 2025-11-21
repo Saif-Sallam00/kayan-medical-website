@@ -240,6 +240,8 @@ export const heroSections = pgTable("hero_sections", {
     .default(sql`gen_random_uuid()`),
   titleAr: text("title_ar").notNull(),
   subtitleAr: text("subtitle_ar").notNull(),
+  // ✅ Restore this column
+  descriptionAr: text("description_ar"),
   backgroundImageUrl: text("background_image_url"),
   ctaText: text("cta_text"),
   ctaLink: text("cta_link"),
@@ -254,6 +256,8 @@ export const insertHeroSectionSchema = createInsertSchema(heroSections)
   .extend({
     titleAr: z.string().min(3, "العنوان مطلوب"),
     subtitleAr: z.string().min(10, "النص الفرعي مطلوب"),
+    // ✅ Add validation for it
+    descriptionAr: z.string().optional(),
   });
 
 export const updateHeroSectionSchema = insertHeroSectionSchema.partial();
