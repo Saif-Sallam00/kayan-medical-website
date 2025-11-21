@@ -28,23 +28,23 @@ export function Navigation() {
   return (
     <nav className="sticky top-0 z-50 bg-card border-b border-card-border">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* FIXED: Reverted height to h-20 (80px) so the bar isn't huge */}
-        <div className="flex items-center justify-between h-20">
-          {/* Logo - Right side for RTL */}
+        {/* Main Flex Container */}
+        <div className="flex items-center justify-between h-28">
+
+          {/* 1. LOGO SECTION (Fixed) */}
           <div className="flex-shrink-0 flex items-center gap-2">
             <Link href="/">
-              {/* FIXED: Logo is now h-[72px] (approx 90% of the bar height) */}
-              {/* This makes it big and visible without expanding the nav bar */}
               <img 
                 src={logoUrl} 
                 alt="Kayan Medical" 
-                className="h-[72px] w-auto object-contain transition-all hover:scale-105" 
+                className="h-24 w-auto object-contain transition-all hover:scale-105" 
               />
             </Link>
           </div>
 
-          {/* Desktop Navigation - Left side for RTL */}
-          <div className="hidden md:flex items-center gap-8">
+          {/* 2. NAVIGATION LINKS (Centered) */}
+          {/* flex-1: takes all empty space, justify-center: centers the items inside */}
+          <div className="hidden md:flex flex-1 items-center justify-center gap-8">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
                 <a
@@ -58,25 +58,25 @@ export function Navigation() {
                 </a>
               </Link>
             ))}
-
-            {/* Desktop Contact Buttons */}
-            <div className="flex items-center gap-3 mr-4">
-              <a href={settings?.whatsappLink || "https://wa.link/hn35ok"} target="_blank" rel="noopener noreferrer">
-                <Button variant="default" size="sm" className="gap-2" data-testid="button-whatsapp">
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="hidden lg:inline">واتساب</span>
-                </Button>
-              </a>
-              <a href={`tel:${settings?.mainPhone || "+201025253012"}`}>
-                <Button variant="outline" size="sm" className="gap-2" data-testid="button-phone">
-                  <Phone className="w-4 h-4" />
-                  <span className="hidden lg:inline" dir="ltr">{settings?.mainPhone || "+20 10 25253012"}</span>
-                </Button>
-              </a>
-            </div>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* 3. ACTION BUTTONS (Fixed) */}
+          <div className="hidden md:flex items-center gap-3">
+            <a href={settings?.whatsappLink || "https://wa.link/hn35ok"} target="_blank" rel="noopener noreferrer">
+              <Button variant="default" size="sm" className="gap-2" data-testid="button-whatsapp">
+                <MessageCircle className="w-4 h-4" />
+                <span className="hidden lg:inline">واتساب</span>
+              </Button>
+            </a>
+            <a href={`tel:${settings?.mainPhone || "+201025253012"}`}>
+              <Button variant="outline" size="sm" className="gap-2" data-testid="button-phone">
+                <Phone className="w-4 h-4" />
+                <span className="hidden lg:inline" dir="ltr">{settings?.mainPhone || "+20 10 25253012"}</span>
+              </Button>
+            </a>
+          </div>
+
+          {/* MOBILE MENU TOGGLE (Small Screens Only) */}
           <div className="md:hidden">
             <Button
               variant="ghost"
@@ -93,10 +93,9 @@ export function Navigation() {
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
+        {/* MOBILE MENU OVERLAY */}
         {isMenuOpen && (
-          /* FIXED: Adjusted top position to top-20 to match the new header height */
-          <div className="md:hidden absolute top-20 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
+          <div className="md:hidden absolute top-28 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
             <div className="flex flex-col gap-2">
               {navItems.map((item, index) => (
                 <Link key={`${item.path}-${index}`} href={item.path}>
