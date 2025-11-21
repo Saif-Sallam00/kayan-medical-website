@@ -8,7 +8,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Testimonial, Feature, HeroSection, Offer } from "@shared/schema";
-import heroImageUrl from "@assets/hero-doctor-ultrasound.png";
+import heroImageUrl from "@/assets/hero-doctor-ultrasound.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
@@ -53,7 +53,6 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative py-12 md:py-20 lg:py-28 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        {/* Background Logo */}
         <div 
           className="absolute inset-0 opacity-5 bg-no-repeat bg-center"
           style={{
@@ -61,8 +60,7 @@ export default function Home() {
             backgroundSize: '80%',
           }}
         />
-        
-        {/* Content */}
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
           {heroLoading ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center animate-pulse">
@@ -78,20 +76,19 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
-              {/* Text Content */}
               <div className="order-2 lg:order-1 space-y-4 md:space-y-6 text-center lg:text-right">
                 <Badge className="mb-2 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2" data-testid="badge-hero">
                   الشريك الموثوق في الرعاية الصحية
                 </Badge>
-                
+
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
                   {hero?.titleAr || "كيان ميديكال"}
                 </h1>
-                
+
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-muted-foreground font-['Tajawal']">
                   {hero?.subtitleAr || "كيان ميديكال تقدم لك أحدث أجهزة السونار مثل Mindray و GE Logiq مع ضمان الجودة والصيانة"}
                 </p>
-                
+
                 <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
                   {hero?.descriptionAr || "نحن نقدم الحلول الطبية لأطباء ومقدمي الرعاية الصحية لضمان دقة التشخيص"}
                 </p>
@@ -121,7 +118,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Image */}
               <div className="order-1 lg:order-2 flex items-center justify-center">
                 <div className="relative w-full max-w-xs sm:max-w-md lg:max-w-lg">
                   <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
@@ -199,28 +195,30 @@ export default function Home() {
           </div>
 
           {featuresLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 animate-pulse">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-6 animate-pulse">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center gap-4 p-6 rounded-lg bg-muted">
-                  <div className="w-12 h-12 bg-muted-foreground/20 rounded-md" />
-                  <div className="flex-1 h-6 bg-muted-foreground/20 rounded" />
+                <div key={i} className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-lg bg-muted">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted-foreground/20 rounded-md" />
+                  <div className="flex-1 h-4 bg-muted-foreground/20 rounded w-full" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            // CHANGED: grid-cols-2 for mobile (was grid-cols-1)
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               {features.map((feature) => (
                 <div 
                   key={feature.id}
-                  className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all"
+                  // CHANGED: flex-col on mobile, text-center on mobile, smaller padding (p-3)
+                  className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-right gap-2 sm:gap-4 p-3 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all"
                   data-testid={`feature-${feature.id}`}
                 >
                   <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-primary/10 flex items-center justify-center">
                     <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-base sm:text-lg font-medium">{feature.titleAr}</p>
-                    <p className="text-sm text-muted-foreground">{feature.descriptionAr}</p>
+                    <p className="text-sm sm:text-lg font-medium">{feature.titleAr}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{feature.descriptionAr}</p>
                   </div>
                 </div>
               ))}

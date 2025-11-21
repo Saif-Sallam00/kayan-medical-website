@@ -42,10 +42,10 @@ export function StatsSection() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasAnimatedRef.current) {
             hasAnimatedRef.current = true;
-            
+
             // Reset to 0 for animation
             setCounts(stats.map(() => 0));
-            
+
             stats.forEach((stat, index) => {
               // Extract number from value (e.g., "500+" -> 500, "98%" -> 98)
               const targetValue = parseInt(stat.value.replace(/[^0-9]/g, '')) || 0;
@@ -70,7 +70,7 @@ export function StatsSection() {
                   timersRef.current = timersRef.current.filter(t => t !== timer);
                 }
               }, duration / steps);
-              
+
               timersRef.current.push(timer);
             });
           }
@@ -92,14 +92,13 @@ export function StatsSection() {
     return (
       <section className="py-12 sm:py-16 bg-gradient-to-br from-muted/20 via-muted/30 to-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 animate-pulse">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 animate-pulse">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="text-center space-y-4 p-6 rounded-lg bg-card">
-                <div className="w-20 h-20 bg-muted rounded-xl mx-auto" />
+              <div key={i} className="text-center space-y-4 p-4 sm:p-6 rounded-lg bg-card">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 bg-muted rounded-xl mx-auto" />
                 <div className="space-y-2">
-                  <div className="h-12 bg-muted rounded mx-auto w-24" />
-                  <div className="h-6 bg-muted rounded mx-auto w-32" />
-                  <div className="h-4 bg-muted rounded mx-auto w-40" />
+                  <div className="h-8 sm:h-12 bg-muted rounded mx-auto w-16 sm:w-24" />
+                  <div className="h-4 sm:h-6 bg-muted rounded mx-auto w-24 sm:w-32" />
                 </div>
               </div>
             ))}
@@ -123,24 +122,24 @@ export function StatsSection() {
   return (
     <section ref={sectionRef} className="py-12 sm:py-16 bg-gradient-to-br from-muted/20 via-muted/30 to-muted/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
           {stats.map((stat, index) => {
             const gradient = index % 2 === 0 ? "from-primary to-primary/70" : "from-accent to-accent/70";
             const Icon = getIconComponent(stat.icon);
             return (
               <div 
                 key={stat.id} 
-                className="group text-center space-y-3 sm:space-y-4 p-4 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all duration-300"
+                className="group text-center space-y-2 sm:space-y-4 p-3 sm:p-6 rounded-lg bg-card border border-card-border hover-elevate transition-all duration-300"
                 data-testid={`stat-${stat.id}`}
               >
-                <div className={`inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br ${gradient} mb-2 transform group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" strokeWidth={2} />
+                <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br ${gradient} mb-2 transform group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="w-6 h-6 sm:w-10 sm:h-10 text-white" strokeWidth={2} />
                 </div>
                 <div className="space-y-1 sm:space-y-2">
-                  <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground font-['Cairo'] group-hover:text-primary transition-colors duration-300" data-testid={`stat-value-${stat.id}`}>
+                  <p className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground font-['Cairo'] group-hover:text-primary transition-colors duration-300" data-testid={`stat-value-${stat.id}`}>
                     {counts[index]}{getSuffix(stat.value)}
                   </p>
-                  <p className="text-base sm:text-lg font-semibold text-foreground">
+                  <p className="text-xs sm:text-lg font-semibold text-foreground">
                     {stat.labelAr}
                   </p>
                 </div>
