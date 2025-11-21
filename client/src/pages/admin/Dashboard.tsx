@@ -954,9 +954,6 @@ export default function AdminDashboard() {
           <TabsContent value="stats">
             <AdminStatsTab />
           </TabsContent>
-          <TabsContent value="stats">
-            <AdminStatsTab />
-          </TabsContent>
           <TabsContent value="about">
             <AdminAboutTab />
           </TabsContent>
