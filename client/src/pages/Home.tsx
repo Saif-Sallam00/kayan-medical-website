@@ -8,7 +8,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Testimonial, Feature, HeroSection, Offer } from "@shared/schema";
-import heroImageUrl from "@/assets/ultrasound-machine.png";
+import heroImageUrl from "@/assets/hero-doctor-ultrasound.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
