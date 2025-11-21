@@ -7,7 +7,7 @@ export function WhatsAppButton() {
       href="https://wa.link/hn35ok"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 left-6 z-40"
+      className="fixed bottom-6 right-6 z-40"
       data-testid="button-whatsapp-float"
     >
       <Button
