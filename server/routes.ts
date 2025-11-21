@@ -20,9 +20,11 @@ import {
   updateFeatureSchema,
   insertStatSchema,
   updateStatSchema,
-  // Added from your request
   insertTeamMemberSchema,
-  updateTeamMemberSchema
+  updateTeamMemberSchema,
+  // Added these missing schemas for validation
+  insertSiteSettingsSchema,
+  insertAboutPageSchema
 } from "@shared/schema";
 
 // Auth middleware to protect routes
@@ -916,41 +918,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // --- Site Settings Routes (Admin only) ---
+  // --- FIXED Site Settings Routes (Admin only) ---
   app.get("/api/settings", async (req, res) => {
     try {
       const settings = await storage.getSiteSettings();
       res.json({ success: true, data: settings });
     } catch (error: any) {
+      console.error("Error fetching settings:", error);
       res.status(500).json({ success: false, message: "فشل في جلب الإعدادات" });
     }
   });
 
   app.put("/api/settings", requireAdmin, async (req, res) => {
     try {
-      // We don't need strict validation here, just pass the partial body
-      const settings = await storage.updateSiteSettings(req.body);
+      // FIXED: Parse and clean the body using Zod, removing the 'id' field
+      const validatedData = insertSiteSettingsSchema.partial().omit({ id: true }).parse(req.body);
+
+      // Check if we have valid data to update
+      if (Object.keys(validatedData).length === 0) {
+        return res.json({ success: true, message: "لا توجد تغييرات للحفظ" });
+      }
+
+      const settings = await storage.updateSiteSettings(validatedData);
       res.json({ success: true, data: settings });
     } catch (error: any) {
+      // FIXED: Log the actual error
+      console.error("Error updating settings:", error);
+
+      if (error.name === "ZodError") {
+        return res.status(400).json({ 
+          success: false, 
+          message: "البيانات غير صحيحة" 
+        });
+      }
       res.status(500).json({ success: false, message: "فشل في تحديث الإعدادات" });
     }
   });
 
-  // --- About Page Routes ---
+  // --- FIXED About Page Routes ---
   app.get("/api/about-page", async (req, res) => {
     try {
       const content = await storage.getAboutPage();
       res.json({ success: true, data: content });
     } catch (error: any) {
+      console.error("Error fetching about page:", error);
       res.status(500).json({ success: false, message: "فشل في جلب محتوى الصفحة" });
     }
   });
 
   app.put("/api/about-page", requireAdmin, async (req, res) => {
     try {
-      const content = await storage.updateAboutPage(req.body);
+      // FIXED: Parse and clean the body using Zod, removing the 'id' field
+      const validatedData = insertAboutPageSchema.partial().omit({ id: true }).parse(req.body);
+
+       // Check if we have valid data to update
+       if (Object.keys(validatedData).length === 0) {
+        return res.json({ success: true, message: "لا توجد تغييرات للحفظ" });
+      }
+
+      const content = await storage.updateAboutPage(validatedData);
       res.json({ success: true, data: content });
     } catch (error: any) {
+      // FIXED: Log the actual error
+      console.error("Error updating about page:", error);
+
+      if (error.name === "ZodError") {
+        return res.status(400).json({ 
+          success: false, 
+          message: "البيانات غير صحيحة" 
+        });
+      }
       res.status(500).json({ success: false, message: "فشل في تحديث المحتوى" });
     }
   });
@@ -1005,9 +1042,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Object Storage Routes - From blueprint: javascript_object_storage
-
-  // Endpoint to serve uploaded images (public access)
+  // Object Storage Routes
   app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     try {
@@ -1022,7 +1057,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint to get upload URL (admin only)
   app.post("/api/objects/upload", requireAdmin, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
@@ -1037,7 +1071,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint to set ACL policy for uploaded image (admin only)
   app.post("/api/objects/set-acl", requireAdmin, async (req, res) => {
     try {
       if (!req.body.imageUrl) {
@@ -1053,7 +1086,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.body.imageUrl,
         {
           owner: userId,
-          visibility: "public", // All uploaded images are public (visible to website visitors)
+          visibility: "public",
         }
       );
 
