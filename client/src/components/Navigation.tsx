@@ -28,16 +28,17 @@ export function Navigation() {
   return (
     <nav className="sticky top-0 z-50 bg-card border-b border-card-border">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* INCREASED HEIGHT: h-20 -> h-28 (112px) */}
-        <div className="flex items-center justify-between h-28">
+        {/* FIXED: Reverted height to h-20 (80px) so the bar isn't huge */}
+        <div className="flex items-center justify-between h-20">
           {/* Logo - Right side for RTL */}
           <div className="flex-shrink-0 flex items-center gap-2">
             <Link href="/">
-              {/* INCREASED LOGO: h-10 -> h-24 (96px) */}
-              <img
-                src={logoUrl}
-                alt="Kayan Medical"
-                className="h-24 w-auto object-contain transition-all hover:scale-105"
+              {/* FIXED: Logo is now h-[72px] (approx 90% of the bar height) */}
+              {/* This makes it big and visible without expanding the nav bar */}
+              <img 
+                src={logoUrl} 
+                alt="Kayan Medical" 
+                className="h-[72px] w-auto object-contain transition-all hover:scale-105" 
               />
             </Link>
           </div>
@@ -60,32 +61,16 @@ export function Navigation() {
 
             {/* Desktop Contact Buttons */}
             <div className="flex items-center gap-3 mr-4">
-              <a
-                href={settings?.whatsappLink || "https://wa.link/hn35ok"}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="gap-2"
-                  data-testid="button-whatsapp"
-                >
+              <a href={settings?.whatsappLink || "https://wa.link/hn35ok"} target="_blank" rel="noopener noreferrer">
+                <Button variant="default" size="sm" className="gap-2" data-testid="button-whatsapp">
                   <MessageCircle className="w-4 h-4" />
                   <span className="hidden lg:inline">واتساب</span>
                 </Button>
               </a>
               <a href={`tel:${settings?.mainPhone || "+201025253012"}`}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  data-testid="button-phone"
-                >
+                <Button variant="outline" size="sm" className="gap-2" data-testid="button-phone">
                   <Phone className="w-4 h-4" />
-                  <span className="hidden lg:inline" dir="ltr">
-                    {settings?.mainPhone || "+20 10 25253012"}
-                  </span>
+                  <span className="hidden lg:inline" dir="ltr">{settings?.mainPhone || "+20 10 25253012"}</span>
                 </Button>
               </a>
             </div>
@@ -110,8 +95,8 @@ export function Navigation() {
 
         {/* Mobile Menu Overlay */}
         {isMenuOpen && (
-          /* ADJUSTED TOP: top-20 -> top-28 to match new header height */
-          <div className="md:hidden absolute top-28 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
+          /* FIXED: Adjusted top position to top-20 to match the new header height */
+          <div className="md:hidden absolute top-20 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
             <div className="flex flex-col gap-2">
               {navItems.map((item, index) => (
                 <Link key={`${item.path}-${index}`} href={item.path}>
@@ -127,27 +112,13 @@ export function Navigation() {
               ))}
               <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
                 <a href={`tel:${settings?.mainPhone || "+201025253012"}`}>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                    data-testid="button-mobile-phone"
-                  >
+                  <Button variant="outline" className="w-full justify-start gap-2" data-testid="button-mobile-phone">
                     <Phone className="w-4 h-4" />
-                    <span className="font-['Inter']" dir="ltr">
-                      {settings?.mainPhone || "+20 10 25253012"}
-                    </span>
+                    <span className="font-['Inter']" dir="ltr">{settings?.mainPhone || "+20 10 25253012"}</span>
                   </Button>
                 </a>
-                <a
-                  href={settings?.whatsappLink || "https://wa.link/hn35ok"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button
-                    variant="default"
-                    className="w-full gap-2"
-                    data-testid="button-mobile-whatsapp"
-                  >
+                <a href={settings?.whatsappLink || "https://wa.link/hn35ok"} target="_blank" rel="noopener noreferrer">
+                  <Button variant="default" className="w-full gap-2" data-testid="button-mobile-whatsapp">
                     <MessageCircle className="w-4 h-4" />
                     <span>تواصل عبر واتساب</span>
                   </Button>
