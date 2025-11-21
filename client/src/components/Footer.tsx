@@ -13,64 +13,66 @@ export function Footer() {
   return (
     <footer className="bg-card border-t border-card-border mt-12 sm:mt-16 md:mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-10 md:py-12">
-        {/* CHANGED: Grid layout logic for mobile ordering */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        {/* CHANGED: grid-cols-3 on mobile to fit all 3 sections in one row.
+           gap-3: Reduced gap on mobile to prevent squeezing.
+        */}
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8">
 
-          {/* 1. Company Info - Full width on mobile to push links down */}
-          <div className="col-span-2 lg:col-span-1 space-y-3 sm:space-y-4">
+          {/* 1. Company Info - Full width on mobile (col-span-3) */}
+          <div className="col-span-3 lg:col-span-1 space-y-3 sm:space-y-4 mb-4 lg:mb-0">
             <img src={logoUrl} alt="كيان ميديكال" className="h-12 sm:h-14 md:h-16 w-auto" />
             <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
               كيان ميديكال - شريكك الموثوق في توفير أحدث أجهزة السونار الطبية مع خدمات صيانة متميزة
             </p>
           </div>
 
-          {/* 2. Quick Links - Takes 1 column on mobile */}
+          {/* 2. Quick Links - 1 Column */}
           <div className="col-span-1">
-            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">روابط سريعة</h3>
+            <h3 className="font-semibold text-sm sm:text-lg mb-3 sm:mb-4">روابط سريعة</h3>
             <ul className="space-y-2">
-              <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">الرئيسية</span></Link></li>
-              <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">المنتجات</span></Link></li>
-              <li><Link href="/trade-in"><span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">شراء واستبدال</span></Link></li>
-              <li><Link href="/maintenance"><span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">الصيانة</span></Link></li>
-              <li><Link href="/about"><span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">من نحن</span></Link></li>
-              <li><Link href="/contact"><span className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer">التواصل</span></Link></li>
+              <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-sm cursor-pointer">الرئيسية</span></Link></li>
+              <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-sm cursor-pointer">المنتجات</span></Link></li>
+              <li><Link href="/trade-in"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-sm cursor-pointer">شراء واستبدال</span></Link></li>
+              <li><Link href="/maintenance"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-sm cursor-pointer">الصيانة</span></Link></li>
+              <li><Link href="/about"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-sm cursor-pointer">من نحن</span></Link></li>
+              <li><Link href="/contact"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-sm cursor-pointer">التواصل</span></Link></li>
             </ul>
           </div>
 
-          {/* 3. Contact Info - Takes 1 column on mobile (Sits beside Quick Links) */}
+          {/* 3. Contact Info - 1 Column */}
           <div className="col-span-1">
-            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">معلومات التواصل</h3>
+            <h3 className="font-semibold text-sm sm:text-lg mb-3 sm:mb-4">تواصل معنا</h3>
             <ul className="space-y-2 sm:space-y-3">
-              <li className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground">
-                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mt-1 flex-shrink-0" />
-                <div>
-                  <p className="font-medium text-foreground">المقر الرئيسي</p>
-                  <p>{settings?.addressShebin || "شيبين الكوم، المنوفية"}</p>
+              <li className="flex flex-col sm:flex-row items-start gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="font-medium text-foreground">الرئيسي:</span>
                 </div>
+                <p className="leading-tight">{settings?.addressShebin || "شيبين الكوم"}</p>
               </li>
-              <li className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground">
-                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mt-1 flex-shrink-0" />
-                <div>
-                  <p className="font-medium text-foreground">المقر الثاني</p>
-                  <p>{settings?.addressZayed || "الشيخ زايد، القاهرة"}</p>
+              <li className="flex flex-col sm:flex-row items-start gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="font-medium text-foreground">فرع 2:</span>
                 </div>
+                <p className="leading-tight">{settings?.addressZayed || "الشيخ زايد"}</p>
               </li>
-              <li className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                <a href={`tel:${settings?.mainPhone}`} className="font-['Inter']" dir="ltr">{settings?.mainPhone || "+20 10 25253012"}</a>
+              <li className="flex flex-wrap items-center gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
+                <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <a href={`tel:${settings?.mainPhone}`} className="font-['Inter']" dir="ltr">{settings?.mainPhone || "+20 10..."}</a>
               </li>
             </ul>
           </div>
 
-          {/* 4. Social Media - Full width on mobile */}
-          <div className="col-span-2 lg:col-span-1">
-            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">تابعنا</h3>
-            <div className="flex gap-3">
-              <a href={settings?.facebookUrl} target="_blank" className="w-10 h-10 flex items-center justify-center rounded-md bg-muted hover-elevate">
-                <Facebook className="w-5 h-5" />
+          {/* 4. Social Media - 1 Column (Now beside the others) */}
+          <div className="col-span-1">
+            <h3 className="font-semibold text-sm sm:text-lg mb-3 sm:mb-4">تابعنا</h3>
+            <div className="flex flex-col gap-2">
+              <a href={settings?.facebookUrl} target="_blank" className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-md bg-muted hover-elevate">
+                <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
-              <a href={settings?.instagramUrl} target="_blank" className="w-10 h-10 flex items-center justify-center rounded-md bg-muted hover-elevate">
-                <Instagram className="w-5 h-5" />
+              <a href={settings?.instagramUrl} target="_blank" className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-md bg-muted hover-elevate">
+                <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
             </div>
           </div>
