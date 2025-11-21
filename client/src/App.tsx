@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -17,6 +17,18 @@ import Offers from "@/pages/Offers";
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import NotFound from "@/pages/not-found";
+import { useEffect } from "react";
+
+// ✅ NEW: Component to scroll to top on route change
+function ScrollToTop() {
+  const [pathname] = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 function Router() {
   return (
@@ -40,6 +52,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        {/* ✅ Activate ScrollToTop here */}
+        <ScrollToTop />
         <div className="flex flex-col min-h-screen">
           <Navigation />
           <main className="flex-1">

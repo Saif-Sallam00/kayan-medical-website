@@ -24,30 +24,41 @@ export function Navigation() {
     { path: "/contact", label: "التواصل" },
   ];
 
+  // ✅ NEW: Function to handle smooth scrolling to top
+  const handleNavClick = (path: string) => {
+    if (location === path) {
+      // If already on the page, scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    // Close mobile menu if open
+    setIsMenuOpen(false);
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-card border-b border-card-border">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* RESPONSIVE HEIGHT: h-20 (mobile) -> h-28 (desktop) */}
         <div className="flex items-center justify-between h-20 md:h-28">
 
           {/* 1. LOGO SECTION */}
           <div className="flex-shrink-0 flex items-center gap-2">
             <Link href="/">
-              {/* RESPONSIVE LOGO: h-14 (mobile) -> h-24 (desktop) */}
-              <img 
-                src={logoUrl} 
-                alt="Kayan Medical" 
-                className="h-14 md:h-24 w-auto object-contain transition-all hover:scale-105" 
-              />
+              <a onClick={() => handleNavClick("/")}>
+                <img 
+                  src={logoUrl} 
+                  alt="Kayan Medical" 
+                  className="h-14 md:h-24 w-auto object-contain transition-all hover:scale-105 cursor-pointer" 
+                />
+              </a>
             </Link>
           </div>
 
-          {/* 2. NAVIGATION LINKS (Centered - Desktop Only) */}
+          {/* 2. NAVIGATION LINKS (Centered - Desktop) */}
           <div className="hidden md:flex flex-1 items-center justify-center gap-8">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
                 <a
-                  className={`text-lg font-medium transition-colors hover:text-primary ${
+                  onClick={() => handleNavClick(item.path)}
+                  className={`text-lg font-medium transition-colors hover:text-primary cursor-pointer ${
                     location === item.path
                       ? "text-primary font-bold"
                       : "text-muted-foreground"
@@ -59,7 +70,7 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* 3. ACTION BUTTONS (Desktop Only) */}
+          {/* 3. ACTION BUTTONS (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
             <a href={settings?.whatsappLink || "https://wa.link/hn35ok"} target="_blank" rel="noopener noreferrer">
               <Button variant="default" size="sm" className="gap-2" data-testid="button-whatsapp">
@@ -90,7 +101,6 @@ export function Navigation() {
 
         {/* MOBILE MENU OVERLAY */}
         {isMenuOpen && (
-          // CHANGED: Top position matches new mobile header height (top-20)
           <div className="md:hidden absolute top-20 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
             <div className="flex flex-col gap-2">
               {navItems.map((item, index) => (
@@ -98,7 +108,7 @@ export function Navigation() {
                   <Button
                     variant={location === item.path ? "secondary" : "ghost"}
                     className="w-full justify-start text-base"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => handleNavClick(item.path)}
                     data-testid={`link-mobile-${item.label}`}
                   >
                     {item.label}
