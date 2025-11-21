@@ -20,7 +20,9 @@ import {
   type Stat,
   type InsertStat,
   type SiteSettings,
+  type InsertSiteSettings,
   type AboutPage,
+  type InsertAboutPage,
   type TeamMember,
   type InsertTeamMember,
   users,
@@ -109,13 +111,13 @@ export interface IStorage {
   updateStat(id: string, stat: Partial<InsertStat>): Promise<Stat | undefined>;
   deleteStat(id: string): Promise<boolean>;
 
-  // Site Settings
+  // Site Settings methods
   getSiteSettings(): Promise<SiteSettings | undefined>;
-  updateSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings | undefined>;
+  updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
 
-  // About Page
+  // About Page methods
   getAboutPage(): Promise<AboutPage | undefined>;
-  updateAboutPage(content: Partial<AboutPage>): Promise<AboutPage | undefined>;
+  updateAboutPage(page: Partial<InsertAboutPage>): Promise<AboutPage>;
 
   // Team Members
   createTeamMember(member: InsertTeamMember): Promise<TeamMember>;
@@ -134,14 +136,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    // Normalize email to lowercase for case-insensitive matching
     const normalizedEmail = email.trim().toLowerCase();
     const result = await db.select().from(users).where(eq(users.email, normalizedEmail));
     return result[0];
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    // Normalize email to lowercase before storing
     const normalizedUser = {
       ...insertUser,
       email: insertUser.email.trim().toLowerCase(),
@@ -399,7 +399,7 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
-  // --- NEW METHODS ---
+  // --- NEW METHODS FIXED ---
 
   // Site Settings methods
   async getSiteSettings(): Promise<SiteSettings | undefined> {
@@ -407,20 +407,27 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async updateSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings | undefined> {
-    const current = await this.getSiteSettings();
-    if (!current) {
-      // If no settings exist, create them
-      // We provide default values just in case `settings` is partial
-      const createResult = await db.insert(siteSettings).values({ ...settings }).returning();
-      return createResult[0];
+  async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    const existing = await this.getSiteSettings();
+
+    if (existing) {
+      // If exists, update it
+      const [updated] = await db
+        .update(siteSettings)
+        .set(settings)
+        .where(eq(siteSettings.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      // If not exists, create it
+      // We cast to InsertSiteSettings because we know we are creating the first row
+      // and the schema defaults will handle any missing fields if they are optional in DB
+      const [created] = await db
+        .insert(siteSettings)
+        .values(settings as InsertSiteSettings)
+        .returning();
+      return created;
     }
-    // If settings exist, update them
-    const result = await db.update(siteSettings)
-      .set(settings)
-      .where(eq(siteSettings.id, current.id))
-      .returning();
-    return result[0];
   }
 
   // About Page methods
@@ -429,19 +436,25 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async updateAboutPage(content: Partial<AboutPage>): Promise<AboutPage | undefined> {
-    const current = await this.getAboutPage();
-    if (!current) {
-      // If no about page content exists, create it
-      const createResult = await db.insert(aboutPage).values({ ...content }).returning();
-      return createResult[0];
+  async updateAboutPage(page: Partial<InsertAboutPage>): Promise<AboutPage> {
+    const existing = await this.getAboutPage();
+
+    if (existing) {
+      // If exists, update it
+      const [updated] = await db
+        .update(aboutPage)
+        .set(page)
+        .where(eq(aboutPage.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      // If not exists, create it
+      const [created] = await db
+        .insert(aboutPage)
+        .values(page as InsertAboutPage)
+        .returning();
+      return created;
     }
-    // If content exists, update it
-    const result = await db.update(aboutPage)
-      .set(content)
-      .where(eq(aboutPage.id, current.id))
-      .returning();
-    return result[0];
   }
 
   // Team Member methods
