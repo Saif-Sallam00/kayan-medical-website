@@ -38,9 +38,9 @@ export const products = pgTable("products", {
   description: text("description").notNull(),
   specifications: text("specifications").array().notNull(),
   imageUrl: text("image_url"),
-  // ✅ NEW: Store up to 4 additional images
+  // Store up to 4 additional images
   additionalImages: text("additional_images").array(), 
-  priceInfo: text("price_info"), // "استفسر عن السعر" or actual price
+  priceInfo: text("price_info"), 
   isActive: boolean("is_active").notNull().default(true),
   displayOrder: text("display_order").default("0"),
 });
@@ -53,7 +53,6 @@ export const insertProductSchema = createInsertSchema(products).omit({
   description: z.string().min(10, "الوصف مطلوب"),
   brand: z.string().min(2, "الماركة مطلوبة"),
   model: z.string().min(1, "الموديل مطلوب"),
-  // ✅ Validate the array (optional)
   additionalImages: z.array(z.string()).optional(),
 });
 
@@ -282,6 +281,8 @@ export const siteSettings = pgTable("site_settings", {
   addressZayed: text("address_zayed").notNull().default("الشيخ زايد، القاهرة"),
   facebookUrl: text("facebook_url").notNull().default("https://facebook.com"),
   instagramUrl: text("instagram_url").notNull().default("https://instagram.com"),
+  // ✅ NEW: Default WhatsApp Message Template
+  whatsappMessage: text("whatsapp_message").notNull().default("مرحباً، أود الاستفسار عن جهاز:"),
 });
 
 // Add this for the About Us page content

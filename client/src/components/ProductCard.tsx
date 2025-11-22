@@ -4,15 +4,26 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import type { Product } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  // WhatsApp link with pre-filled message including product name
-  const whatsappMessage = encodeURIComponent(`مرحباً، أود الاستفسار عن جهاز: ${product.nameAr}`);
-  const whatsappLink = `https://wa.me/+201025253012?text=${whatsappMessage}`;
+  // ✅ Fetch settings to get the dynamic WhatsApp message template
+  const { data: settingsData } = useQuery<{ success: boolean; data: any }>({
+    queryKey: ["/api/settings"],
+    staleTime: 1000 * 60 * 60, 
+  });
+  const settings = settingsData?.data;
+
+  // Default message if settings haven't loaded yet
+  const messageTemplate = settings?.whatsappMessage || "مرحباً، أود الاستفسار عن جهاز:";
+  const whatsappMessage = encodeURIComponent(`${messageTemplate} ${product.nameAr}`);
+  // Ensure we use the main phone number from settings if available
+  const phoneNumber = settings?.mainPhone ? settings.mainPhone.replace(/[^0-9]/g, '') : "201025253012";
+  const whatsappLink = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`;
 
   return (
     <Card className="flex flex-col h-full overflow-hidden hover-elevate transition-all duration-300 border-card-border group">
@@ -70,7 +81,6 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.priceInfo || "تواصل للسعر"}
           </p>
 
-          {/* ✅ NEW: Animated WhatsApp Button */}
           <a 
             href={whatsappLink}
             target="_blank" 
