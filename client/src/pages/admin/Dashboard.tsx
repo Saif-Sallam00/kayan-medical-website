@@ -729,10 +729,154 @@ export default function AdminDashboard() {
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Other Dialogs (Testimonial/Offer) would be here... reused mostly from your code but kept clean for length */}
-        <Dialog open={isTestimonialDialogOpen} onOpenChange={setIsTestimonialDialogOpen}><DialogContent><Form {...testimonialForm}><form onSubmit={testimonialForm.handleSubmit(handleTestimonialSubmit)}><FormField control={testimonialForm.control} name="doctorName" render={({ field }) => <Input {...field} placeholder="اسم الطبيب" />} /><Button type="submit">حفظ</Button></form></Form></DialogContent></Dialog>
-        <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}><DialogContent><Form {...offerForm}><form onSubmit={offerForm.handleSubmit(handleOfferSubmit)}><FormField control={offerForm.control} name="titleAr" render={({ field }) => <Input {...field} placeholder="عنوان العرض" />} /><Button type="submit">حفظ</Button></form></Form></DialogContent></Dialog>
+        {/* Testimonial Dialog - Updated */}
+        <Dialog open={isTestimonialDialogOpen} onOpenChange={setIsTestimonialDialogOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>{editingTestimonial ? "تعديل التقييم" : "إضافة تقييم جديد"}</DialogTitle>
+              <DialogDescription>أدخل بيانات الطبيب والتقييم</DialogDescription>
+            </DialogHeader>
+            <Form {...testimonialForm}>
+              <form onSubmit={testimonialForm.handleSubmit(handleTestimonialSubmit)} className="space-y-4">
 
+                {/* Image Uploader */}
+                <FormField
+                  control={testimonialForm.control}
+                  name="photoUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>صورة الطبيب</FormLabel>
+                      <FormControl>
+                        <div className="space-y-2">
+                          {field.value && (
+                            <div className="relative w-20 h-20">
+                              <img 
+                                src={field.value} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover rounded-full border" 
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute -top-1 -right-1 w-5 h-5 rounded-full"
+                                onClick={() => field.onChange("")}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          )}
+                          <ObjectUploader
+                            onGetUploadParameters={async () => {
+                              const res = await apiRequest("POST", "/api/objects/upload", {});
+                              const data = await res.json();
+                              return { method: "PUT", url: data.uploadURL };
+                            }}
+                            onComplete={async (result) => {
+                              if (result.successful[0]) {
+                                const aclRes = await apiRequest("POST", "/api/objects/set-acl", { 
+                                  imageUrl: result.successful[0].uploadURL 
+                                });
+                                const aclData = await aclRes.json();
+                                field.onChange(aclData.objectPath);
+                                toast({ title: "تم رفع الصورة" });
+                              }
+                            }}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={testimonialForm.control}
+                    name="doctorName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>اسم الطبيب</FormLabel>
+                        <FormControl><Input {...field} placeholder="د. محمد علي" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={testimonialForm.control}
+                    name="specialization"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>التخصص</FormLabel>
+                        <FormControl><Input {...field} placeholder="نساء وتوليد" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={testimonialForm.control}
+                    name="clinicName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>اسم العيادة/المستشفى</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={testimonialForm.control}
+                    name="rating"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>التقييم</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="اختر التقييم" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="5">5 نجوم ⭐⭐⭐⭐⭐</SelectItem>
+                            <SelectItem value="4">4 نجوم ⭐⭐⭐⭐</SelectItem>
+                            <SelectItem value="3">3 نجوم ⭐⭐⭐</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={testimonialForm.control}
+                  name="quote"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>التقييم (نص الشهادة)</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} className="h-24 resize-none" placeholder="اكتب رأي العميل هنا..." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button type="button" variant="outline" onClick={() => setIsTestimonialDialogOpen(false)}>
+                    إلغاء
+                  </Button>
+                  <Button type="submit">
+                    {editingTestimonial ? "حفظ التعديلات" : "إضافة"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
