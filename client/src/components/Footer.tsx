@@ -26,14 +26,14 @@ export function Footer() {
 
           {/* 2. Quick Links - Column 1 */}
           <div className="col-span-1">
-            <h3 className="font-bold text-xs sm:text-base lg:text-lg mb-3 sm:mb-4 text-primary">روابط سريعة</h3>
-            <ul className="space-y-1"> {/* CHANGED: Reduced from space-y-2 to space-y-1 */}
-              <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">الرئيسية</span></Link></li>
-              <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">المنتجات</span></Link></li>
-              <li><Link href="/trade-in"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">استبدال</span></Link></li>
-              <li><Link href="/maintenance"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">الصيانة</span></Link></li>
-              <li><Link href="/about"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">من نحن</span></Link></li>
-              <li><Link href="/contact"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">التواصل</span></Link></li>
+            <h3 className="font-bold text-sm sm:text-lg lg:text-xl mb-3 sm:mb-4 text-primary">روابط سريعة</h3>
+            <ul className="space-y-1">
+              <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">الرئيسية</span></Link></li>
+              <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">المنتجات</span></Link></li>
+              <li><Link href="/trade-in"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">استبدال</span></Link></li>
+              <li><Link href="/maintenance"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">الصيانة</span></Link></li>
+              <li><Link href="/about"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">من نحن</span></Link></li>
+              <li><Link href="/contact"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">التواصل</span></Link></li>
             </ul>
           </div>
 
