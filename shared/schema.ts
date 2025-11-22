@@ -143,12 +143,15 @@ export const testimonials = pgTable("testimonials", {
   quote: text("quote").notNull(),
   rating: text("rating").notNull().default("5"),
   clinicName: text("clinic_name").notNull(),
-  photoUrl: text("photo_url"),
+  photoUrl: text("photo_url"),     // Existing (Avatar)
+  // ✅ NEW: Big image for credibility
+  teamImageUrl: text("team_image_url"), 
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   displayOrder: text("display_order").default("0"),
 });
 
+// ... inside insertTestimonialSchema (zod)
 export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   id: true,
   createdAt: true,
@@ -157,6 +160,8 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   specialization: z.string().min(2, "التخصص مطلوب"),
   quote: z.string().min(10, "الشهادة يجب أن تكون 10 أحرف على الأقل"),
   clinicName: z.string().min(2, "اسم العيادة مطلوب"),
+  // ✅ ALLOW NULL/OPTIONAL
+  teamImageUrl: z.string().optional().nullable(),
 });
 
 export const updateTestimonialSchema = insertTestimonialSchema.partial();
