@@ -9,6 +9,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { LogOut, Mail, Wrench, MessageSquare, Edit, Trash2, Plus, X } from "lucide-react";
 import type { SafeUser, Product, Testimonial, Offer } from "@shared/schema";
 import AdminHeroTab from "./tabs/AdminHeroTab";
+import AdminPortfolioTab from "./tabs/AdminPortfolioTab"; 
+import AdminFeaturesTab from "./tabs/AdminFeaturesTab";
 import AdminFeaturesTab from "./tabs/AdminFeaturesTab";
 import AdminStatsTab from "./tabs/AdminStatsTab";
 import AdminSiteSettingsTab from "./tabs/AdminSiteSettingsTab";
@@ -506,6 +508,7 @@ export default function AdminDashboard() {
         <Tabs defaultValue="products" className="space-y-4">
           <TabsList className="w-full flex gap-2 overflow-x-auto whitespace-nowrap no-scrollbar p-1 sm:p-0">
             <TabsTrigger className="shrink-0" value="products">المنتجات</TabsTrigger>
+            <TabsTrigger className="shrink-0" value="portfolio">سجل الأعمال</TabsTrigger>
             <TabsTrigger className="shrink-0" value="testimonials">الشهادات</TabsTrigger>
             <TabsTrigger className="shrink-0" value="offers">العروض</TabsTrigger>
             <TabsTrigger className="shrink-0" value="hero">Hero</TabsTrigger>
@@ -569,6 +572,7 @@ export default function AdminDashboard() {
           <TabsContent value="offers"><Card><CardContent className="pt-6"><div className="space-y-4">{offers.map(o => <div key={o.id} className="flex justify-between p-4 border rounded"><div><h3 className="font-bold">{o.titleAr}</h3><p>{o.description}</p></div><div className="flex gap-2"><Button size="icon" variant="ghost" onClick={() => handleOpenOfferDialog(o)}><Edit className="w-4 h-4" /></Button><Button size="icon" variant="ghost" onClick={() => setDeletingOfferId(o.id)}><Trash2 className="w-4 h-4" /></Button></div></div>)}<Button onClick={() => handleOpenOfferDialog()} className="w-full mt-4">إضافة عرض</Button></div></CardContent></Card></TabsContent>
           <TabsContent value="hero"><AdminHeroTab /></TabsContent>
           <TabsContent value="features"><AdminFeaturesTab /></TabsContent>
+          <TabsContent value="portfolio"><AdminPortfolioTab /></TabsContent>
           <TabsContent value="stats"><AdminStatsTab /></TabsContent>
           <TabsContent value="contact"><div className="space-y-2">{contactForms.map(f => <Card key={f.id} className="p-4"><p className="font-bold">{f.name}</p><p>{f.email}</p><p>{f.message}</p></Card>)}</div></TabsContent>
           <TabsContent value="maintenance"><div className="space-y-2">{maintenanceRequests.map(m => <Card key={m.id} className="p-4"><p className="font-bold">{m.clientName}</p><p>{m.deviceType}</p><p>{m.issueDescription}</p></Card>)}</div></TabsContent>

@@ -17,20 +17,19 @@ export function Navigation() {
 
   const navItems = [
     { path: "/", label: "الرئيسية" },
-    { path: "/products", label: "شراء" },
-    { path: "/trade-in", label: "بيع واستبدال" },
+    { path: "/products", label: "بيع" },
+    { path: "/trade-in", label: "شراء واستبدال" },
+    // ✅ NEW: Portfolio Link
+    { path: "/portfolio", label: "تسليماتنا" },
     { path: "/maintenance", label: "صيانة" },
     { path: "/about", label: "من نحن" },
     { path: "/contact", label: "التواصل" },
   ];
 
-  // ✅ NEW: Function to handle smooth scrolling to top
   const handleNavClick = (path: string) => {
     if (location === path) {
-      // If already on the page, scroll to top smoothly
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    // Close mobile menu if open
     setIsMenuOpen(false);
   };
 
@@ -39,7 +38,6 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex items-center justify-between h-20 md:h-28">
 
-          {/* 1. LOGO SECTION */}
           <div className="flex-shrink-0 flex items-center gap-2">
             <Link href="/">
               <a onClick={() => handleNavClick("/")}>
@@ -52,7 +50,6 @@ export function Navigation() {
             </Link>
           </div>
 
-          {/* 2. NAVIGATION LINKS (Centered - Desktop) */}
           <div className="hidden md:flex flex-1 items-center justify-center gap-8">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
@@ -70,7 +67,6 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* 3. ACTION BUTTONS (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
             <a href={settings?.whatsappLink || "https://wa.link/hn35ok"} target="_blank" rel="noopener noreferrer">
               <Button variant="default" size="sm" className="gap-2" data-testid="button-whatsapp">
@@ -86,7 +82,6 @@ export function Navigation() {
             </a>
           </div>
 
-          {/* MOBILE MENU TOGGLE */}
           <div className="md:hidden">
             <Button
               variant="ghost"
@@ -99,7 +94,6 @@ export function Navigation() {
           </div>
         </div>
 
-        {/* MOBILE MENU OVERLAY */}
         {isMenuOpen && (
           <div className="md:hidden absolute top-20 left-0 w-full bg-card border-b border-card-border shadow-lg py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-5">
             <div className="flex flex-col gap-2">

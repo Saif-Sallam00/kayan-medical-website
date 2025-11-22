@@ -22,9 +22,11 @@ import {
   updateStatSchema,
   insertTeamMemberSchema,
   updateTeamMemberSchema,
-  // Added these missing schemas for validation
   insertSiteSettingsSchema,
-  insertAboutPageSchema
+  insertAboutPageSchema,
+  // ✅ Import portfolio schema
+  insertPortfolioItemSchema,
+  updatePortfolioItemSchema
 } from "@shared/schema";
 
 // Auth middleware to protect routes
@@ -360,6 +362,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         message: "فشل في حذف المنتج"
       });
+    }
+  });
+
+  // ✅ Portfolio Routes
+  app.get("/api/portfolio", async (req, res) => {
+    try {
+      const items = await storage.getActivePortfolioItems();
+      res.json({ success: true, data: items });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في جلب سجل الأعمال" });
+    }
+  });
+
+  app.get("/api/portfolio/all", requireAdmin, async (req, res) => {
+    try {
+      const items = await storage.getAllPortfolioItems();
+      res.json({ success: true, data: items });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في جلب سجل الأعمال" });
+    }
+  });
+
+  app.post("/api/portfolio", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = insertPortfolioItemSchema.parse(req.body);
+      const item = await storage.createPortfolioItem(validatedData);
+      res.status(201).json({ success: true, data: item });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  });
+
+  app.put("/api/portfolio/:id", requireAdmin, async (req, res) => {
+    try {
+      const validatedData = updatePortfolioItemSchema.parse(req.body);
+      const item = await storage.updatePortfolioItem(req.params.id, validatedData);
+      if (!item) return res.status(404).json({ success: false, message: "العنصر غير موجود" });
+      res.json({ success: true, data: item });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  });
+
+  app.delete("/api/portfolio/:id", requireAdmin, async (req, res) => {
+    try {
+      const deleted = await storage.deletePortfolioItem(req.params.id);
+      if (!deleted) return res.status(404).json({ success: false, message: "العنصر غير موجود" });
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: "فشل في حذف العنصر" });
     }
   });
 
@@ -918,7 +970,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // --- FIXED Site Settings Routes (Admin only) ---
+  // Site Settings Routes
   app.get("/api/settings", async (req, res) => {
     try {
       const settings = await storage.getSiteSettings();
@@ -931,10 +983,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/settings", requireAdmin, async (req, res) => {
     try {
-      // FIXED: Parse and clean the body using Zod, removing the 'id' field
       const validatedData = insertSiteSettingsSchema.partial().omit({ id: true }).parse(req.body);
 
-      // Check if we have valid data to update
       if (Object.keys(validatedData).length === 0) {
         return res.json({ success: true, message: "لا توجد تغييرات للحفظ" });
       }
@@ -942,20 +992,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const settings = await storage.updateSiteSettings(validatedData);
       res.json({ success: true, data: settings });
     } catch (error: any) {
-      // FIXED: Log the actual error
       console.error("Error updating settings:", error);
-
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: "البيانات غير صحيحة" 
-        });
+        return res.status(400).json({ success: false, message: "البيانات غير صحيحة" });
       }
       res.status(500).json({ success: false, message: "فشل في تحديث الإعدادات" });
     }
   });
 
-  // --- FIXED About Page Routes ---
+  // About Page Routes
   app.get("/api/about-page", async (req, res) => {
     try {
       const content = await storage.getAboutPage();
@@ -968,10 +1013,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/about-page", requireAdmin, async (req, res) => {
     try {
-      // FIXED: Parse and clean the body using Zod, removing the 'id' field
       const validatedData = insertAboutPageSchema.partial().omit({ id: true }).parse(req.body);
 
-       // Check if we have valid data to update
        if (Object.keys(validatedData).length === 0) {
         return res.json({ success: true, message: "لا توجد تغييرات للحفظ" });
       }
@@ -979,20 +1022,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const content = await storage.updateAboutPage(validatedData);
       res.json({ success: true, data: content });
     } catch (error: any) {
-      // FIXED: Log the actual error
       console.error("Error updating about page:", error);
-
       if (error.name === "ZodError") {
-        return res.status(400).json({ 
-          success: false, 
-          message: "البيانات غير صحيحة" 
-        });
+        return res.status(400).json({ success: false, message: "البيانات غير صحيحة" });
       }
       res.status(500).json({ success: false, message: "فشل في تحديث المحتوى" });
     }
   });
 
-  // --- Team Members Routes ---
+  // Team Members Routes
   app.get("/api/team-members", async (req, res) => {
     try {
       const members = await storage.getActiveTeamMembers();

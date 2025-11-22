@@ -271,6 +271,34 @@ export type Stat = typeof stats.$inferSelect;
 
 // --- NEW TABLES ADDED ---
 
+// ✅ NEW: Portfolio/Previous Work Schema
+export const portfolioItems = pgTable("portfolio_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  titleAr: text("title_ar").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url").notNull(),
+  clientName: text("client_name"), // Optional: who was this for?
+  location: text("location"),      // Optional: where was this installed?
+  deliveryDate: text("delivery_date"), // Optional: when?
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: text("display_order").default("0"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPortfolioItemSchema = createInsertSchema(portfolioItems).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  titleAr: z.string().min(3, "العنوان مطلوب"),
+  imageUrl: z.string().min(1, "الصورة مطلوبة"),
+});
+
+export const updatePortfolioItemSchema = insertPortfolioItemSchema.partial();
+
+export type PortfolioItem = typeof portfolioItems.$inferSelect;
+export type InsertPortfolioItem = z.infer<typeof insertPortfolioItemSchema>;
+export type UpdatePortfolioItem = z.infer<typeof updatePortfolioItemSchema>;
+
 // Add this for Site-wide settings (contact, footer, etc.)
 export const siteSettings = pgTable("site_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

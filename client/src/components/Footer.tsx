@@ -31,6 +31,7 @@ export function Footer() {
               <ul className="space-y-1">
                 <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">الرئيسية</span></Link></li>
                 <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">المنتجات</span></Link></li>
+                <li><Link href="/portfolio"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">سجل الأعمال</span></Link></li>
                 <li><Link href="/trade-in"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">استبدال</span></Link></li>
                 <li><Link href="/maintenance"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">الصيانة</span></Link></li>
                 <li><Link href="/about"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">من نحن</span></Link></li>

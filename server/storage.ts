@@ -25,6 +25,9 @@ import {
   type InsertAboutPage,
   type TeamMember,
   type InsertTeamMember,
+  // ✅ Import new types
+  type PortfolioItem,
+  type InsertPortfolioItem,
   users,
   contactForms,
   maintenanceRequests,
@@ -38,6 +41,8 @@ import {
   siteSettings,
   aboutPage,
   teamMembers,
+  // ✅ Import new table
+  portfolioItems,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -70,6 +75,14 @@ export interface IStorage {
   getProduct(id: string): Promise<Product | undefined>;
   updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: string): Promise<boolean>;
+
+  // Portfolio methods (✅ NEW)
+  createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
+  getAllPortfolioItems(): Promise<PortfolioItem[]>;
+  getActivePortfolioItems(): Promise<PortfolioItem[]>;
+  getPortfolioItem(id: string): Promise<PortfolioItem | undefined>;
+  updatePortfolioItem(id: string, item: Partial<InsertPortfolioItem>): Promise<PortfolioItem | undefined>;
+  deletePortfolioItem(id: string): Promise<boolean>;
 
   // Testimonial methods
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
@@ -226,6 +239,40 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProduct(id: string): Promise<boolean> {
     const result = await db.delete(products).where(eq(products.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // ✅ Portfolio methods
+  async createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem> {
+    const result = await db.insert(portfolioItems).values(item).returning();
+    return result[0];
+  }
+
+  async getAllPortfolioItems(): Promise<PortfolioItem[]> {
+    return await db.select().from(portfolioItems).orderBy(desc(portfolioItems.createdAt));
+  }
+
+  async getActivePortfolioItems(): Promise<PortfolioItem[]> {
+    return await db.select().from(portfolioItems)
+      .where(eq(portfolioItems.isActive, true))
+      .orderBy(desc(portfolioItems.createdAt));
+  }
+
+  async getPortfolioItem(id: string): Promise<PortfolioItem | undefined> {
+    const result = await db.select().from(portfolioItems).where(eq(portfolioItems.id, id));
+    return result[0];
+  }
+
+  async updatePortfolioItem(id: string, item: Partial<InsertPortfolioItem>): Promise<PortfolioItem | undefined> {
+    const result = await db.update(portfolioItems)
+      .set(item)
+      .where(eq(portfolioItems.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deletePortfolioItem(id: string): Promise<boolean> {
+    const result = await db.delete(portfolioItems).where(eq(portfolioItems.id, id)).returning();
     return result.length > 0;
   }
 
@@ -399,8 +446,6 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
-  // --- NEW METHODS FIXED ---
-
   // Site Settings methods
   async getSiteSettings(): Promise<SiteSettings | undefined> {
     const result = await db.select().from(siteSettings).limit(1);
@@ -411,7 +456,6 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getSiteSettings();
 
     if (existing) {
-      // If exists, update it
       const [updated] = await db
         .update(siteSettings)
         .set(settings)
@@ -419,9 +463,6 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return updated;
     } else {
-      // If not exists, create it
-      // We cast to InsertSiteSettings because we know we are creating the first row
-      // and the schema defaults will handle any missing fields if they are optional in DB
       const [created] = await db
         .insert(siteSettings)
         .values(settings as InsertSiteSettings)
@@ -440,7 +481,6 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getAboutPage();
 
     if (existing) {
-      // If exists, update it
       const [updated] = await db
         .update(aboutPage)
         .set(page)
@@ -448,7 +488,6 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return updated;
     } else {
-      // If not exists, create it
       const [created] = await db
         .insert(aboutPage)
         .values(page as InsertAboutPage)

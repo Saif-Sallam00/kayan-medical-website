@@ -14,12 +14,13 @@ import Maintenance from "@/pages/Maintenance";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Offers from "@/pages/Offers";
+// ✅ NEW: Portfolio Page Import
+import Portfolio from "@/pages/Portfolio";
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 
-// ✅ NEW: Component to scroll to top on route change
 function ScrollToTop() {
   const [pathname] = useLocation();
 
@@ -41,6 +42,8 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/offers" component={Offers} />
+      {/* ✅ NEW: Portfolio Route */}
+      <Route path="/portfolio" component={Portfolio} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
@@ -52,7 +55,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        {/* ✅ Activate ScrollToTop here */}
         <ScrollToTop />
         <div className="flex flex-col min-h-screen">
           <Navigation />
