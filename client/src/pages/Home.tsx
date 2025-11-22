@@ -8,7 +8,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Testimonial, Feature, HeroSection, Offer } from "@shared/schema";
-import heroImageUrl from "@/assets/hero-doctor-ultrasound.png";
+import heroImageUrl from "@/assets/ultrasound-machine.png";
 import logoBgUrl from "@/assets/logo-bg.png";
 
 export default function Home() {
@@ -77,8 +77,9 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
               <div className="order-2 lg:order-1 space-y-4 md:space-y-6 text-center lg:text-right">
+                {/* ✅ CHANGED: Use dynamic badgeAr or default text */}
                 <Badge className="mb-2 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2" data-testid="badge-hero">
-                  الشريك الموثوق في الرعاية الصحية
+                  {hero?.badgeAr || "الشريك الموثوق في الرعاية الصحية"}
                 </Badge>
 
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight font-['Cairo']" data-testid="text-hero-title">
@@ -257,10 +258,8 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            // CHANGED: Horizontal scroll on mobile (flex overflow-x-auto) / Grid on Desktop
             <div className="flex overflow-x-auto pb-4 gap-4 snap-x md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible">
               {testimonials.map((testimonial) => (
-                // Added min-width for mobile scroll items
                 <div key={testimonial.id} className="min-w-[85%] sm:min-w-[300px] snap-center md:min-w-0">
                   <TestimonialCard testimonial={testimonial} />
                 </div>

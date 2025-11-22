@@ -1,24 +1,47 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Edit } from "lucide-react";
 import type { HeroSection } from "@shared/schema";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { Badge } from "@/components/ui/badge";
 
 const heroFormSchema = z.object({
   titleAr: z.string().min(5, "العنوان يجب أن يكون 5 أحرف على الأقل"),
-  subtitleAr: z.string().min(10, "العنوان الفرعي يجب أن يكون 10 أحرف على الأقل"),
-  descriptionAr: z.string().optional(), // ✅ NEW FIELD
+  subtitleAr: z
+    .string()
+    .min(10, "العنوان الفرعي يجب أن يكون 10 أحرف على الأقل"),
+  descriptionAr: z.string().optional(),
+  badgeAr: z.string().optional(), // ✅ NEW FIELD
   ctaText: z.string().nullable().optional(),
   backgroundImageUrl: z.string().nullable().optional(),
 });
@@ -29,7 +52,10 @@ export default function AdminHeroTab() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: heroData } = useQuery<{ success: boolean; data: HeroSection[] }>({
+  const { data: heroData } = useQuery<{
+    success: boolean;
+    data: HeroSection[];
+  }>({
     queryKey: ["/api/hero-sections/all"],
   });
 
@@ -40,7 +66,8 @@ export default function AdminHeroTab() {
     defaultValues: {
       titleAr: "",
       subtitleAr: "",
-      descriptionAr: "", // ✅ default added
+      descriptionAr: "",
+      badgeAr: "", // ✅ default added
       ctaText: "",
       backgroundImageUrl: "",
     },
@@ -52,11 +79,16 @@ export default function AdminHeroTab() {
 
       const transformedData = {
         ...data,
+        badgeAr: data.badgeAr || null, // ✅ Handle badge
         ctaText: data.ctaText || null,
         backgroundImageUrl: data.backgroundImageUrl || null,
       };
 
-      return await apiRequest("PUT", `/api/hero-sections/${heroSection.id}`, transformedData);
+      return await apiRequest(
+        "PUT",
+        `/api/hero-sections/${heroSection.id}`,
+        transformedData,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/hero-sections/all"] });
@@ -80,7 +112,8 @@ export default function AdminHeroTab() {
       form.reset({
         titleAr: heroSection.titleAr,
         subtitleAr: heroSection.subtitleAr,
-        descriptionAr: heroSection.descriptionAr || "", // ✅ load current value
+        descriptionAr: heroSection.descriptionAr || "",
+        badgeAr: heroSection.badgeAr || "", // ✅ load current value
         ctaText: heroSection.ctaText || "",
         backgroundImageUrl: heroSection.backgroundImageUrl || "",
       });
@@ -97,7 +130,9 @@ export default function AdminHeroTab() {
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <div>
           <CardTitle>إدارة Hero Section</CardTitle>
-          <CardDescription>تعديل محتوى القسم الرئيسي في الصفحة الرئيسية</CardDescription>
+          <CardDescription>
+            تعديل محتوى القسم الرئيسي في الصفحة الرئيسية
+          </CardDescription>
         </div>
         {heroSection && (
           <Button onClick={handleOpenDialog} data-testid="button-edit-hero">
@@ -108,23 +143,38 @@ export default function AdminHeroTab() {
       </CardHeader>
       <CardContent>
         {!heroSection ? (
-          <p className="text-center text-muted-foreground py-8">لا يوجد Hero Section بعد</p>
+          <p className="text-center text-muted-foreground py-8">
+            لا يوجد Hero Section بعد
+          </p>
         ) : (
           <div className="space-y-4">
-            <div className="p-4 border rounded-lg bg-card" data-testid="hero-preview">
+            <div
+              className="p-4 border rounded-lg bg-card"
+              data-testid="hero-preview"
+            >
+              {/* ✅ Preview of the Badge */}
+              <Badge variant="outline" className="mb-2">
+                {heroSection.badgeAr || "الشريك الموثوق في الرعاية الصحية"}
+              </Badge>
               <h3 className="text-xl font-bold mb-2">{heroSection.titleAr}</h3>
-              <p className="text-muted-foreground mb-2">{heroSection.subtitleAr}</p>
-              {heroSection.descriptionAr && ( // ✅ show new paragraph
-                <p className="text-muted-foreground mb-2">{heroSection.descriptionAr}</p>
+              <p className="text-muted-foreground mb-2">
+                {heroSection.subtitleAr}
+              </p>
+              {heroSection.descriptionAr && (
+                <p className="text-muted-foreground mb-2">
+                  {heroSection.descriptionAr}
+                </p>
               )}
               {heroSection.ctaText && (
-                <p className="text-sm"><strong>CTA:</strong> {heroSection.ctaText}</p>
+                <p className="text-sm">
+                  <strong>CTA:</strong> {heroSection.ctaText}
+                </p>
               )}
               {heroSection.backgroundImageUrl && (
                 <div className="mt-3">
-                  <img 
-                    src={heroSection.backgroundImageUrl} 
-                    alt="Hero" 
+                  <img
+                    src={heroSection.backgroundImageUrl}
+                    alt="Hero"
                     className="w-32 h-32 object-cover rounded-md"
                   />
                 </div>
@@ -136,7 +186,10 @@ export default function AdminHeroTab() {
 
       {/* === Dialog Form === */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          dir="rtl"
+        >
           <DialogHeader>
             <DialogTitle>تعديل Hero Section</DialogTitle>
             <DialogDescription>
@@ -144,7 +197,28 @@ export default function AdminHeroTab() {
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-4"
+            >
+              {/* ✅ New Badge Field */}
+              <FormField
+                control={form.control}
+                name="badgeAr"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الشارة العلوية (Badge)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="مثال: الشريك الموثوق في الرعاية الصحية"
+                        data-testid="input-hero-badge" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* Title */}
               <FormField
@@ -169,8 +243,8 @@ export default function AdminHeroTab() {
                   <FormItem>
                     <FormLabel>العنوان الفرعي</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        {...field} 
+                      <Textarea
+                        {...field}
                         placeholder="اكتب العنوان الفرعي..."
                         rows={3}
                         data-testid="input-hero-subtitle"
@@ -181,16 +255,18 @@ export default function AdminHeroTab() {
                 )}
               />
 
-              {/* ✅ New description field */}
+              {/* Description field */}
               <FormField
                 control={form.control}
                 name="descriptionAr"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>الوصف الإضافي (يظهر أسفل النص الرئيسي)</FormLabel>
+                    <FormLabel>
+                      الوصف الإضافي (يظهر أسفل النص الرئيسي)
+                    </FormLabel>
                     <FormControl>
-                      <Textarea 
-                        {...field} 
+                      <Textarea
+                        {...field}
                         placeholder="نحن نقدم الحلول الطبية..."
                         rows={3}
                         data-testid="input-hero-description"
@@ -209,7 +285,12 @@ export default function AdminHeroTab() {
                   <FormItem>
                     <FormLabel>نص الزر (اختياري)</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="مثال: اطلب جهازك الآن" data-testid="input-hero-cta" />
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        placeholder="مثال: اطلب جهازك الآن"
+                        data-testid="input-hero-cta"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -227,9 +308,9 @@ export default function AdminHeroTab() {
                       <div className="space-y-2">
                         {field.value && (
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={field.value} 
-                              alt="Preview" 
+                            <img
+                              src={field.value}
+                              alt="Preview"
                               className="w-24 h-24 object-cover rounded-md"
                             />
                             <Button
@@ -244,19 +325,29 @@ export default function AdminHeroTab() {
                         )}
                         <ObjectUploader
                           onGetUploadParameters={async () => {
-                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const response = await apiRequest(
+                              "POST",
+                              "/api/objects/upload",
+                              {},
+                            );
                             const data = await response.json();
                             return {
                               method: "PUT" as const,
                               url: data.uploadURL,
                             };
                           }}
-                          onComplete={async (result: { successful: Array<{ uploadURL: string }> }) => {
+                          onComplete={async (result: {
+                            successful: Array<{ uploadURL: string }>;
+                          }) => {
                             if (result.successful[0]) {
                               const uploadURL = result.successful[0].uploadURL;
-                              const aclResponse = await apiRequest("POST", "/api/objects/set-acl", {
-                                imageUrl: uploadURL,
-                              });
+                              const aclResponse = await apiRequest(
+                                "POST",
+                                "/api/objects/set-acl",
+                                {
+                                  imageUrl: uploadURL,
+                                },
+                              );
                               const aclData = await aclResponse.json();
                               field.onChange(aclData.objectPath);
                               toast({
