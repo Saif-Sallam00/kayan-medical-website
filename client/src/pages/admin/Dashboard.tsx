@@ -735,105 +735,132 @@ export default function AdminDashboard() {
         </AlertDialog>
 
         {/* Testimonial Dialog - Updated */}
-        <Form {...testimonialForm}>
-          <form onSubmit={testimonialForm.handleSubmit(handleTestimonialSubmit)} className="space-y-4">
+        {/* Testimonial Dialog - Correctly implemented as a Modal/Popup */}
+        <Dialog open={isTestimonialDialogOpen} onOpenChange={setIsTestimonialDialogOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>{editingTestimonial ? "تعديل التقييم" : "إضافة تقييم جديد"}</DialogTitle>
+              <DialogDescription>
+                أدخل بيانات الطبيب وصورة التسليم لزيادة المصداقية
+              </DialogDescription>
+            </DialogHeader>
 
-            {/* 1. DOCTOR AVATAR (Small) */}
-            <FormField
-              control={testimonialForm.control}
-              name="photoUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>صورة الطبيب (شخصية)</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center gap-4">
-                      {field.value && (
-                        <div className="relative w-16 h-16 flex-shrink-0">
-                          <img src={field.value} alt="Avatar" className="w-full h-full object-cover rounded-full border" />
-                          <Button type="button" variant="destructive" size="icon" className="absolute -top-1 -right-1 w-5 h-5 rounded-full" onClick={() => field.onChange("")}><X className="w-3 h-3" /></Button>
-                        </div>
+            <Form {...testimonialForm}>
+              <form onSubmit={testimonialForm.handleSubmit(handleTestimonialSubmit)} className="space-y-6 py-4">
+
+                {/* Section 1: Images */}
+                <div className="space-y-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-muted-foreground mb-2">الصور والمرفقات</h3>
+
+                  <div className="flex gap-4 items-start">
+                    {/* Avatar Uploader */}
+                    <FormField
+                      control={testimonialForm.control}
+                      name="photoUrl"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel className="text-xs">الصورة الشخصية (Avatar)</FormLabel>
+                          <FormControl>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-4">
+                                {field.value ? (
+                                  <div className="relative w-16 h-16">
+                                    <img src={field.value} alt="Avatar" className="w-full h-full object-cover rounded-full border" />
+                                    <Button type="button" variant="destructive" size="icon" className="absolute -top-1 -right-1 w-5 h-5 rounded-full h-6 w-6" onClick={() => field.onChange("")}><X className="w-3 h-3" /></Button>
+                                  </div>
+                                ) : (
+                                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center border border-dashed">
+                                    <span className="text-xs text-muted-foreground">لا يوجد</span>
+                                  </div>
+                                )}
+                                <div className="flex-1">
+                                  <ObjectUploader
+                                    onGetUploadParameters={async () => {
+                                      const res = await apiRequest("POST", "/api/objects/upload", {});
+                                      const data = await res.json();
+                                      return { method: "PUT", url: data.uploadURL };
+                                    }}
+                                    onComplete={async (result) => {
+                                      if (result.successful[0]) {
+                                        const aclRes = await apiRequest("POST", "/api/objects/set-acl", { imageUrl: result.successful[0].uploadURL });
+                                        const aclData = await aclRes.json();
+                                        field.onChange(aclData.objectPath);
+                                        toast({ title: "تم رفع الصورة" });
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </FormControl>
+                        </FormItem>
                       )}
-                      <div className="flex-1">
-                        <ObjectUploader
-                          onGetUploadParameters={async () => {
-                            const res = await apiRequest("POST", "/api/objects/upload", {});
-                            const data = await res.json();
-                            return { method: "PUT", url: data.uploadURL };
-                          }}
-                          onComplete={async (result) => {
-                            if (result.successful[0]) {
-                              const aclRes = await apiRequest("POST", "/api/objects/set-acl", { imageUrl: result.successful[0].uploadURL });
-                              const aclData = await aclRes.json();
-                              field.onChange(aclData.objectPath);
-                              toast({ title: "تم رفع الصورة الشخصية" });
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    />
+                  </div>
 
-            {/* 2. ✅ NEW: CREDIBILITY IMAGE (Big) */}
-            <FormField
-              control={testimonialForm.control}
-              name="teamImageUrl"
-              render={({ field }) => (
-                <FormItem className="border p-3 rounded-md bg-slate-50 dark:bg-slate-900">
-                  <FormLabel className="font-bold text-primary">صورة التسليم (مع الفريق والجهاز)</FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      {field.value && (
-                        <div className="relative w-full h-32">
-                          <img src={field.value} alt="Team" className="w-full h-full object-cover rounded-md border" />
-                          <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 w-6 h-6 rounded-full" onClick={() => field.onChange("")}><X className="w-3 h-3" /></Button>
-                        </div>
-                      )}
-                      <ObjectUploader
-                        onGetUploadParameters={async () => {
-                          const res = await apiRequest("POST", "/api/objects/upload", {});
-                          const data = await res.json();
-                          return { method: "PUT", url: data.uploadURL };
-                        }}
-                        onComplete={async (result) => {
-                          if (result.successful[0]) {
-                            const aclRes = await apiRequest("POST", "/api/objects/set-acl", { imageUrl: result.successful[0].uploadURL });
-                            const aclData = await aclRes.json();
-                            field.onChange(aclData.objectPath);
-                            toast({ title: "تم رفع صورة التسليم" });
-                          }
-                        }}
-                      />
-                    </div>
-                  </FormControl>
-                  <p className="text-xs text-muted-foreground">يفضل صورة عرضية تظهر الطبيب مع مهندسي كيان والجهاز</p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  {/* Big Team Image Uploader */}
+                  <FormField
+                    control={testimonialForm.control}
+                    name="teamImageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-bold text-primary">صورة التسليم (مع الفريق والجهاز) - هام للمصداقية</FormLabel>
+                        <FormControl>
+                          <div className="space-y-2">
+                            {field.value && (
+                              <div className="relative w-full h-40">
+                                <img src={field.value} alt="Team" className="w-full h-full object-cover rounded-md border" />
+                                <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => field.onChange("")}><Trash2 className="w-4 h-4" /></Button>
+                              </div>
+                            )}
+                            {!field.value && (
+                               <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 text-center bg-background hover:bg-accent/50 transition-colors">
+                                  <p className="text-sm text-muted-foreground">اضغط لرفع صورة التسليم</p>
+                                  <ObjectUploader
+                                    onGetUploadParameters={async () => {
+                                      const res = await apiRequest("POST", "/api/objects/upload", {});
+                                      const data = await res.json();
+                                      return { method: "PUT", url: data.uploadURL };
+                                    }}
+                                    onComplete={async (result) => {
+                                      if (result.successful[0]) {
+                                        const aclRes = await apiRequest("POST", "/api/objects/set-acl", { imageUrl: result.successful[0].uploadURL });
+                                        const aclData = await aclRes.json();
+                                        field.onChange(aclData.objectPath);
+                                        toast({ title: "تم رفع صورة التسليم" });
+                                      }
+                                    }}
+                                  />
+                               </div>
+                            )}
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            {/* Rest of fields (Name, Specialization, Clinic...) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField control={testimonialForm.control} name="doctorName" render={({ field }) => (<FormItem><FormLabel>اسم الطبيب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={testimonialForm.control} name="specialization" render={({ field }) => (<FormItem><FormLabel>التخصص</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-            </div>
+                {/* Section 2: Info */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField control={testimonialForm.control} name="doctorName" render={({ field }) => (<FormItem><FormLabel>اسم الطبيب</FormLabel><FormControl><Input {...field} placeholder="د. محمد علي" /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={testimonialForm.control} name="specialization" render={({ field }) => (<FormItem><FormLabel>التخصص</FormLabel><FormControl><Input {...field} placeholder="نساء وتوليد" /></FormControl><FormMessage /></FormItem>)} />
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField control={testimonialForm.control} name="clinicName" render={({ field }) => (<FormItem><FormLabel>اسم العيادة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={testimonialForm.control} name="rating" render={({ field }) => (<FormItem><FormLabel>التقييم</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="5">5 نجوم</SelectItem><SelectItem value="4">4 نجوم</SelectItem><SelectItem value="3">3 نجوم</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField control={testimonialForm.control} name="clinicName" render={({ field }) => (<FormItem><FormLabel>اسم العيادة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={testimonialForm.control} name="rating" render={({ field }) => (<FormItem><FormLabel>التقييم</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="5">5 نجوم ⭐⭐⭐⭐⭐</SelectItem><SelectItem value="4">4 نجوم ⭐⭐⭐⭐</SelectItem><SelectItem value="3">3 نجوم ⭐⭐⭐</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                </div>
 
-            <FormField control={testimonialForm.control} name="quote" render={({ field }) => (<FormItem><FormLabel>نص الشهادة</FormLabel><FormControl><Textarea {...field} className="h-20" /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={testimonialForm.control} name="quote" render={({ field }) => (<FormItem><FormLabel>نص الشهادة</FormLabel><FormControl><Textarea {...field} className="h-24 resize-none" /></FormControl><FormMessage /></FormItem>)} />
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsTestimonialDialogOpen(false)}>إلغاء</Button>
-              <Button type="submit">{editingTestimonial ? "حفظ التعديلات" : "إضافة"}</Button>
-            </div>
-          </form>
-        </Form>
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button type="button" variant="outline" onClick={() => setIsTestimonialDialogOpen(false)}>إلغاء</Button>
+                  <Button type="submit" className="min-w-[100px]">{editingTestimonial ? "حفظ التغييرات" : "إضافة الشهادة"}</Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

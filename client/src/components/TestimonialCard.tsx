@@ -9,10 +9,21 @@ interface TestimonialCardProps {
 
 export function TestimonialCard({ testimonial }: TestimonialCardProps) {
   return (
-    <Card className="h-full" data-testid={`card-testimonial-${testimonial.id}`}>
-      <CardContent className="p-6">
+    <Card className="h-full overflow-hidden flex flex-col" data-testid={`card-testimonial-${testimonial.id}`}>
+      {/* ✅ NEW: Show the big credibility image at the top if it exists */}
+      {testimonial.teamImageUrl && (
+        <div className="w-full h-48 overflow-hidden border-b">
+          <img 
+            src={testimonial.teamImageUrl} 
+            alt={`Dr. ${testimonial.doctorName} with Kayan Team`} 
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      )}
+
+      <CardContent className="p-6 flex-1 flex flex-col">
         <div className="flex items-center gap-4 mb-4">
-          <Avatar className="w-16 h-16">
+          <Avatar className="w-16 h-16 border-2 border-primary/10">
             <AvatarImage src={testimonial.photoUrl} alt={testimonial.doctorName} />
             <AvatarFallback className="text-lg font-semibold bg-primary text-primary-foreground">
               {testimonial.doctorName.split(' ').map(n => n[0]).join('').slice(0, 2)}
@@ -30,18 +41,20 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
-              className={`w-4 h-4 ${i < testimonial.rating ? 'fill-amber-400 text-amber-400' : 'text-muted'}`}
+              className={`w-4 h-4 ${i < parseInt(testimonial.rating) ? 'fill-amber-400 text-amber-400' : 'text-muted'}`}
             />
           ))}
         </div>
 
-        <p className="text-muted-foreground leading-relaxed mb-4 font-['Tajawal'] text-base">
+        <p className="text-muted-foreground leading-relaxed mb-4 font-['Tajawal'] text-base flex-1">
           "{testimonial.quote}"
         </p>
 
-        <p className="text-sm text-muted-foreground font-medium">
-          {testimonial.clinicName}
-        </p>
+        <div className="mt-auto pt-4 border-t border-border/50">
+          <p className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+             🏥 {testimonial.clinicName}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
