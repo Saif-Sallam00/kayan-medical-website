@@ -17,8 +17,8 @@ export function Navigation() {
 
   const navItems = [
     { path: "/", label: "الرئيسية" },
-    { path: "/products", label: "بيع" },
-    { path: "/trade-in", label: "شراء واستبدال" },
+    { path: "/products", label: "شراء" },
+    { path: "/trade-in", label: "بيع واستبدال" },
     { path: "/maintenance", label: "صيانة" },
     { path: "/about", label: "من نحن" },
     { path: "/contact", label: "التواصل" },

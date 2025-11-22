@@ -1,77 +1,96 @@
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import type { Product } from "@shared/schema";
-import ultrasoundMachineUrl from "@/assets/ultrasound-machine.png";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  return (
-    <Card className="h-full flex flex-col hover-elevate transition-all duration-300" data-testid={`card-product-${product.id}`}>
-      <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
-        <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
-          <Badge variant="secondary" className="text-xs font-medium">
-            {product.brand}
-          </Badge>
-          <Badge variant="outline" className="text-xs">
-            {product.category === 'clinic' ? 'عيادات' : product.category === 'hospital' ? 'مستشفيات' : 'محمول'}
-          </Badge>
-        </div>
-        
-        <div className="aspect-[4/3] bg-gradient-to-br from-primary/5 to-accent/5 rounded-md mb-3 sm:mb-4 flex items-center justify-center overflow-hidden p-3 sm:p-4">
-          <img 
-            src={product.imageUrl || ultrasoundMachineUrl} 
-            alt={product.nameAr} 
-            className="w-full h-full object-contain"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = ultrasoundMachineUrl; }}
-          />
-        </div>
+  // WhatsApp link with pre-filled message including product name
+  const whatsappMessage = encodeURIComponent(`مرحباً، أود الاستفسار عن جهاز: ${product.nameAr}`);
+  const whatsappLink = `https://wa.me/+201025253012?text=${whatsappMessage}`;
 
-        <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1" data-testid={`text-product-name-${product.id}`}>
-          {product.nameAr}
-        </h3>
-        <p className="text-xs sm:text-sm font-medium text-muted-foreground font-['Inter']">
-          {product.nameEn}
-        </p>
+  return (
+    <Card className="flex flex-col h-full overflow-hidden hover-elevate transition-all duration-300 border-card-border group">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        {product.imageUrl ? (
+          <img
+            src={product.imageUrl}
+            alt={product.nameAr}
+            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full bg-muted text-muted-foreground">
+            لا توجد صورة
+          </div>
+        )}
+        <div className="absolute top-3 right-3 flex gap-2">
+          <Badge variant={product.category === 'hospital' ? 'default' : 'secondary'} className="shadow-sm">
+            {product.category === 'hospital' ? 'مستشفى' : product.category === 'clinic' ? 'عيادة' : 'محمول'}
+          </Badge>
+          {product.brand && (
+            <Badge variant="outline" className="bg-background/80 backdrop-blur-sm shadow-sm">
+              {product.brand}
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      <CardHeader className="space-y-2 p-5">
+        <div className="flex justify-between items-start gap-2">
+          <CardTitle className="text-lg font-bold leading-tight line-clamp-2 min-h-[3rem]">
+            {product.nameAr}
+          </CardTitle>
+        </div>
+        <p className="text-sm text-muted-foreground font-medium">{product.model}</p>
       </CardHeader>
 
-      <CardContent className="px-4 sm:px-6 pb-3 sm:pb-4 flex-1">
-        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-3 sm:mb-4">
+      <CardContent className="flex-1 px-5 pb-2">
+        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
           {product.description}
         </p>
 
-        {product.specifications.length > 0 && (
-          <div className="space-y-1.5 sm:space-y-2">
-            {product.specifications.slice(0, 3).map((spec, index) => (
-              <div key={index} className="flex items-start gap-2">
-                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-xs text-muted-foreground">{spec}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="mt-4 space-y-2">
+          {product.specifications.slice(0, 2).map((spec, index) => (
+            <div key={index} className="flex items-center text-xs text-muted-foreground bg-muted/50 p-1.5 rounded">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/60 ml-2 shrink-0" />
+              <span className="truncate">{spec}</span>
+            </div>
+          ))}
+        </div>
       </CardContent>
 
-      <CardFooter className="p-4 sm:p-6 pt-0 flex flex-col gap-2 sm:gap-3">
-        <div className="flex items-center justify-between w-full">
-          {product.priceInfo ? (
-            <span className="text-sm sm:text-base font-semibold text-primary" data-testid={`text-price-${product.id}`}>
-              {product.priceInfo}
-            </span>
-          ) : (
-            <span className="text-xs sm:text-sm text-muted-foreground">استفسر عن السعر</span>
-          )}
-          <Award className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+      <CardFooter className="p-5 pt-2 flex flex-col gap-3 border-t border-border/50 mt-auto bg-card/50">
+        <div className="w-full flex items-center justify-between">
+          <p className="font-bold text-primary text-lg">
+            {product.priceInfo || "تواصل للسعر"}
+          </p>
+
+          {/* ✅ NEW: Animated WhatsApp Button */}
+          <a 
+            href={whatsappLink}
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="no-underline"
+          >
+            <Button 
+              size="sm" 
+              className="gap-1.5 bg-green-600 hover:bg-green-700 text-white shadow-sm animate-pulse-slow hover:animate-none transition-all hover:scale-105"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>اطلب الآن</span>
+            </Button>
+          </a>
         </div>
-        
+
         <Link href={`/products/${product.id}`} className="w-full">
-          <Button variant="default" className="w-full min-h-10 text-sm sm:text-base" data-testid={`button-view-product-${product.id}`}>
-            تفاصيل المنتج
+          <Button variant="outline" className="w-full group-hover:border-primary/50 transition-colors">
+            عرض التفاصيل
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
           </Button>
         </Link>
       </CardFooter>
