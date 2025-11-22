@@ -38,6 +38,8 @@ export const products = pgTable("products", {
   description: text("description").notNull(),
   specifications: text("specifications").array().notNull(),
   imageUrl: text("image_url"),
+  // ✅ NEW: Store up to 4 additional images
+  additionalImages: text("additional_images").array(), 
   priceInfo: text("price_info"), // "استفسر عن السعر" or actual price
   isActive: boolean("is_active").notNull().default(true),
   displayOrder: text("display_order").default("0"),
@@ -51,6 +53,8 @@ export const insertProductSchema = createInsertSchema(products).omit({
   description: z.string().min(10, "الوصف مطلوب"),
   brand: z.string().min(2, "الماركة مطلوبة"),
   model: z.string().min(1, "الموديل مطلوب"),
+  // ✅ Validate the array (optional)
+  additionalImages: z.array(z.string()).optional(),
 });
 
 export const updateProductSchema = insertProductSchema.partial();
@@ -195,7 +199,7 @@ export const heroSections = pgTable("hero_sections", {
   titleAr: text("title_ar").notNull(),
   subtitleAr: text("subtitle_ar").notNull(),
   descriptionAr: text("description_ar"),
-  badgeAr: text("badge_ar"), // ✅ NEW FIELD for "الشريك الموثوق..."
+  badgeAr: text("badge_ar"),
   backgroundImageUrl: text("background_image_url"),
   ctaText: text("cta_text"),
   ctaLink: text("cta_link"),
@@ -209,7 +213,7 @@ export const insertHeroSectionSchema = createInsertSchema(heroSections).omit({
   titleAr: z.string().min(3, "العنوان مطلوب"),
   subtitleAr: z.string().min(10, "النص الفرعي مطلوب"),
   descriptionAr: z.string().optional(),
-  badgeAr: z.string().optional(), // ✅ Validation
+  badgeAr: z.string().optional(),
 });
 
 export const updateHeroSectionSchema = insertHeroSectionSchema.partial();
