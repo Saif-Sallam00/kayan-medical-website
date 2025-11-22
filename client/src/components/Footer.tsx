@@ -34,7 +34,7 @@ export function Footer() {
 
           {/* 2. Quick Links - Column 1 */}
           <div className="col-span-1">
-            <h3 className="font-bold text-xs sm:text-base lg:text-lg mb-3 sm:mb-4 text-primary">روابط</h3>
+            <h3 className="font-bold text-xs sm:text-base lg:text-lg mb-3 sm:mb-4 text-primary">روابط سريعة</h3>
             <ul className="space-y-2">
               <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">الرئيسية</span></Link></li>
               <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">المنتجات</span></Link></li>
@@ -47,12 +47,12 @@ export function Footer() {
 
           {/* 3. Contact Info - Column 2 */}
           <div className="col-span-1">
-            <h3 className="font-bold text-xs sm:text-base lg:text-lg mb-3 sm:mb-4 text-primary">تواصل</h3>
+            <h3 className="font-bold text-xs sm:text-base lg:text-lg mb-3 sm:mb-4 text-primary">معلومات التواصل</h3>
             <ul className="space-y-3 sm:space-y-4">
               <li className="flex flex-col sm:flex-row items-start gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-primary/70" />
-                  <span className="font-medium text-foreground hidden sm:inline">المقر:</span>
+                  <span className="font-medium text-foreground hidden sm:inline">الرئيسي:</span>
                 </div>
                 <p className="leading-tight">{settings?.addressShebin || "المنوفية"}</p>
               </li>
@@ -60,7 +60,7 @@ export function Footer() {
               <li className="flex flex-col sm:flex-row items-start gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
                  <div className="flex items-center gap-1">
                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-primary/70" />
-                  <span className="font-medium text-foreground hidden sm:inline">الفرع:</span>
+                  <span className="font-medium text-foreground hidden sm:inline">الفرعي:</span>
                 </div>
                 <p className="leading-tight">{settings?.addressZayed || "الشيخ زايد"}</p>
               </li>
