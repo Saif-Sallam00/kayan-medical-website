@@ -13,7 +13,6 @@ export function Footer() {
   return (
     <footer className="bg-card border-t border-card-border mt-12 sm:mt-16 md:mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-10 md:py-12">
-        {/* CHANGED: Simplified grid and added centering wrapper */}
         <div className="flex flex-col items-center">
           {/* Logo */}
           <div className="flex justify-center mb-6 lg:mb-8">
@@ -24,10 +23,10 @@ export function Footer() {
             />
           </div>
 
-          {/* CHANGED: Centered 3 columns with auto margins */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 mx-auto">
+          {/* CHANGED: Using flex with justify-between for equal spacing */}
+          <div className="flex justify-between w-full max-w-2xl gap-4 sm:gap-8">
             {/* 1. Quick Links - Column 1 */}
-            <div className="col-span-1">
+            <div className="flex-1">
               <h3 className="font-bold text-sm sm:text-lg lg:text-xl mb-3 sm:mb-4 text-primary">روابط سريعة</h3>
               <ul className="space-y-1">
                 <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-base cursor-pointer">الرئيسية</span></Link></li>
@@ -40,7 +39,7 @@ export function Footer() {
             </div>
 
             {/* 2. Contact Info - Column 2 */}
-            <div className="col-span-1">
+            <div className="flex-1">
               <h3 className="font-bold text-sm sm:text-lg lg:text-xl mb-3 sm:mb-4 text-primary">معلومات التواصل</h3>
               <ul className="space-y-3 sm:space-y-4">
                 <li className="flex flex-col sm:flex-row items-start gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
@@ -71,7 +70,7 @@ export function Footer() {
             </div>
 
             {/* 3. Follow Us - Column 3 */}
-            <div className="col-span-1">
+            <div className="flex-1">
               <h3 className="font-bold text-sm sm:text-lg lg:text-xl mb-3 sm:mb-4 text-primary">تابعنا</h3>
               <div className="flex flex-col gap-3">
                 <a href={settings?.facebookUrl} target="_blank" className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-md bg-muted hover-elevate text-blue-600">
