@@ -13,31 +13,23 @@ export function Footer() {
   return (
     <footer className="bg-card border-t border-card-border mt-12 sm:mt-16 md:mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-10 md:py-12">
-
-        {/* LAYOUT LOGIC:
-           - Mobile: grid-cols-3 (To fit Links, Contact, Follow side-by-side)
-           - Desktop (lg): grid-cols-4 (Standard layout)
-        */}
         <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-8">
 
           {/* 1. Company Info (Logo Only) */}
-          {/* Mobile: col-span-3 (Full width on top). Desktop: col-span-1 (Left side) */}
           <div className="col-span-3 lg:col-span-1 flex justify-center lg:justify-start mb-6 lg:mb-0">
             <img 
               src={logoUrl} 
               alt="كيان ميديكال" 
-              // ✅ Logo is much larger now
               className="h-20 sm:h-24 md:h-28 w-auto object-contain" 
             />
-            {/* ❌ Removed the text paragraph as requested */}
           </div>
 
           {/* 2. Quick Links - Column 1 */}
           <div className="col-span-1">
             <h3 className="font-bold text-xs sm:text-base lg:text-lg mb-3 sm:mb-4 text-primary">روابط سريعة</h3>
-            <ul className="space-y-2">
-              <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors sm:text-sm cursor-pointer">الرئيسية</span></Link></li>
-              <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors sm:text-sm cursor-pointer">المنتجات</span></Link></li>
+            <ul className="space-y-1"> {/* CHANGED: Reduced from space-y-2 to space-y-1 */}
+              <li><Link href="/"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">الرئيسية</span></Link></li>
+              <li><Link href="/products"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">المنتجات</span></Link></li>
               <li><Link href="/trade-in"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">استبدال</span></Link></li>
               <li><Link href="/maintenance"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">الصيانة</span></Link></li>
               <li><Link href="/about"><span className="text-muted-foreground hover:text-foreground transition-colors text-[10px] sm:text-sm cursor-pointer">من نحن</span></Link></li>
@@ -52,7 +44,7 @@ export function Footer() {
               <li className="flex flex-col sm:flex-row items-start gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-primary/70" />
-                  <span className="font-medium text-foreground hidden sm:inline">الرئيسي:</span>
+                  <span className="font-medium text-foreground">الرئيسي:</span> {/* CHANGED: Removed hidden sm:inline */}
                 </div>
                 <p className="leading-tight">{settings?.addressShebin || "المنوفية"}</p>
               </li>
@@ -60,7 +52,7 @@ export function Footer() {
               <li className="flex flex-col sm:flex-row items-start gap-1 sm:gap-2 text-[10px] sm:text-sm text-muted-foreground">
                  <div className="flex items-center gap-1">
                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-primary/70" />
-                  <span className="font-medium text-foreground hidden sm:inline">الفرعي:</span>
+                  <span className="font-medium text-foreground">الفرعي:</span> {/* CHANGED: Removed hidden sm:inline */}
                 </div>
                 <p className="leading-tight">{settings?.addressZayed || "الشيخ زايد"}</p>
               </li>
