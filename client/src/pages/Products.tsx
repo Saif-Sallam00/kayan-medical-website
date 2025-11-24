@@ -49,15 +49,49 @@ export default function Products() {
         {/* Category Filter Tabs */}
         <div className="mb-8 md:mb-12">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 sm:grid-cols-4 h-auto p-1 gap-1" data-testid="tabs-category">
-              <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-all">
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 h-auto p-1 gap-1" data-testid="tabs-category">
+              <TabsTrigger 
+                value="all" 
+                className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 min-h-[2.5rem] leading-tight break-words whitespace-normal text-center" 
+                data-testid="tab-all"
+              >
                 جميع الأجهزة
               </TabsTrigger>
-              <TabsTrigger value="clinic" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-clinic">
-                العيادات
+              <TabsTrigger 
+                value="echo" 
+                className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 min-h-[2.5rem] leading-tight" 
+                data-testid="tab-echo"
+              >
+                Echo
               </TabsTrigger>
-              <TabsTrigger value="hospital" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-hospital">شراء</TabsTrigger>
-              <TabsTrigger value="portable" className="text-xs sm:text-sm md:text-base py-2.5 sm:py-3" data-testid="tab-portable">بيع</TabsTrigger>
+              <TabsTrigger 
+                value="four-d" 
+                className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 min-h-[2.5rem] leading-tight" 
+                data-testid="tab-four-d"
+              >
+                4D
+              </TabsTrigger>
+              <TabsTrigger 
+                value="color-doppler" 
+                className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 min-h-[2.5rem] leading-tight break-words whitespace-normal text-center" 
+                data-testid="tab-color-doppler"
+              >
+                Color Doppler
+              </TabsTrigger>
+              <TabsTrigger 
+                value="pulse-waves" 
+                className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 min-h-[2.5rem] leading-tight break-words whitespace-normal text-center" 
+                data-testid="tab-pulse-waves"
+              >
+                Pulse Waves
+              </TabsTrigger>
+              <TabsTrigger 
+                value="black-white" 
+                className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 min-h-[2.5rem] leading-tight break-words whitespace-normal text-center" 
+                data-testid="tab-black-white"
+              >
+                Black and White
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
