@@ -25,6 +25,25 @@ export function ProductCard({ product }: ProductCardProps) {
   const phoneNumber = settings?.mainPhone ? settings.mainPhone.replace(/[^0-9]/g, '') : "201025253012";
   const whatsappLink = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`;
 
+  // Category mapping for display names
+  const getCategoryDisplayName = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      'all': 'جميع الأجهزة',
+      'echo': 'Echo',
+      'four-d': '4D',
+      'color-doppler': 'Color Doppler',
+      'pulse-waves': 'Pulse Waves',
+      'black-white': 'Black and White'
+    };
+    return categoryMap[category] || category;
+  };
+
+  // Category badge variants
+  const getCategoryBadgeVariant = (category: string) => {
+    const primaryCategories = ['echo', 'four-d']; // Categories that should use primary variant
+    return primaryCategories.includes(category) ? 'default' : 'secondary';
+  };
+
   return (
     <Card className="flex flex-col h-full overflow-hidden hover-elevate transition-all duration-300 border-card-border group">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -40,8 +59,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
         <div className="absolute top-3 right-3 flex gap-2">
-          <Badge variant={product.category === 'hospital' ? 'default' : 'secondary'} className="shadow-sm">
-            {product.category === 'hospital' ? 'مستشفى' : product.category === 'clinic' ? 'عيادة' : 'محمول'}
+          <Badge 
+            variant={getCategoryBadgeVariant(product.category)} 
+            className="shadow-sm"
+          >
+            {getCategoryDisplayName(product.category)}
           </Badge>
           {product.brand && (
             <Badge variant="outline" className="bg-background/80 backdrop-blur-sm shadow-sm">
