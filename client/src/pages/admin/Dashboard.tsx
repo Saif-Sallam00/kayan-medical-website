@@ -511,8 +511,8 @@ export default function AdminDashboard() {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="portable">Portable (محمول)</SelectItem>
-                          <SelectItem value="builtin">Built-In (عيادة/مستشفى)</SelectItem>
+                          <SelectItem value="portable">Portable</SelectItem>
+                          <SelectItem value="builtin">Built-In</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>

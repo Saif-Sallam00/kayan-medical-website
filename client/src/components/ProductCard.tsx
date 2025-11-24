@@ -17,10 +17,6 @@ export function ProductCard({ product }: ProductCardProps) {
     color: "Color Doppler",
     "4d": "4D Ultrasound",
     echo: "Echo",
-    // Fallbacks
-    clinic: "عيادة",
-    hospital: "مستشفى",
-    portable: "محمول"
   };
 
   const typeLabels: Record<string, string> = {
