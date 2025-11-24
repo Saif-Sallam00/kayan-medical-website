@@ -108,7 +108,7 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Product Details */}
+          {/* Product dDetails */}
           <div className="space-y-6 sm:space-y-8">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
