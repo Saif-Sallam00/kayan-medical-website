@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { LogOut, Mail, Wrench, MessageSquare, Edit, Trash2, Plus, X } from "lucide-react";
+import { LogOut, Edit, Trash2, Plus, X } from "lucide-react";
 import type { SafeUser, Product, Testimonial, Offer } from "@shared/schema";
 import AdminHeroTab from "./tabs/AdminHeroTab";
 import AdminPortfolioTab from "./tabs/AdminPortfolioTab";
@@ -15,23 +15,22 @@ import AdminStatsTab from "./tabs/AdminStatsTab";
 import AdminSiteSettingsTab from "./tabs/AdminSiteSettingsTab";
 import AdminAboutTab from "./tabs/AdminAboutTab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox"; // ✅ Import Checkbox
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogFooter
 } from "@/components/ui/alert-dialog";
 import { ObjectUploader } from "@/components/ObjectUploader";
 
@@ -40,7 +39,10 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 const productFormSchema = z.object({
   nameAr: z.string().min(2, "الاسم بالعربية مطلوب"),
   nameEn: z.string().min(2, "الاسم بالإنجليزية مطلوب"),
-  category: z.string(),
+  // ✅ UPDATED Category Schema
+  category: z.string().min(1, "الفئة مطلوبة"),
+  // ✅ NEW Type Schema
+  type: z.string().optional(),
   brand: z.string().min(2, "الماركة مطلوبة"),
   model: z.string().min(1, "الموديل مطلوب"),
   description: z.string().min(10, "الوصف مطلوب"),
@@ -49,10 +51,11 @@ const productFormSchema = z.object({
   additionalImages: z.array(z.string()).optional().default([]),
   priceInfo: z.string().nullable().optional(),
   isActive: z.boolean().default(true),
+  // ✅ NEW Sold Out Schema
+  isSoldOut: z.boolean().default(false),
   displayOrder: z.string().optional(),
 });
 
-// ✅ FIXED: Added teamImageUrl to schema so it saves correctly
 const testimonialFormSchema = z.object({
   doctorName: z.string().min(2, "الاسم مطلوب"),
   specialization: z.string().min(2, "التخصص مطلوب"),
@@ -115,12 +118,11 @@ export default function AdminDashboard() {
   const { data: offersData } = useQuery<{ success: boolean; data: Offer[] }>({ queryKey: ["/api/offers/all"], enabled: !!authData?.user });
 
   // --- MUTATIONS ---
-
   const logoutMutation = useMutation({
     mutationFn: async () => { await apiRequest("POST", "/api/auth/logout", {}); },
     onSuccess: () => {
       queryClient.clear();
-      toast({ title: "تم تسجيل الخروج", description: "نراك قريباً" });
+      toast({ title: "تم تسجيل الخروج" });
       setLocation("/admin/login");
     },
   });
@@ -231,7 +233,7 @@ export default function AdminDashboard() {
   const productForm = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
-      nameAr: "", nameEn: "", category: "clinic", brand: "", model: "", description: "", specifications: "", imageUrl: "", additionalImages: [], priceInfo: "", isActive: true, displayOrder: "0",
+      nameAr: "", nameEn: "", category: "bw", type: "portable", brand: "Mindray", model: "", description: "", specifications: "", imageUrl: "", additionalImages: [], priceInfo: "", isActive: true, isSoldOut: false, displayOrder: "0",
     },
   });
 
@@ -261,10 +263,13 @@ export default function AdminDashboard() {
         additionalImages: product.additionalImages || [],
         priceInfo: product.priceInfo || "",
         displayOrder: product.displayOrder || "0",
+        // ✅ Load new fields
+        type: product.type || "portable",
+        isSoldOut: product.isSoldOut || false,
       });
     } else {
       setEditingProduct(null);
-      productForm.reset({ nameAr: "", nameEn: "", category: "clinic", brand: "", model: "", description: "", specifications: "", imageUrl: "", additionalImages: [], priceInfo: "", isActive: true, displayOrder: "0" });
+      productForm.reset({ nameAr: "", nameEn: "", category: "bw", type: "portable", brand: "Mindray", model: "", description: "", specifications: "", imageUrl: "", additionalImages: [], priceInfo: "", isActive: true, isSoldOut: false, displayOrder: "0" });
     }
     setIsProductDialogOpen(true);
   };
@@ -284,7 +289,7 @@ export default function AdminDashboard() {
         rating: testimonial.rating,
         clinicName: testimonial.clinicName,
         photoUrl: testimonial.photoUrl || "",
-        teamImageUrl: testimonial.teamImageUrl || "", // ✅ Load Team Image
+        teamImageUrl: testimonial.teamImageUrl || "", 
         isActive: testimonial.isActive,
         displayOrder: testimonial.displayOrder || "0",
       });
@@ -383,8 +388,17 @@ export default function AdminDashboard() {
                   {products.map((product) => (
                     <Card key={product.id}><CardContent className="pt-6"><div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                       {product.imageUrl && <img src={product.imageUrl} alt={product.nameAr} className="w-full sm:w-24 h-auto sm:h-24 object-cover rounded-md" />}
-                      <div className="flex-1 min-w-0"><div className="flex items-start justify-between gap-4"><div><h3 className="text-lg font-semibold">{product.nameAr}</h3><p className="text-sm text-muted-foreground">{product.nameEn}</p></div>
-                      <div className="flex gap-2"><Button variant="outline" size="icon" onClick={() => handleOpenProductDialog(product)}><Edit className="w-4 h-4" /></Button><Button variant="outline" size="icon" onClick={() => setDeletingProductId(product.id)}><Trash2 className="w-4 h-4" /></Button></div></div></div></div></CardContent></Card>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <h3 className="text-lg font-semibold">{product.nameAr}</h3>
+                            <p className="text-sm text-muted-foreground">{product.nameEn}</p>
+                            {product.isSoldOut && <Badge variant="destructive" className="mt-1">تم البيع</Badge>}
+                          </div>
+                          <div className="flex gap-2"><Button variant="outline" size="icon" onClick={() => handleOpenProductDialog(product)}><Edit className="w-4 h-4" /></Button><Button variant="outline" size="icon" onClick={() => setDeletingProductId(product.id)}><Trash2 className="w-4 h-4" /></Button></div>
+                        </div>
+                      </div>
+                    </div></CardContent></Card>
                   ))}
                 </div>
               </CardContent>
@@ -409,7 +423,6 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex gap-2">
                         <Button size="icon" variant="ghost" onClick={() => handleOpenTestimonialDialog(t)}><Edit className="w-4 h-4" /></Button>
-                        {/* ✅ DELETE BUTTON CONNECTED TO STATE */}
                         <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setDeletingTestimonialId(t.id)}><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
@@ -451,18 +464,77 @@ export default function AdminDashboard() {
 
         {/* --- DIALOGS --- */}
 
-        {/* Product Dialog */}
+        {/* Product Dialog - UPDATED */}
         <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
           <DialogContent className="w-[calc(100vw-1rem)] sm:w-auto max-w-[min(100vw-1rem,42rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6" dir="rtl">
             <DialogHeader><DialogTitle>{editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}</DialogTitle><DialogDescription>أدخل بيانات المنتج</DialogDescription></DialogHeader>
             <Form {...productForm}>
               <form onSubmit={productForm.handleSubmit(handleProductSubmit)} className="space-y-4">
-                <FormField control={productForm.control} name="nameAr" render={({ field }) => (<FormItem><FormLabel>الاسم بالعربية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={productForm.control} name="nameEn" render={({ field }) => (<FormItem><FormLabel>الاسم بالإنجليزية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                {/* Product Image Uploader */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={productForm.control} name="nameAr" render={({ field }) => (<FormItem><FormLabel>الاسم بالعربية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={productForm.control} name="nameEn" render={({ field }) => (<FormItem><FormLabel>الاسم بالإنجليزية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                </div>
+
+                {/* ✅ Category (Black & White, etc.) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={productForm.control} name="category" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>تصنيف الجهاز</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="bw">Black and white</SelectItem>
+                          <SelectItem value="pulse">Pulse waves</SelectItem>
+                          <SelectItem value="color">Color doppler</SelectItem>
+                          <SelectItem value="4d">4D</SelectItem>
+                          <SelectItem value="echo">Echo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )} />
+
+                  {/* ✅ Type (Portable/Built-in) */}
+                  <FormField control={productForm.control} name="type" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>نوع الجهاز</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="portable">Portable (محمول)</SelectItem>
+                          <SelectItem value="builtin">Built-In (عيادة/مستشفى)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )} />
+                </div>
+
+                {/* ✅ Brand Select */}
+                <FormField control={productForm.control} name="brand" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الماركة</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Mindray">Mindray</SelectItem>
+                        <SelectItem value="Sonoscape">Sonoscape</SelectItem>
+                        <SelectItem value="Chison">Chison</SelectItem>
+                        <SelectItem value="Edan">Edan</SelectItem>
+                        <SelectItem value="Samsung">Samsung</SelectItem>
+                        <SelectItem value="GE">GE</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )} />
+
+                <FormField control={productForm.control} name="model" render={({ field }) => (<FormItem><FormLabel>الموديل</FormLabel><Input {...field} /></FormItem>)} />
+                <FormField control={productForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>الوصف</FormLabel><Textarea {...field} /></FormItem>)} />
+                <FormField control={productForm.control} name="specifications" render={({ field }) => (<FormItem><FormLabel>المواصفات</FormLabel><Textarea {...field} /></FormItem>)} />
+
+                {/* Image Uploader (Same as before) */}
                 <FormField control={productForm.control} name="imageUrl" render={({ field }) => (
                     <FormItem><FormLabel>الصورة الرئيسية</FormLabel><FormControl><div className="space-y-2">{field.value && (<div className="relative w-24 h-24"><img src={field.value} alt="Main" className="w-full h-full object-cover rounded-md" /><Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 w-6 h-6 rounded-full" onClick={() => field.onChange("")}><X className="w-3 h-3" /></Button></div>)}<ObjectUploader onGetUploadParameters={async () => { const res = await apiRequest("POST", "/api/objects/upload", {}); const data = await res.json(); return { method: "PUT", url: data.uploadURL }; }} onComplete={async (result) => { if (result.successful[0]) { const aclRes = await apiRequest("POST", "/api/objects/set-acl", { imageUrl: result.successful[0].uploadURL }); const aclData = await aclRes.json(); field.onChange(aclData.objectPath); toast({ title: "تم رفع الصورة" }); } }} /></div></FormControl><FormMessage /></FormItem>)} />
-                {/* Additional Images */}
+
+                {/* Additional Images (Same as before) */}
                 <div className="space-y-2">
                   <FormLabel>صور إضافية</FormLabel>
                   <div className="grid grid-cols-2 gap-4">
@@ -475,19 +547,36 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 </div>
-                <FormField control={productForm.control} name="category" render={({ field }) => (<FormItem><FormLabel>الفئة</FormLabel><Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="clinic">عيادة</SelectItem><SelectItem value="hospital">مستشفى</SelectItem><SelectItem value="portable">محمول</SelectItem></SelectContent></Select></FormItem>)} />
-                <FormField control={productForm.control} name="brand" render={({ field }) => (<FormItem><FormLabel>الماركة</FormLabel><Input {...field} /></FormItem>)} />
-                <FormField control={productForm.control} name="model" render={({ field }) => (<FormItem><FormLabel>الموديل</FormLabel><Input {...field} /></FormItem>)} />
-                <FormField control={productForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>الوصف</FormLabel><Textarea {...field} /></FormItem>)} />
-                <FormField control={productForm.control} name="specifications" render={({ field }) => (<FormItem><FormLabel>المواصفات</FormLabel><Textarea {...field} /></FormItem>)} />
-                <FormField control={productForm.control} name="priceInfo" render={({ field }) => (<FormItem><FormLabel>السعر</FormLabel><Input {...field} /></FormItem>)} />
+
+                {/* ✅ Sold Out Checkbox */}
+                <FormField
+                  control={productForm.control}
+                  name="isSoldOut"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-x-reverse space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none mr-2">
+                        <FormLabel>تم البيع (Sold Out)</FormLabel>
+                        <FormDescription>
+                          حدد هذا الخيار إذا نفدت الكمية. سيظهر للعملاء علامة "تم البيع".
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
                 <div className="flex justify-end gap-2 pt-4"><Button type="button" variant="outline" onClick={() => setIsProductDialogOpen(false)}>إلغاء</Button><Button type="submit">{editingProduct ? "تحديث" : "إضافة"}</Button></div>
               </form>
             </Form>
           </DialogContent>
         </Dialog>
 
-        {/* ✅ Testimonial Dialog (Fixed with Valid Schema) */}
+        {/* Testimonial Dialog - FIXED */}
         <Dialog open={isTestimonialDialogOpen} onOpenChange={setIsTestimonialDialogOpen}>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir="rtl">
             <DialogHeader><DialogTitle>{editingTestimonial ? "تعديل التقييم" : "إضافة تقييم جديد"}</DialogTitle><DialogDescription>أدخل بيانات الطبيب وصورة التسليم لزيادة المصداقية</DialogDescription></DialogHeader>
@@ -520,7 +609,7 @@ export default function AdminDashboard() {
         {/* Offer Dialog */}
         <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}><DialogContent><Form {...offerForm}><form onSubmit={offerForm.handleSubmit(handleOfferSubmit)}><FormField control={offerForm.control} name="titleAr" render={({ field }) => <Input {...field} placeholder="عنوان العرض" />} /><Button type="submit">حفظ</Button></form></Form></DialogContent></Dialog>
 
-        {/* --- DELETE ALERTS (Restored) --- */}
+        {/* DELETE ALERTS */}
         <AlertDialog open={!!deletingProductId} onOpenChange={(open) => !open && setDeletingProductId(null)}>
           <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>هل أنت متأكد من حذف المنتج؟</AlertDialogTitle></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>إلغاء</AlertDialogCancel><AlertDialogAction onClick={() => deletingProductId && deleteProductMutation.mutate(deletingProductId)}>حذف</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
         </AlertDialog>

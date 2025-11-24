@@ -23,8 +23,6 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
-
-// Safe user type without password
 export type SafeUser = Omit<User, 'passwordHash'>;
 
 // Products Schema
@@ -32,16 +30,20 @@ export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   nameAr: text("name_ar").notNull(),
   nameEn: text("name_en").notNull(),
-  category: text("category").notNull(), // clinic, hospital, portable
+  // ✅ UPDATED: Category now holds the technology type
+  category: text("category").notNull(), // bw, pulse, color, 4d, echo
+  // ✅ NEW: Type holds the form factor (Portable vs Built-In)
+  type: text("type").default("portable"), 
   brand: text("brand").notNull(),
   model: text("model").notNull(),
   description: text("description").notNull(),
   specifications: text("specifications").array().notNull(),
   imageUrl: text("image_url"),
-  // Store up to 4 additional images
   additionalImages: text("additional_images").array(), 
   priceInfo: text("price_info"), 
   isActive: boolean("is_active").notNull().default(true),
+  // ✅ NEW: Sold Out Flag
+  isSoldOut: boolean("is_sold_out").notNull().default(false),
   displayOrder: text("display_order").default("0"),
 });
 
@@ -53,6 +55,10 @@ export const insertProductSchema = createInsertSchema(products).omit({
   description: z.string().min(10, "الوصف مطلوب"),
   brand: z.string().min(2, "الماركة مطلوبة"),
   model: z.string().min(1, "الموديل مطلوب"),
+  category: z.string().min(1, "الفئة مطلوبة"),
+  // ✅ NEW VALIDATION
+  type: z.string().optional(),
+  isSoldOut: z.boolean().default(false),
   additionalImages: z.array(z.string()).optional(),
 });
 
@@ -62,6 +68,7 @@ export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type UpdateProduct = z.infer<typeof updateProductSchema>;
 export type Product = typeof products.$inferSelect;
 
+// ... (Rest of the schema: contactForms, maintenanceRequests, etc. remains the same)
 // Contact Form Schema
 export const contactForms = pgTable("contact_forms", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -135,7 +142,7 @@ export const insertConsultationRequestSchema = createInsertSchema(consultationRe
 export type InsertConsultationRequest = z.infer<typeof insertConsultationRequestSchema>;
 export type ConsultationRequest = typeof consultationRequests.$inferSelect;
 
-// Testimonials Schema (Client testimonials)
+// Testimonials Schema
 export const testimonials = pgTable("testimonials", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   doctorName: text("doctor_name").notNull(),
@@ -143,15 +150,13 @@ export const testimonials = pgTable("testimonials", {
   quote: text("quote").notNull(),
   rating: text("rating").notNull().default("5"),
   clinicName: text("clinic_name").notNull(),
-  photoUrl: text("photo_url"),     // Existing (Avatar)
-  // ✅ NEW: Big image for credibility
+  photoUrl: text("photo_url"),     
   teamImageUrl: text("team_image_url"), 
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   displayOrder: text("display_order").default("0"),
 });
 
-// ... inside insertTestimonialSchema (zod)
 export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   id: true,
   createdAt: true,
@@ -160,7 +165,6 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   specialization: z.string().min(2, "التخصص مطلوب"),
   quote: z.string().min(10, "الشهادة يجب أن تكون 10 أحرف على الأقل"),
   clinicName: z.string().min(2, "اسم العيادة مطلوب"),
-  // ✅ ALLOW NULL/OPTIONAL
   teamImageUrl: z.string().optional().nullable(),
 });
 
@@ -170,7 +174,7 @@ export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
 export type UpdateTestimonial = z.infer<typeof updateTestimonialSchema>;
 export type Testimonial = typeof testimonials.$inferSelect;
 
-// Offers Schema (Special deals and news)
+// Offers Schema
 export const offers = pgTable("offers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   titleAr: text("title_ar").notNull(),
@@ -192,12 +196,11 @@ export const insertOfferSchema = createInsertSchema(offers).omit({
 });
 
 export const updateOfferSchema = insertOfferSchema.partial();
-
 export type InsertOffer = z.infer<typeof insertOfferSchema>;
 export type UpdateOffer = z.infer<typeof updateOfferSchema>;
 export type Offer = typeof offers.$inferSelect;
 
-// Hero Sections Schema (Homepage hero sections)
+// Hero Sections Schema
 export const heroSections = pgTable("hero_sections", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   titleAr: text("title_ar").notNull(),
@@ -221,17 +224,16 @@ export const insertHeroSectionSchema = createInsertSchema(heroSections).omit({
 });
 
 export const updateHeroSectionSchema = insertHeroSectionSchema.partial();
-
 export type InsertHeroSection = z.infer<typeof insertHeroSectionSchema>;
 export type UpdateHeroSection = z.infer<typeof updateHeroSectionSchema>;
 export type HeroSection = typeof heroSections.$inferSelect;
 
-// Features Schema (Homepage features)
+// Features Schema
 export const features = pgTable("features", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   titleAr: text("title_ar").notNull(),
   descriptionAr: text("description_ar").notNull(),
-  icon: text("icon").notNull(), // lucide icon name
+  icon: text("icon").notNull(), 
   isActive: boolean("is_active").notNull().default(true),
   displayOrder: text("display_order").default("0"),
 });
@@ -245,17 +247,16 @@ export const insertFeatureSchema = createInsertSchema(features).omit({
 });
 
 export const updateFeatureSchema = insertFeatureSchema.partial();
-
 export type InsertFeature = z.infer<typeof insertFeatureSchema>;
 export type UpdateFeature = z.infer<typeof updateFeatureSchema>;
 export type Feature = typeof features.$inferSelect;
 
-// Stats Schema (Homepage statistics)
+// Stats Schema
 export const stats = pgTable("stats", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   labelAr: text("label_ar").notNull(),
   value: text("value").notNull(),
-  icon: text("icon").notNull(), // lucide icon name
+  icon: text("icon").notNull(),
   isActive: boolean("is_active").notNull().default(true),
   displayOrder: text("display_order").default("0"),
 });
@@ -269,22 +270,19 @@ export const insertStatSchema = createInsertSchema(stats).omit({
 });
 
 export const updateStatSchema = insertStatSchema.partial();
-
 export type InsertStat = z.infer<typeof insertStatSchema>;
 export type UpdateStat = z.infer<typeof updateStatSchema>;
 export type Stat = typeof stats.$inferSelect;
 
-// --- NEW TABLES ADDED ---
-
-// ✅ NEW: Portfolio/Previous Work Schema
+// Portfolio Schema
 export const portfolioItems = pgTable("portfolio_items", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   titleAr: text("title_ar").notNull(),
   description: text("description"),
   imageUrl: text("image_url").notNull(),
-  clientName: text("client_name"), // Optional: who was this for?
-  location: text("location"),      // Optional: where was this installed?
-  deliveryDate: text("delivery_date"), // Optional: when?
+  clientName: text("client_name"), 
+  location: text("location"),      
+  deliveryDate: text("delivery_date"), 
   isActive: boolean("is_active").notNull().default(true),
   displayOrder: text("display_order").default("0"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -299,12 +297,11 @@ export const insertPortfolioItemSchema = createInsertSchema(portfolioItems).omit
 });
 
 export const updatePortfolioItemSchema = insertPortfolioItemSchema.partial();
-
 export type PortfolioItem = typeof portfolioItems.$inferSelect;
 export type InsertPortfolioItem = z.infer<typeof insertPortfolioItemSchema>;
 export type UpdatePortfolioItem = z.infer<typeof updatePortfolioItemSchema>;
 
-// Add this for Site-wide settings (contact, footer, etc.)
+// Site Settings
 export const siteSettings = pgTable("site_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   mainPhone: text("main_phone").notNull().default("+20 10 25253012"),
@@ -314,18 +311,17 @@ export const siteSettings = pgTable("site_settings", {
   addressZayed: text("address_zayed").notNull().default("الشيخ زايد، القاهرة"),
   facebookUrl: text("facebook_url").notNull().default("https://facebook.com"),
   instagramUrl: text("instagram_url").notNull().default("https://instagram.com"),
-  // ✅ NEW: Default WhatsApp Message Template
   whatsappMessage: text("whatsapp_message").notNull().default("مرحباً، أود الاستفسار عن جهاز:"),
 });
 
-// Add this for the About Us page content
+// About Page
 export const aboutPage = pgTable("about_page", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   visionAr: text("vision_ar").notNull().default("اكتب رؤيتنا هنا..."),
   missionAr: text("mission_ar").notNull().default("اكتب مهمتنا هنا..."),
 });
 
-// Add this for the Team Members on the About page
+// Team Members
 export const teamMembers = pgTable("team_members", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -335,12 +331,10 @@ export const teamMembers = pgTable("team_members", {
   isActive: boolean("is_active").notNull().default(true),
 });
 
-// Zod schemas for validation
 export const insertSiteSettingsSchema = createInsertSchema(siteSettings);
 export const insertAboutPageSchema = createInsertSchema(aboutPage);
 export const insertTeamMemberSchema = createInsertSchema(teamMembers, {
-  // Omit the id field and add custom validation
-  id: undefined, // This omits the id field
+  id: undefined,
   name: z.string().min(2, "الاسم مطلوب"),
   role: z.string().min(2, "الدور مطلوب"),
   description: z.string().min(5, "الوصف مطلوب"),
@@ -348,12 +342,9 @@ export const insertTeamMemberSchema = createInsertSchema(teamMembers, {
 
 export const updateTeamMemberSchema = insertTeamMemberSchema.partial();
 
-// --- FIX: Export the Types ---
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
-
 export type AboutPage = typeof aboutPage.$inferSelect;
 export type InsertAboutPage = z.infer<typeof insertAboutPageSchema>;
-
 export type TeamMember = typeof teamMembers.$inferSelect;
 export type InsertTeamMember = z.infer<typeof insertTeamMemberSchema>;
