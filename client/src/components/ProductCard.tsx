@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge"; // Keep for Brand badge in content
+import { Badge } from "@/components/ui/badge"; 
 import { ArrowLeft } from "lucide-react";
 import type { Product } from "@shared/schema";
 
@@ -20,7 +20,7 @@ export function ProductCard({ product }: ProductCardProps) {
             className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${product.isSoldOut ? 'grayscale' : ''}`}
           />
 
-          {/* ✅ SOLD OUT OVERLAY */}
+          {/* ✅ SOLD OUT OVERLAY - Kept this, removed category badges */}
           {product.isSoldOut && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <span className="bg-red-600 text-white px-6 py-2 rounded-md font-bold text-xl border-2 border-white transform -rotate-12 shadow-xl">

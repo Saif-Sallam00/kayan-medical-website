@@ -6,23 +6,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { LogOut, Edit, Trash2, Plus, X } from "lucide-react";
+import { LogOut, Mail, Wrench, MessageSquare, Edit, Trash2, Plus, X } from "lucide-react";
 import type { SafeUser, Product, Testimonial, Offer } from "@shared/schema";
+
+// ✅ CORRECTED IMPORTS (No duplicates, correct paths)
 import AdminHeroTab from "./tabs/AdminHeroTab";
 import AdminPortfolioTab from "./tabs/AdminPortfolioTab";
 import AdminFeaturesTab from "./tabs/AdminFeaturesTab";
 import AdminStatsTab from "./tabs/AdminStatsTab";
 import AdminSiteSettingsTab from "./tabs/AdminSiteSettingsTab";
 import AdminAboutTab from "./tabs/AdminAboutTab";
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox"; // ✅ Import Checkbox
+// ✅ ADDED MISSING CHECKBOX IMPORT
+import { Checkbox } from "@/components/ui/checkbox"; 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +35,7 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter
+  AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
 import { ObjectUploader } from "@/components/ObjectUploader";
 
@@ -39,9 +44,7 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 const productFormSchema = z.object({
   nameAr: z.string().min(2, "الاسم بالعربية مطلوب"),
   nameEn: z.string().min(2, "الاسم بالإنجليزية مطلوب"),
-  // ✅ UPDATED Category Schema
   category: z.string().min(1, "الفئة مطلوبة"),
-  // ✅ NEW Type Schema
   type: z.string().optional(),
   brand: z.string().min(2, "الماركة مطلوبة"),
   model: z.string().min(1, "الموديل مطلوب"),
@@ -51,7 +54,6 @@ const productFormSchema = z.object({
   additionalImages: z.array(z.string()).optional().default([]),
   priceInfo: z.string().nullable().optional(),
   isActive: z.boolean().default(true),
-  // ✅ NEW Sold Out Schema
   isSoldOut: z.boolean().default(false),
   displayOrder: z.string().optional(),
 });
@@ -142,6 +144,10 @@ export default function AdminDashboard() {
       toast({ title: "تم إضافة المنتج بنجاح" });
       setIsProductDialogOpen(false);
     },
+    onError: (error) => {
+      console.error("Failed to create product:", error);
+      toast({ title: "فشل إنشاء المنتج", description: "تأكد من ملء جميع الحقول", variant: "destructive" });
+    }
   });
 
   const updateProductMutation = useMutation({
@@ -159,6 +165,10 @@ export default function AdminDashboard() {
       setIsProductDialogOpen(false);
       setEditingProduct(null);
     },
+    onError: (error) => {
+      console.error("Failed to update product:", error);
+      toast({ title: "فشل تحديث المنتج", variant: "destructive" });
+    }
   });
 
   const deleteProductMutation = useMutation({
@@ -275,6 +285,7 @@ export default function AdminDashboard() {
   };
 
   const handleProductSubmit = (data: ProductFormValues) => {
+    console.log("Submitting product...", data);
     if (editingProduct) updateProductMutation.mutate({ id: editingProduct.id, data });
     else createProductMutation.mutate(data);
   };
@@ -500,8 +511,8 @@ export default function AdminDashboard() {
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="portable">Portable</SelectItem>
-                          <SelectItem value="builtin">Built-In</SelectItem>
+                          <SelectItem value="portable">Portable (محمول)</SelectItem>
+                          <SelectItem value="builtin">Built-In (عيادة/مستشفى)</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -530,11 +541,11 @@ export default function AdminDashboard() {
                 <FormField control={productForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>الوصف</FormLabel><Textarea {...field} /></FormItem>)} />
                 <FormField control={productForm.control} name="specifications" render={({ field }) => (<FormItem><FormLabel>المواصفات</FormLabel><Textarea {...field} /></FormItem>)} />
 
-                {/* Image Uploader (Same as before) */}
+                {/* Image Uploader */}
                 <FormField control={productForm.control} name="imageUrl" render={({ field }) => (
                     <FormItem><FormLabel>الصورة الرئيسية</FormLabel><FormControl><div className="space-y-2">{field.value && (<div className="relative w-24 h-24"><img src={field.value} alt="Main" className="w-full h-full object-cover rounded-md" /><Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 w-6 h-6 rounded-full" onClick={() => field.onChange("")}><X className="w-3 h-3" /></Button></div>)}<ObjectUploader onGetUploadParameters={async () => { const res = await apiRequest("POST", "/api/objects/upload", {}); const data = await res.json(); return { method: "PUT", url: data.uploadURL }; }} onComplete={async (result) => { if (result.successful[0]) { const aclRes = await apiRequest("POST", "/api/objects/set-acl", { imageUrl: result.successful[0].uploadURL }); const aclData = await aclRes.json(); field.onChange(aclData.objectPath); toast({ title: "تم رفع الصورة" }); } }} /></div></FormControl><FormMessage /></FormItem>)} />
 
-                {/* Additional Images (Same as before) */}
+                {/* Additional Images */}
                 <div className="space-y-2">
                   <FormLabel>صور إضافية</FormLabel>
                   <div className="grid grid-cols-2 gap-4">
@@ -576,7 +587,7 @@ export default function AdminDashboard() {
           </DialogContent>
         </Dialog>
 
-        {/* Testimonial Dialog - FIXED */}
+        {/* Testimonial Dialog */}
         <Dialog open={isTestimonialDialogOpen} onOpenChange={setIsTestimonialDialogOpen}>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir="rtl">
             <DialogHeader><DialogTitle>{editingTestimonial ? "تعديل التقييم" : "إضافة تقييم جديد"}</DialogTitle><DialogDescription>أدخل بيانات الطبيب وصورة التسليم لزيادة المصداقية</DialogDescription></DialogHeader>
