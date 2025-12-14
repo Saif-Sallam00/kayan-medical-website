@@ -3,22 +3,24 @@ import { storage } from "./storage";
 
 export async function seedAdminUser() {
   try {
-    // Check if admin user already exists
-    const existingUser = await storage.getUserByEmail("Abdullah@kayan.com");
+    // ✅ Check for the NEW email
+    const existingUser = await storage.getUserByEmail("abdallah@kayan.store");
 
     if (existingUser) {
-      console.log("⏭️ Admin user 'Abdullah@kayan.com' already exists, skipping");
+      console.log("⏭️ Admin user 'abdallah@kayan.store' already exists, skipping");
       return;
     }
 
-    // Create admin user with the original credentials
-    console.log("👤 Seeding admin user 'Abdullah@kayan.com'...");
-    const passwordHash = await bcrypt.hash("faris12345", 10);
+    // Create admin user with the NEW credentials
+    console.log("👤 Seeding admin user 'abdallah@kayan.store'...");
+
+    // ✅ Updated Password: Abdallah12345
+    const passwordHash = await bcrypt.hash("Abdallah12345", 10);
 
     const adminUser = await storage.createUser({
-      email: "Abdullah@kayan.com",
+      email: "abdallah@kayan.store",
       passwordHash,
-      name: "Abdullah",
+      name: "Abdallah",
       role: "admin",
       isActive: true,
     });
