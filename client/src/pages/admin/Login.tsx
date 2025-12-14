@@ -132,7 +132,7 @@ export default function AdminLogin() {
                       <Input
                         {...field}
                         type="email"
-                        placeholder="xxxxxx@kayanmedical.store"
+                        placeholder="xxxxxx@kayan.store"
                         autoComplete="email"
                         data-testid="input-email"
                       />
