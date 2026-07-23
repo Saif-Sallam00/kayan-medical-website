@@ -1,0 +1,32 @@
+i want you as the PM to answers this: 
+
+Title — the project's name. (min 3 chars)
+Client — the real client/company name. If it was internal or personal, write "Internal" or "Personal project". Never invent a fake brand.
+Category — pick EXACTLY ONE of these six slugs (write the slug): business-systems → internal tools, ERPs, dashboards, back-office systems web → websites, web apps, landing pages, e-commerce mobile → iOS / Android / cross-platform apps automation → workflow automation, integrations, AI agents/bots digital-marketing → campaigns, ads, SEO, content, social, lead gen ai-training → AI training, workshops, enablement, custom model work If two fit, tell me both and let me choose — don't pick silently.
+Description — one short sentence for the portfolio card. (min 10 chars)
+Challenge (the PROBLEM) — what was broken or needed, in the client's situation before the project. (min 10 chars)
+Diagnosis (optional) — the root cause you identified. Leave blank if the files don't state one. Don't manufacture one.
+Solution (the SYSTEM) — what you actually built or delivered. (min 10 chars)
+Results (the OUTCOME) — one result per line, at least one line. HONESTY RULE, important:
+If a case study/deck STATES a real number, use it verbatim — that's a real sourced result (e.g. "Cut lead response time from 2 days to 4 hours").
+If there are NO stated numbers, write TRUE qualitative outcomes instead (e.g. "Shipped to production and used daily by the client's ops team").
+NEVER invent or estimate a metric. No made-up percentages, revenue, or user counts. When unsure, ask me.
+Technologies — the tech stack, one per line. Extract from what the files actually describe (tools, languages, platforms, services used).
+Tags (optional) — a few free-text sub-labels (e.g. "RAG chatbot", "Shopify", "n8n workflow"). Skip if unsure.
+OUTPUT FORMAT (exactly this, one block per project):
+Title:
+Client:
+Category:
+Description:
+Challenge:
+Diagnosis:
+Solution:
+Results:
+  -
+  -
+Technologies:
+  -
+  -
+Tags:
+  -
+  -
