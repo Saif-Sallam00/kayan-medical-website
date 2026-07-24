@@ -1,0 +1,116 @@
+I need you to integrate Google Tag Manager and Microsoft Clarity into my website and implement conversion tracking for WhatsApp clicks.
+
+1. Install Google Tag Manager
+
+Insert the following GTM script immediately after the opening <head> tag on every page.
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TKK4RRQZ');</script>
+<!-- End Google Tag Manager -->
+2. Install GTM NoScript
+
+Insert this code immediately after the opening <body> tag on every page.
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TKK4RRQZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+3. Install Microsoft Clarity
+
+Install Microsoft Clarity on every page using Project ID:
+
+xr758rkfd1
+
+Insert the official Microsoft Clarity tracking code inside the <head> section, after the GTM script.
+
+4. Track every WhatsApp click as a Purchase event
+
+Every click that opens WhatsApp should push a Purchase event into the GTM Data Layer.
+
+Track links such as:
+
+https://wa.me/
+https://api.whatsapp.com/
+whatsapp://
+
+Before redirecting, execute:
+
+window.dataLayer = window.dataLayer || [];
+
+window.dataLayer.push({
+    event: "purchase",
+    ecommerce: {
+        transaction_id: "whatsapp_" + Date.now(),
+        value: 1,
+        currency: "EGP",
+        items: [{
+            item_name: "WhatsApp Lead",
+            item_category: "Lead",
+            quantity: 1
+        }]
+    }
+});
+
+The Purchase event must fire before navigation.
+
+If necessary:
+
+Prevent the default click.
+Push the event.
+Wait approximately 200ms.
+Continue navigation to WhatsApp.
+5. Capture ALL WhatsApp buttons
+
+This must automatically work for:
+
+<a href="https://wa.me/...">
+<a href="https://api.whatsapp.com/...">
+<a href="whatsapp://...">
+Floating WhatsApp buttons
+Dynamically rendered buttons
+Future WhatsApp buttons
+
+Use event delegation so future buttons are tracked automatically.
+
+6. Keep the existing website unchanged
+Do NOT modify the UI.
+Do NOT modify styling.
+Do NOT change button behavior.
+Do NOT change URLs.
+Only add analytics and tracking.
+7. Add comments
+
+Clearly comment the new code:
+
+// Google Tag Manager
+
+// Microsoft Clarity
+
+// WhatsApp Purchase Tracking
+
+// Event Delegation
+
+// GTM Purchase Event
+8. Verify installation
+
+After implementation, verify that:
+
+✅ GTM loads correctly on every page.
+✅ Microsoft Clarity loads correctly on every page.
+✅ Every WhatsApp click triggers a purchase event in the GTM Data Layer.
+✅ The Purchase event is pushed before redirecting.
+✅ No JavaScript errors are introduced.
+9. Return
+
+When finished, provide:
+
+Files modified.
+Where GTM was inserted.
+Where Clarity was inserted.
+Where the WhatsApp tracking logic was added.
+Confirmation that both GTM and Clarity are working correctly.
+Confirmation that every WhatsApp click now fires a GTM purchase event before redirecting.
