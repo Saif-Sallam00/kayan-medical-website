@@ -1,4 +1,5 @@
 // One-off seeding: `npm run db:seed`. Safe to re-run (both seeders skip existing data).
+import "./env";
 import { seedAdminUser } from "./seed";
 import { seedContent } from "./seed-content";
 

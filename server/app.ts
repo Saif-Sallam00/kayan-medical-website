@@ -1,5 +1,6 @@
 // Builds the Express app (API + auth + object routes) without listening on a port.
 // Used by both the local entry (server/index.ts) and the Vercel function (api/index.ts).
+import "./env";
 import express, { type Express, type Request, Response, NextFunction } from "express";
 import type { Server } from "http";
 import session from "express-session";
