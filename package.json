@@ -11,7 +11,7 @@
     "db:push": "drizzle-kit push",
     "db:seed": "tsx server/seed-run.ts",
     "build:server": "esbuild server/app.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/server/app.js",
-    "build:vercel": "vite build && npm run build:server"
+    "build:vercel": "vite build && npm run build:server && node server/migrate-replit-objects.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
