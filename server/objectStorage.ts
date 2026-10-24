@@ -1,34 +1,49 @@
-// From blueprint: javascript_object_storage
-import { Storage, File } from "@google-cloud/storage";
-import { Response } from "express";
+// Object storage backed by Vercel Blob (replaces the Replit sidecar / GCS client).
+//
+// Objects keep the same public path format as before: `/objects/uploads/<uuid>`.
+// That path is what gets stored in the database, and the `/objects/*` route
+// resolves it to the blob with pathname `uploads/<uuid>`. Because the format is
+// unchanged, images migrated from Replit only need to be copied to the same
+// pathname in Blob — no database URL rewrite is required.
+//
+// Upload flow (unchanged for the frontend):
+//   1. POST /api/objects/upload        -> { uploadURL }
+//   2. browser PUTs the file to uploadURL
+//   3. POST /api/objects/set-acl { imageUrl: uploadURL } -> { objectPath }
+//
+// BLOB_UPLOAD_MODE controls step 2:
+//   - "presigned" (default): uploadURL is a short-lived presigned Vercel Blob
+//     URL, so the browser uploads straight to Blob (no function body limit).
+//   - "proxy": uploadURL is /api/objects/upload/<uuid> on this server, which
+//     forwards the bytes to Blob with put(). Limited to ~4.5 MB on Vercel.
+import { put, head, get, issueSignedToken, presignUrl } from "@vercel/blob";
 import { randomUUID } from "crypto";
-import {
-  ObjectAclPolicy,
-  ObjectPermission,
-  canAccessObject,
-  getObjectAclPolicy,
-  setObjectAclPolicy,
-} from "./objectAcl";
+import type { Response } from "express";
+import { Readable } from "stream";
 
-const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+const UPLOAD_PREFIX = "uploads/";
+const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // matches the 10 MB limit in ObjectUploader
 
-export const objectStorageClient = new Storage({
-  credentials: {
-    audience: "replit",
-    subject_token_type: "access_token",
-    token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
-    type: "external_account",
-    credential_source: {
-      url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
-      format: {
-        type: "json",
-        subject_token_field_name: "access_token",
-      },
-    },
-    universe_domain: "googleapis.com",
-  },
-  projectId: "",
-});
+type BlobAccess = "public" | "private";
+
+function blobAccess(): BlobAccess {
+  return process.env.BLOB_ACCESS === "private" ? "private" : "public";
+}
+
+function blobToken(): string {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) {
+    throw new Error("BLOB_READ_WRITE_TOKEN is not set. Connect a Vercel Blob store to the project.");
+  }
+  return token;
+}
+
+// Public blob URL for a pathname. Token format: vercel_blob_rw_<storeId>_<secret>
+function publicBlobUrl(pathname: string): string {
+  const [, , , storeId = ""] = blobToken().split("_");
+  return `https://${storeId}.public.blob.vercel-storage.com/${pathname}`;
+}
 
 export class ObjectNotFoundError extends Error {
   constructor() {
@@ -39,238 +54,115 @@ export class ObjectNotFoundError extends Error {
 }
 
 export class ObjectStorageService {
-  constructor() {}
-
-  getPublicObjectSearchPaths(): Array<string> {
-    const pathsStr = process.env.PUBLIC_OBJECT_SEARCH_PATHS || "";
-    const paths = Array.from(
-      new Set(
-        pathsStr
-          .split(",")
-          .map((path) => path.trim())
-          .filter((path) => path.length > 0)
-      )
-    );
-    if (paths.length === 0) {
-      throw new Error(
-        "PUBLIC_OBJECT_SEARCH_PATHS not set. Create a bucket in 'Object Storage' " +
-          "tool and set PUBLIC_OBJECT_SEARCH_PATHS env var (comma-separated paths)."
-      );
-    }
-    return paths;
-  }
-
-  getPrivateObjectDir(): string {
-    const dir = process.env.PRIVATE_OBJECT_DIR || "";
-    if (!dir) {
-      throw new Error(
-        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
-          "tool and set PRIVATE_OBJECT_DIR env var."
-      );
-    }
-    return dir;
-  }
-
-  async searchPublicObject(filePath: string): Promise<File | null> {
-    for (const searchPath of this.getPublicObjectSearchPaths()) {
-      const fullPath = `${searchPath}/${filePath}`;
-      const { bucketName, objectName } = parseObjectPath(fullPath);
-      const bucket = objectStorageClient.bucket(bucketName);
-      const file = bucket.file(objectName);
-
-      const [exists] = await file.exists();
-      if (exists) {
-        return file;
-      }
-    }
-
-    return null;
-  }
-
-  async downloadObject(file: File, res: Response, cacheTtlSec: number = 3600) {
-    try {
-      const [metadata] = await file.getMetadata();
-      const aclPolicy = await getObjectAclPolicy(file);
-      const isPublic = aclPolicy?.visibility === "public";
-      
-      res.set({
-        "Content-Type": metadata.contentType || "application/octet-stream",
-        "Content-Length": metadata.size,
-        "Cache-Control": `${
-          isPublic ? "public" : "private"
-        }, max-age=${cacheTtlSec}`,
-      });
-
-      const stream = file.createReadStream();
-
-      stream.on("error", (err) => {
-        console.error("Stream error:", err);
-        if (!res.headersSent) {
-          res.status(500).json({ error: "Error streaming file" });
-        }
-      });
-
-      stream.pipe(res);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      if (!res.headersSent) {
-        res.status(500).json({ error: "Error downloading file" });
-      }
-    }
-  }
-
-  async getObjectEntityUploadURL(): Promise<string> {
-    const privateObjectDir = this.getPrivateObjectDir();
-    if (!privateObjectDir) {
-      throw new Error(
-        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
-          "tool and set PRIVATE_OBJECT_DIR env var."
-      );
-    }
-
-    const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/uploads/${objectId}`;
-
-    const { bucketName, objectName } = parseObjectPath(fullPath);
-
-    return signObjectURL({
-      bucketName,
-      objectName,
-      method: "PUT",
-      ttlSec: 900,
-    });
-  }
-
-  async getObjectEntityFile(objectPath: string): Promise<File> {
+  /** `/objects/uploads/<uuid>` -> `uploads/<uuid>` */
+  objectPathToPathname(objectPath: string): string {
     if (!objectPath.startsWith("/objects/")) {
       throw new ObjectNotFoundError();
     }
-
-    const parts = objectPath.slice(1).split("/");
-    if (parts.length < 2) {
+    const pathname = decodeURIComponent(objectPath.slice("/objects/".length));
+    if (!pathname || pathname.includes("..")) {
       throw new ObjectNotFoundError();
     }
-
-    const entityId = parts.slice(1).join("/");
-    let entityDir = this.getPrivateObjectDir();
-    if (!entityDir.endsWith("/")) {
-      entityDir = `${entityDir}/`;
-    }
-    const objectEntityPath = `${entityDir}${entityId}`;
-    const { bucketName, objectName } = parseObjectPath(objectEntityPath);
-    const bucket = objectStorageClient.bucket(bucketName);
-    const objectFile = bucket.file(objectName);
-    const [exists] = await objectFile.exists();
-    if (!exists) {
-      throw new ObjectNotFoundError();
-    }
-    return objectFile;
+    return pathname;
   }
 
+  /** Streams or redirects to the blob behind `/objects/<pathname>`. */
+  async sendObject(objectPath: string, res: Response, cacheTtlSec = 86400) {
+    const pathname = this.objectPathToPathname(objectPath);
+
+    if (blobAccess() === "public") {
+      // Public blobs are served by Vercel's CDN; redirect so images don't use function bandwidth.
+      res.set("Cache-Control", `public, max-age=${cacheTtlSec}`);
+      return res.redirect(302, publicBlobUrl(pathname));
+    }
+
+    const result = await get(pathname, { access: "private", token: blobToken() });
+    if (!result || result.statusCode !== 200) {
+      throw new ObjectNotFoundError();
+    }
+    res.set({
+      "Content-Type": result.blob.contentType || "application/octet-stream",
+      "Cache-Control": `public, max-age=${cacheTtlSec}`,
+    });
+    Readable.fromWeb(result.stream as any).pipe(res);
+  }
+
+  /** Returns the URL the browser should PUT the file to. */
+  async getObjectEntityUploadURL(): Promise<string> {
+    const objectId = randomUUID();
+    const pathname = `${UPLOAD_PREFIX}${objectId}`;
+
+    if (process.env.BLOB_UPLOAD_MODE !== "proxy") {
+      try {
+        const validUntil = Date.now() + 15 * 60 * 1000;
+        const signed = await issueSignedToken({
+          token: blobToken(),
+          pathname,
+          operations: ["put"],
+          validUntil,
+          maximumSizeInBytes: MAX_UPLOAD_BYTES,
+        });
+        const { presignedUrl } = await presignUrl(signed, {
+          operation: "put",
+          pathname,
+          access: blobAccess(),
+          validUntil,
+          addRandomSuffix: false,
+          allowOverwrite: false,
+          maximumSizeInBytes: MAX_UPLOAD_BYTES,
+          allowedContentTypes: ["image/*"],
+        });
+        return presignedUrl;
+      } catch (error) {
+        console.error("Presigned upload URL failed, falling back to proxy upload:", error);
+      }
+    }
+
+    return `/api/objects/upload/${objectId}`;
+  }
+
+  /** Proxy-mode upload: stores the request body at `uploads/<objectId>`. */
+  async uploadObjectEntity(objectId: string, body: Buffer, contentType: string): Promise<string> {
+    if (!UUID_RE.test(objectId) || objectId.length !== 36) {
+      throw new ObjectNotFoundError();
+    }
+    const pathname = `${UPLOAD_PREFIX}${objectId}`;
+    await put(pathname, body, {
+      access: blobAccess(),
+      contentType,
+      addRandomSuffix: false,
+      allowOverwrite: false,
+      token: blobToken(),
+    });
+    return `/objects/${pathname}`;
+  }
+
+  /** Maps an upload URL (presigned or proxy) or an existing object path to `/objects/uploads/<uuid>`. */
   normalizeObjectEntityPath(rawPath: string): string {
-    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
+    if (rawPath.startsWith("/objects/")) {
       return rawPath;
     }
-  
-    const url = new URL(rawPath);
-    const rawObjectPath = url.pathname;
-  
-    let objectEntityDir = this.getPrivateObjectDir();
-    if (!objectEntityDir.endsWith("/")) {
-      objectEntityDir = `${objectEntityDir}/`;
+    const match = rawPath.match(UUID_RE);
+    if (!match) {
+      return rawPath;
     }
-  
-    if (!rawObjectPath.startsWith(objectEntityDir)) {
-      return rawObjectPath;
+    return `/objects/${UPLOAD_PREFIX}${match[0].toLowerCase()}`;
+  }
+
+  /**
+   * Kept for route compatibility. Blob objects are public, so there is no ACL to
+   * set; this just confirms the upload landed and returns the stored path.
+   */
+  async trySetObjectEntityAclPolicy(rawPath: string): Promise<string> {
+    const objectPath = this.normalizeObjectEntityPath(rawPath);
+    if (!objectPath.startsWith("/objects/")) {
+      return objectPath;
     }
-  
-    const entityId = rawObjectPath.slice(objectEntityDir.length);
-    return `/objects/${entityId}`;
-  }
-
-  async trySetObjectEntityAclPolicy(
-    rawPath: string,
-    aclPolicy: ObjectAclPolicy
-  ): Promise<string> {
-    const normalizedPath = this.normalizeObjectEntityPath(rawPath);
-    if (!normalizedPath.startsWith("/")) {
-      return normalizedPath;
+    try {
+      await head(this.objectPathToPathname(objectPath), { token: blobToken() });
+    } catch {
+      throw new ObjectNotFoundError();
     }
-
-    const objectFile = await this.getObjectEntityFile(normalizedPath);
-    await setObjectAclPolicy(objectFile, aclPolicy);
-    return normalizedPath;
+    return objectPath;
   }
-
-  async canAccessObjectEntity({
-    objectFile,
-    requestedPermission,
-  }: {
-    objectFile: File;
-    requestedPermission?: ObjectPermission;
-  }): Promise<boolean> {
-    return canAccessObject({
-      objectFile,
-      requestedPermission: requestedPermission ?? ObjectPermission.READ,
-    });
-  }
-}
-
-function parseObjectPath(path: string): {
-  bucketName: string;
-  objectName: string;
-} {
-  if (!path.startsWith("/")) {
-    path = `/${path}`;
-  }
-  const pathParts = path.split("/");
-  if (pathParts.length < 3) {
-    throw new Error("Invalid path: must contain at least a bucket name");
-  }
-
-  const bucketName = pathParts[1];
-  const objectName = pathParts.slice(2).join("/");
-
-  return {
-    bucketName,
-    objectName,
-  };
-}
-
-async function signObjectURL({
-  bucketName,
-  objectName,
-  method,
-  ttlSec,
-}: {
-  bucketName: string;
-  objectName: string;
-  method: "GET" | "PUT" | "DELETE" | "HEAD";
-  ttlSec: number;
-}): Promise<string> {
-  const request = {
-    bucket_name: bucketName,
-    object_name: objectName,
-    method,
-    expires_at: new Date(Date.now() + ttlSec * 1000).toISOString(),
-  };
-  const response = await fetch(
-    `${REPLIT_SIDECAR_ENDPOINT}/object-storage/signed-object-url`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request),
-    }
-  );
-  if (!response.ok) {
-    throw new Error(
-      `Failed to sign object URL, errorcode: ${response.status}, ` +
-        `make sure you're running on Replit`
-    );
-  }
-
-  const { signed_url: signedURL } = await response.json();
-  return signedURL;
 }

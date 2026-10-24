@@ -1,4 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import passport from "./auth";
@@ -1084,8 +1085,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     try {
-      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      objectStorageService.downloadObject(objectFile, res);
+      await objectStorageService.sendObject(req.path, res);
     } catch (error) {
       console.error("Error accessing object:", error);
       if (error instanceof ObjectNotFoundError) {
@@ -1109,6 +1109,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Proxy-mode upload target (used when BLOB_UPLOAD_MODE=proxy or presigning fails).
+  app.put(
+    "/api/objects/upload/:objectId",
+    requireAdmin,
+    express.raw({ type: () => true, limit: "10mb" }),
+    async (req, res) => {
+      try {
+        if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
+          return res.status(400).json({ success: false, message: "الملف فارغ" });
+        }
+        const contentType = req.get("content-type") || "application/octet-stream";
+        if (!contentType.startsWith("image/")) {
+          return res.status(400).json({ success: false, message: "يجب اختيار صورة فقط" });
+        }
+        const objectStorageService = new ObjectStorageService();
+        const objectPath = await objectStorageService.uploadObjectEntity(
+          req.params.objectId,
+          req.body,
+          contentType,
+        );
+        res.json({ success: true, objectPath });
+      } catch (error: any) {
+        console.error("Error uploading object:", error);
+        res.status(500).json({ success: false, message: "فشل رفع الصورة" });
+      }
+    },
+  );
+
   app.post("/api/objects/set-acl", requireAdmin, async (req, res) => {
     try {
       if (!req.body.imageUrl) {
@@ -1118,14 +1146,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const userId = (req.user as SafeUser).id;
       const objectStorageService = new ObjectStorageService();
       const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        req.body.imageUrl,
-        {
-          owner: userId,
-          visibility: "public",
-        }
+        req.body.imageUrl
       );
 
       res.json({
