@@ -63,8 +63,8 @@ export function Footer() {
                   <div className="flex items-center gap-1">
                     <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-primary/70" />
                   </div>
-                  <a href={`tel:${settings?.mainPhone}`} className="font-['Inter'] hover:text-foreground truncate max-w-full" dir="ltr">
-                    {settings?.mainPhone || "2010..."}
+                  <a href={`tel:${settings?.mainPhone || "+201025253012"}`} className="font-['Inter'] hover:text-foreground truncate max-w-full" dir="ltr">
+                    {settings?.mainPhone || "+20 10 25253012"}
                   </a>
                 </li>
               </ul>
