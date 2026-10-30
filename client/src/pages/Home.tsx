@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TestimonialCard } from "@/components/TestimonialCard";
 import { StatsSection } from "@/components/StatsSection";
-import { ArrowLeft, CheckCircle, PhoneCall, ShoppingCart } from "lucide-react";
+import { faqs } from "@shared/faq";
+import { ArrowLeft, CheckCircle, ChevronDown, PhoneCall, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Testimonial, Feature, HeroSection, Offer } from "@shared/schema";
 import heroImageUrl from "@/assets/hero-doctor-ultrasound.png";
@@ -266,6 +267,27 @@ export default function Home() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-12 md:py-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 md:px-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center">
+            الأسئلة الشائعة
+          </h2>
+          {/* Native <details> keeps answers in the DOM for crawlers while collapsed */}
+          <div className="divide-y border-y">
+            {faqs.map((faq) => (
+              <details key={faq.question} className="group py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base sm:text-lg font-medium [&::-webkit-details-marker]:hidden">
+                  {faq.question}
+                  <ChevronDown className="w-5 h-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+                </summary>
+                <p className="pt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
