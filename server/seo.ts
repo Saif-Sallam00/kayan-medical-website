@@ -330,8 +330,31 @@ export async function renderPage(template: string, path: string, store: Store = 
   return { status: page.status ?? 200, html: applyPage(template, page) };
 }
 
-// Serves every non-API GET with the page-specific HTML. Mounted after the API routes.
+const SITEMAP_PATHS = ["/", "/products", "/trade-in", "/maintenance", "/portfolio", "/offers", "/about", "/contact"];
+
+export async function renderSitemap(store: Store = storage) {
+  const products = (await store.getAllProducts()).filter((p) => p.isActive);
+  const urls = [...SITEMAP_PATHS, ...products.map((p) => `/products/${encodeURIComponent(p.id)}`)];
+  return (
+    '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map((u) => `  <url><loc>${esc(SITE + u)}</loc></url>`).join("\n") +
+    "\n</urlset>\n"
+  );
+}
+
+// Serves the sitemap and every non-API GET with the page-specific HTML. Mounted after the API routes.
 export function registerPages(app: Express, template: string) {
+  app.get("/sitemap.xml", async (_req, res, next) => {
+    try {
+      res
+        .type("application/xml")
+        .set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400")
+        .send(await renderSitemap());
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.get("*", async (req, res, next) => {
     if (/^\/(api|objects)(\/|$)/.test(req.path)) return next();
     res.set("Content-Type", "text/html; charset=utf-8");
